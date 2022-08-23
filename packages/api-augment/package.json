@@ -8,7 +8,8 @@
     "load:meta": "bash scripts/download-metadata",
     "generate:defs": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-defs --package @oak-foundation/api-augment/interfaces --input ./src/interfaces --endpoint ./edgeware.json",
     "generate:meta": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-chain --package @oak-foundation/api-augment/interfaces --endpoint ./edgeware.json --output ./src/interfaces",
-    "lint": "tsc --noEmit --pretty"
+    "lint": "tsc --noEmit --pretty",
+    "clean:defs": "find ./src/interfaces ! -name 'definitions.ts' -type f -exec rm {} +"
   },
   "dependencies": {
     "@oak-foundation/types": "*",

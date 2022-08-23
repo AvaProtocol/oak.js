@@ -1,0 +1,22 @@
+{
+  "name": "oak.js",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "https://github.com/oak-foundation/oak.js",
+  "author": "OAK Team <contact@oak.tech>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "npx tsc --build tsconfig.build.json",
+    "clean": "npm run clean:build && npm run clean:tsbuild",
+    "clean:build": "find ./packages -type d -name 'build' -exec rm -r {} +",
+    "clean:tsbuild": "find ./ -type f -name 'tsconfig.tsbuildinfo' -exec rm {} +"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

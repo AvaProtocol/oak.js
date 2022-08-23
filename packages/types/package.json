@@ -1,0 +1,9 @@
+{
+  "name": "@oak-foundation/types",
+  "version": "0.0.1",
+  "main": "./build/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@open-web3/orml-type-definitions": "^2.0.1"
+  }
+}

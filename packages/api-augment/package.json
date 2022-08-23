@@ -1,0 +1,20 @@
+{
+  "name": "@oak-foundation/api-augment",
+  "version": "0.0.1",
+  "main": "./build/index.js",
+  "license": "MIT",
+  "scripts": {
+    "generate": "npm run load:meta && npm run generate:defs && npm run generate:meta && npm run lint",
+    "load:meta": "bash scripts/download-metadata",
+    "generate:defs": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-defs --package @oak-foundation/api-augment/interfaces --input ./src/interfaces --endpoint ./edgeware.json",
+    "generate:meta": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-chain --package @oak-foundation/api-augment/interfaces --endpoint ./edgeware.json --output ./src/interfaces",
+    "lint": "tsc --noEmit --pretty"
+  },
+  "dependencies": {
+    "@oak-foundation/types": "*",
+    "@polkadot/types": "^9.2.3"
+  },
+  "devDependencies": {
+    "@polkadot/typegen": "^9.2.3"
+  }
+}

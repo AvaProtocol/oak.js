@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build"
+  },
+  "paths": {
+      "@oak-foundation/api-augment/*": ["src/*"],
+      "@polkadot/api/augment": ["src/interfaces/augment-api.ts"],
+      "@polkadot/types/augment": ["src/interfaces/augment-types.ts"],
+      "@polkadot/types/lookup": ["src/interfaces/types-lookup.ts"]
+  },
+  "references": [
+    { "path": "../types" }
+  ]
+}

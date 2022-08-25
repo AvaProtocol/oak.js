@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "esnext",
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true,
+    "composite": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@oak-foundation/api": ["./packages/api/src"],
+      "@oak-foundation/api/*": ["./packages/api/src/*"],
+      "@oak-foundation/api-augment": ["./packages/api-augment/src"],
+      "@oak-foundation/api-augment/*": ["./packages/api-augment/src/*"],
+      "@oak-foundation/types": ["./packages/types/src"],
+      "@oak-foundation/types/*": ["./packages/types/src/*"]
+    }
+  }
+}

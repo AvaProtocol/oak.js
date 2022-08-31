@@ -145,10 +145,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       LiquidityRestrictions: AugmentedError<ApiType>;
       /**
-       * ParaId provided does not match origin paraId.
-       **/
-      ParaIdMismatch: AugmentedError<ApiType>;
-      /**
        * Time must be in the future.
        **/
       PastTime: AugmentedError<ApiType>;

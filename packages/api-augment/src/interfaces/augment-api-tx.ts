@@ -151,10 +151,10 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `InvalidTime`: Time must end in a whole hour.
        * * `PastTime`: Time must be in the future.
        * * `DuplicateTask`: There can be no duplicate tasks.
+       * * `TimeTooFarOut`: Execution time or frequency are past the max time horizon.
        * * `TimeSlotFull`: Time slot is full. No more tasks can be scheduled for this time.
        * * `InvalidAmount`: Amount has to be larger than 0.1 OAK.
        * * `TransferToSelf`: Sender cannot transfer money to self.
-       * * `TransferFailed`: Transfer failed for unknown reason.
        **/
       scheduleNativeTransferTask: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, executionTimes: Vec<u64> | (u64 | AnyNumber | Uint8Array)[], recipientId: AccountId32 | string | Uint8Array, amount: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Vec<u64>, AccountId32, Compact<u128>]>;
       /**
@@ -176,6 +176,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `PastTime`: Time must be in the future.
        * * `EmptyMessage`: The message cannot be empty.
        * * `DuplicateTask`: There can be no duplicate tasks.
+       * * `TimeTooFarOut`: Execution time or frequency are past the max time horizon.
        * * `TimeSlotFull`: Time slot is full. No more tasks can be scheduled for this time.
        **/
       scheduleNotifyTask: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, executionTimes: Vec<u64> | (u64 | AnyNumber | Uint8Array)[], message: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Vec<u64>, Bytes]>;
@@ -185,8 +186,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * Before the task can be scheduled the task must past validation checks.
        * * The transaction is signed
        * * The provided_id's length > 0
-       * * The para_id is that of the sender
        * * The times are valid
+       * * The chain/currency pair is supported
        * 
        * # Parameters
        * * `provided_id`: An id provided by the user. This id must be unique for the user.
@@ -200,10 +201,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `InvalidTime`: Time must end in a whole hour.
        * * `PastTime`: Time must be in the future.
        * * `DuplicateTask`: There can be no duplicate tasks.
+       * * `TimeTooFarOut`: Execution time or frequency are past the max time horizon.
        * * `TimeSlotFull`: Time slot is full. No more tasks can be scheduled for this time.
-       * * `ParaIdMismatch`: ParaId provided does not match origin paraId.
-       * 
-       * TODO: Create benchmark for schedule_xcmp_task
        **/
       scheduleXcmpTask: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, executionTimes: Vec<u64> | (u64 | AnyNumber | Uint8Array)[], paraId: u32 | AnyNumber | Uint8Array, currencyId: TuringRuntimeCurrencyId | 'Native' | 'KSM' | 'AUSD' | 'KAR' | 'LKSM' | 'HKO' | 'SKSM' | 'PHA' | 'UNIT' | number | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Vec<u64>, u32, TuringRuntimeCurrencyId, Bytes, u64]>;
       /**

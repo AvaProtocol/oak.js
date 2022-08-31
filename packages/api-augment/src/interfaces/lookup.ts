@@ -3956,7 +3956,7 @@ export default {
     _enum: ['MinimumThreshold', 'AlreadyApproved', 'NoApprovalsNeeded', 'TooFewSignatories', 'TooManySignatories', 'SignatoriesOutOfOrder', 'SenderInSignatories', 'NotFound', 'NotOwner', 'NoTimepoint', 'WrongTimepoint', 'UnexpectedTimepoint', 'MaxWeightTooLow', 'AlreadyStored']
   },
   /**
-   * Lookup444: pallet_automation_time::pallet::Task<T>
+   * Lookup443: pallet_automation_time::types::Task<sp_core::crypto::AccountId32, Balance, turing_runtime::CurrencyId, MaxExecutionTimes>
    **/
   PalletAutomationTimeTask: {
     ownerId: 'AccountId32',
@@ -3966,7 +3966,7 @@ export default {
     action: 'PalletAutomationTimeAction'
   },
   /**
-   * Lookup446: pallet_automation_time::pallet::Action<T>
+   * Lookup445: pallet_automation_time::types::Action<sp_core::crypto::AccountId32, Balance, turing_runtime::CurrencyId>
    **/
   PalletAutomationTimeAction: {
     _enum: {
@@ -3993,14 +3993,7 @@ export default {
     }
   },
   /**
-   * Lookup448: pallet_automation_time::pallet::MissedTask<T>
-   **/
-  PalletAutomationTimeMissedTask: {
-    taskId: 'H256',
-    executionTime: 'u64'
-  },
-  /**
-   * Lookup450: pallet_automation_time::pallet::MissedTaskV2<T>
+   * Lookup447: pallet_automation_time::types::MissedTaskV2<sp_core::crypto::AccountId32, primitive_types::H256>
    **/
   PalletAutomationTimeMissedTaskV2: {
     ownerId: 'AccountId32',
@@ -4008,25 +4001,25 @@ export default {
     executionTime: 'u64'
   },
   /**
-   * Lookup452: pallet_automation_time::pallet::Error<T>
+   * Lookup449: pallet_automation_time::pallet::Error<T>
    **/
   PalletAutomationTimeError: {
-    _enum: ['InvalidTime', 'PastTime', 'TimeTooFarOut', 'EmptyMessage', 'EmptyProvidedId', 'DuplicateTask', 'TimeSlotFull', 'TaskDoesNotExist', 'BlockTimeNotSet', 'InvalidAmount', 'TransferToSelf', 'InsufficientBalance', 'LiquidityRestrictions', 'TooManyExecutionsTimes', 'ParaIdMismatch']
+    _enum: ['InvalidTime', 'PastTime', 'TimeTooFarOut', 'EmptyMessage', 'EmptyProvidedId', 'DuplicateTask', 'TimeSlotFull', 'TaskDoesNotExist', 'BlockTimeNotSet', 'InvalidAmount', 'TransferToSelf', 'InsufficientBalance', 'LiquidityRestrictions', 'TooManyExecutionsTimes']
   },
   /**
-   * Lookup454: pallet_vesting::pallet::Error<T>
+   * Lookup451: pallet_vesting::pallet::Error<T>
    **/
   PalletVestingError: {
     _enum: ['BlockTimeNotSet']
   },
   /**
-   * Lookup456: pallet_xcmp_handler::pallet::Error<T>
+   * Lookup453: pallet_xcmp_handler::pallet::Error<T>
    **/
   PalletXcmpHandlerError: {
     _enum: ['CurrencyChainComboNotSupported', 'CurrencyChainComboNotFound', 'FeeOverflow', 'WeightOverflow', 'FailedMultiLocationToJunction', 'CannotReanchor', 'ErrorSendingXcmToTarget', 'XcmExecutionFailed', 'ErrorGettingCallWeight']
   },
   /**
-   * Lookup460: pallet_automation_price::pallet::Task<T>
+   * Lookup457: pallet_automation_price::pallet::Task<T>
    **/
   PalletAutomationPriceTask: {
     ownerId: 'AccountId32',
@@ -4037,7 +4030,7 @@ export default {
     action: 'PalletAutomationPriceAction'
   },
   /**
-   * Lookup461: pallet_automation_price::pallet::Action<T>
+   * Lookup458: pallet_automation_price::pallet::Action<T>
    **/
   PalletAutomationPriceAction: {
     _enum: {
@@ -4049,7 +4042,7 @@ export default {
     }
   },
   /**
-   * Lookup463: pallet_automation_price::pallet::AssetMetadatum<T>
+   * Lookup460: pallet_automation_price::pallet::AssetMetadatum<T>
    **/
   PalletAutomationPriceAssetMetadatum: {
     upperBound: 'u16',
@@ -4058,13 +4051,13 @@ export default {
     assetSudo: 'AccountId32'
   },
   /**
-   * Lookup464: pallet_automation_price::pallet::Error<T>
+   * Lookup461: pallet_automation_price::pallet::Error<T>
    **/
   PalletAutomationPriceError: {
     _enum: ['EmptyProvidedId', 'InvalidTime', 'DuplicateTask', 'AssetNotSupported', 'AssetAlreadySupported', 'InvalidAssetSudo', 'AssetNotInTriggerableRange', 'BlockTimeNotSet', 'InvalidAssetExpirationWindow', 'MaxTasksReached', 'TaskInsertionFailure', 'InsufficientBalance', 'LiquidityRestrictions', 'AssetLimitReached', 'DirectionNotSupported']
   },
   /**
-   * Lookup466: sp_runtime::MultiSignature
+   * Lookup463: sp_runtime::MultiSignature
    **/
   SpRuntimeMultiSignature: {
     _enum: {
@@ -4074,43 +4067,43 @@ export default {
     }
   },
   /**
-   * Lookup467: sp_core::ed25519::Signature
+   * Lookup464: sp_core::ed25519::Signature
    **/
   SpCoreEd25519Signature: '[u8;64]',
   /**
-   * Lookup469: sp_core::sr25519::Signature
+   * Lookup466: sp_core::sr25519::Signature
    **/
   SpCoreSr25519Signature: '[u8;64]',
   /**
-   * Lookup470: sp_core::ecdsa::Signature
+   * Lookup467: sp_core::ecdsa::Signature
    **/
   SpCoreEcdsaSignature: '[u8;65]',
   /**
-   * Lookup473: frame_system::extensions::check_spec_version::CheckSpecVersion<T>
+   * Lookup470: frame_system::extensions::check_spec_version::CheckSpecVersion<T>
    **/
   FrameSystemExtensionsCheckSpecVersion: 'Null',
   /**
-   * Lookup474: frame_system::extensions::check_tx_version::CheckTxVersion<T>
+   * Lookup471: frame_system::extensions::check_tx_version::CheckTxVersion<T>
    **/
   FrameSystemExtensionsCheckTxVersion: 'Null',
   /**
-   * Lookup475: frame_system::extensions::check_genesis::CheckGenesis<T>
+   * Lookup472: frame_system::extensions::check_genesis::CheckGenesis<T>
    **/
   FrameSystemExtensionsCheckGenesis: 'Null',
   /**
-   * Lookup478: frame_system::extensions::check_nonce::CheckNonce<T>
+   * Lookup475: frame_system::extensions::check_nonce::CheckNonce<T>
    **/
   FrameSystemExtensionsCheckNonce: 'Compact<u32>',
   /**
-   * Lookup479: frame_system::extensions::check_weight::CheckWeight<T>
+   * Lookup476: frame_system::extensions::check_weight::CheckWeight<T>
    **/
   FrameSystemExtensionsCheckWeight: 'Null',
   /**
-   * Lookup480: pallet_transaction_payment::ChargeTransactionPayment<T>
+   * Lookup477: pallet_transaction_payment::ChargeTransactionPayment<T>
    **/
   PalletTransactionPaymentChargeTransactionPayment: 'Compact<u128>',
   /**
-   * Lookup481: turing_runtime::Runtime
+   * Lookup478: turing_runtime::Runtime
    **/
   TuringRuntimeRuntime: 'Null'
 };

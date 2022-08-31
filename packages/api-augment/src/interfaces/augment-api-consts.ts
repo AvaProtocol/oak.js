@@ -73,10 +73,6 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxWeightPercentage: Perbill & AugmentedConst<ApiType>;
       /**
-       * The time each block takes.
-       **/
-      secondsPerBlock: u64 & AugmentedConst<ApiType>;
-      /**
        * The maximum percentage of weight per block used for scheduled tasks.
        **/
       updateQueueRatio: Perbill & AugmentedConst<ApiType>;

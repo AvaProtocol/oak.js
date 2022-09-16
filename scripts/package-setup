@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+const fs = require("fs");
+
+
+process.chdir("packages");
+const dirs = fs.readdirSync(".")
+
+dirs.forEach(dir => {
+  process.chdir(`${dir}/build`);
+  const pkg = require("../package.json");
+
+  pkg.scripts = {};
+  pkg.main = "./index.cjs";
+  pkg.module = "./index.js";
+  pkg.types = "./index.d.ts";
+  pkg.type = "module";
+  fs.writeFileSync("./package.json", JSON.stringify(pkg, null, 2));
+
+  process.chdir("../..");
+});

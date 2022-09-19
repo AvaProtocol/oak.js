@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+version=$1
+otp=$2
+
+npm pkg set version=$version
+npm pkg set version=$version --workspaces
+npm publish --otp $otp --workspaces

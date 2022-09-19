@@ -15,6 +15,7 @@ dirs.forEach(dir => {
   pkg.types = "./index.d.ts";
   pkg.type = "module";
   fs.writeFileSync("./package.json", JSON.stringify(pkg, null, 2));
+  fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
 
   process.chdir("../..");
 });

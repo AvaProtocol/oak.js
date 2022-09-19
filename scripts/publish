@@ -4,5 +4,10 @@ version=$1
 otp=$2
 
 npm pkg set version=$version
-npm pkg set version=$version --workspaces
-npm publish --otp $otp --workspaces
+
+for package in $(ls packages); do
+  cd packages/$package/build
+  npm pkg set version=$version
+  npm publish --otp $otp
+  cd -
+done

@@ -5,5 +5,8 @@
   "license": "MIT",
   "dependencies": {
     "@open-web3/orml-type-definitions": "^2.0.1"
+  },
+  "exports": {
+
   }
 }

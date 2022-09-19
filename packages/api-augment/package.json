@@ -12,7 +12,6 @@
     "clean:defs": "find ./src/interfaces ! -name 'definitions.ts' -type f -exec rm {} +"
   },
   "dependencies": {
-    "@oak-foundation/types": "*",
     "@polkadot/types": "^9.2.3"
   },
   "devDependencies": {

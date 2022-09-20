@@ -3,6 +3,9 @@ import { jsonrpcFromDefs, typesFromDefs } from '@open-web3/orml-type-definitions
 import automationTime from './automationTime'
 import xcmpHandler from './xcmpHandler'
 
+export * from './automationTime'
+export * from './xcmpHandler'
+
 export const definitions = {
   automationTime,
   xcmpHandler

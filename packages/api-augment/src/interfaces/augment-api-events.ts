@@ -9,12 +9,20 @@ import type { ApiTypes, AugmentedEvent } from '@polkadot/api-base/types';
 import type { Bytes, Null, Option, Result, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, H256, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
-import type { FrameSupportScheduleLookupError, FrameSupportTokensMiscBalanceStatus, FrameSupportWeightsDispatchInfo, PalletDemocracyVoteAccountVote, PalletDemocracyVoteThreshold, PalletMultisigTimepoint, PalletParachainStakingDelegationRequestsCancelledScheduledRequest, PalletParachainStakingDelegatorAdded, SpRuntimeDispatchError, SpRuntimeDispatchErrorWithPostInfo, TuringRuntimeCurrencyId, TuringRuntimeProxyType, XcmV1MultiAsset, XcmV1MultiLocation, XcmV1MultiassetMultiAssets, XcmV2Response, XcmV2TraitsError, XcmV2TraitsOutcome, XcmV2Xcm, XcmVersionedMultiAssets, XcmVersionedMultiLocation } from '@polkadot/types/lookup';
+import type { FrameSupportScheduleLookupError, FrameSupportTokensMiscBalanceStatus, FrameSupportWeightsDispatchInfo, NeumannRuntimeProxyType, OrmlTraitsAssetRegistryAssetMetadata, PalletDemocracyVoteAccountVote, PalletDemocracyVoteThreshold, PalletParachainStakingDelegationRequestsCancelledScheduledRequest, PalletParachainStakingDelegatorAdded, SpRuntimeDispatchError, SpRuntimeDispatchErrorWithPostInfo, XcmV1MultiAsset, XcmV1MultiLocation, XcmV1MultiassetMultiAssets, XcmV2Response, XcmV2TraitsError, XcmV2TraitsOutcome, XcmV2Xcm, XcmVersionedMultiAssets, XcmVersionedMultiLocation } from '@polkadot/types/lookup';
 
 export type __AugmentedEvent<ApiType extends ApiTypes> = AugmentedEvent<ApiType>;
 
 declare module '@polkadot/api-base/types/events' {
   interface AugmentedEvents<ApiType extends ApiTypes> {
+    assetRegistry: {
+      RegisteredAsset: AugmentedEvent<ApiType, [assetId: u32, metadata: OrmlTraitsAssetRegistryAssetMetadata], { assetId: u32, metadata: OrmlTraitsAssetRegistryAssetMetadata }>;
+      UpdatedAsset: AugmentedEvent<ApiType, [assetId: u32, metadata: OrmlTraitsAssetRegistryAssetMetadata], { assetId: u32, metadata: OrmlTraitsAssetRegistryAssetMetadata }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
+    };
     automationPrice: {
       AssetCreated: AugmentedEvent<ApiType, [asset: Bytes], { asset: Bytes }>;
       AssetDeleted: AugmentedEvent<ApiType, [asset: Bytes], { asset: Bytes }>;
@@ -41,6 +49,14 @@ declare module '@polkadot/api-base/types/events' {
     };
     automationTime: {
       AutoCompoundDelegatorStakeFailed: AugmentedEvent<ApiType, [taskId: H256, errorMessage: Bytes, error: SpRuntimeDispatchErrorWithPostInfo], { taskId: H256, errorMessage: Bytes, error: SpRuntimeDispatchErrorWithPostInfo }>;
+      /**
+       * The call for the DynamicDispatch action can no longer be decoded.
+       **/
+      CallCannotBeDecoded: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256], { who: AccountId32, taskId: H256 }>;
+      /**
+       * The result of the DynamicDispatch action.
+       **/
+      DynamicDispatchResult: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256, result: Result<Null, SpRuntimeDispatchError>], { who: AccountId32, taskId: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
        * Notify event for the task.
        **/
@@ -382,28 +398,6 @@ declare module '@polkadot/api-base/types/events' {
        **/
       [key: string]: AugmentedEvent<ApiType>;
     };
-    multisig: {
-      /**
-       * A multisig operation has been approved by someone.
-       **/
-      MultisigApproval: AugmentedEvent<ApiType, [approving: AccountId32, timepoint: PalletMultisigTimepoint, multisig: AccountId32, callHash: U8aFixed], { approving: AccountId32, timepoint: PalletMultisigTimepoint, multisig: AccountId32, callHash: U8aFixed }>;
-      /**
-       * A multisig operation has been cancelled.
-       **/
-      MultisigCancelled: AugmentedEvent<ApiType, [cancelling: AccountId32, timepoint: PalletMultisigTimepoint, multisig: AccountId32, callHash: U8aFixed], { cancelling: AccountId32, timepoint: PalletMultisigTimepoint, multisig: AccountId32, callHash: U8aFixed }>;
-      /**
-       * A multisig operation has been executed.
-       **/
-      MultisigExecuted: AugmentedEvent<ApiType, [approving: AccountId32, timepoint: PalletMultisigTimepoint, multisig: AccountId32, callHash: U8aFixed, result: Result<Null, SpRuntimeDispatchError>], { approving: AccountId32, timepoint: PalletMultisigTimepoint, multisig: AccountId32, callHash: U8aFixed, result: Result<Null, SpRuntimeDispatchError> }>;
-      /**
-       * A new multisig operation has begun.
-       **/
-      NewMultisig: AugmentedEvent<ApiType, [approving: AccountId32, multisig: AccountId32, callHash: U8aFixed], { approving: AccountId32, multisig: AccountId32, callHash: U8aFixed }>;
-      /**
-       * Generic event
-       **/
-      [key: string]: AugmentedEvent<ApiType>;
-    };
     parachainStaking: {
       /**
        * Set blocks per round
@@ -715,11 +709,11 @@ declare module '@polkadot/api-base/types/events' {
        * Anonymous account has been created by new proxy with given
        * disambiguation index and proxy type.
        **/
-      AnonymousCreated: AugmentedEvent<ApiType, [anonymous: AccountId32, who: AccountId32, proxyType: TuringRuntimeProxyType, disambiguationIndex: u16], { anonymous: AccountId32, who: AccountId32, proxyType: TuringRuntimeProxyType, disambiguationIndex: u16 }>;
+      AnonymousCreated: AugmentedEvent<ApiType, [anonymous: AccountId32, who: AccountId32, proxyType: NeumannRuntimeProxyType, disambiguationIndex: u16], { anonymous: AccountId32, who: AccountId32, proxyType: NeumannRuntimeProxyType, disambiguationIndex: u16 }>;
       /**
        * A proxy was added.
        **/
-      ProxyAdded: AugmentedEvent<ApiType, [delegator: AccountId32, delegatee: AccountId32, proxyType: TuringRuntimeProxyType, delay: u32], { delegator: AccountId32, delegatee: AccountId32, proxyType: TuringRuntimeProxyType, delay: u32 }>;
+      ProxyAdded: AugmentedEvent<ApiType, [delegator: AccountId32, delegatee: AccountId32, proxyType: NeumannRuntimeProxyType, delay: u32], { delegator: AccountId32, delegatee: AccountId32, proxyType: NeumannRuntimeProxyType, delay: u32 }>;
       /**
        * A proxy was executed correctly, with the given.
        **/
@@ -727,7 +721,7 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A proxy was removed.
        **/
-      ProxyRemoved: AugmentedEvent<ApiType, [delegator: AccountId32, delegatee: AccountId32, proxyType: TuringRuntimeProxyType, delay: u32], { delegator: AccountId32, delegatee: AccountId32, proxyType: TuringRuntimeProxyType, delay: u32 }>;
+      ProxyRemoved: AugmentedEvent<ApiType, [delegator: AccountId32, delegatee: AccountId32, proxyType: NeumannRuntimeProxyType, delay: u32], { delegator: AccountId32, delegatee: AccountId32, proxyType: NeumannRuntimeProxyType, delay: u32 }>;
       /**
        * Generic event
        **/
@@ -884,57 +878,57 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A balance was set by root.
        **/
-      BalanceSet: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, who: AccountId32, free: u128, reserved: u128], { currencyId: TuringRuntimeCurrencyId, who: AccountId32, free: u128, reserved: u128 }>;
+      BalanceSet: AugmentedEvent<ApiType, [currencyId: u32, who: AccountId32, free: u128, reserved: u128], { currencyId: u32, who: AccountId32, free: u128, reserved: u128 }>;
       /**
        * Deposited some balance into an account
        **/
-      Deposited: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128], { currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128 }>;
+      Deposited: AugmentedEvent<ApiType, [currencyId: u32, who: AccountId32, amount: u128], { currencyId: u32, who: AccountId32, amount: u128 }>;
       /**
        * An account was removed whose balance was non-zero but below
        * ExistentialDeposit, resulting in an outright loss.
        **/
-      DustLost: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128], { currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128 }>;
+      DustLost: AugmentedEvent<ApiType, [currencyId: u32, who: AccountId32, amount: u128], { currencyId: u32, who: AccountId32, amount: u128 }>;
       /**
        * An account was created with some free balance.
        **/
-      Endowed: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128], { currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128 }>;
+      Endowed: AugmentedEvent<ApiType, [currencyId: u32, who: AccountId32, amount: u128], { currencyId: u32, who: AccountId32, amount: u128 }>;
       /**
        * Some locked funds were unlocked
        **/
-      LockRemoved: AugmentedEvent<ApiType, [lockId: U8aFixed, currencyId: TuringRuntimeCurrencyId, who: AccountId32], { lockId: U8aFixed, currencyId: TuringRuntimeCurrencyId, who: AccountId32 }>;
+      LockRemoved: AugmentedEvent<ApiType, [lockId: U8aFixed, currencyId: u32, who: AccountId32], { lockId: U8aFixed, currencyId: u32, who: AccountId32 }>;
       /**
        * Some funds are locked
        **/
-      LockSet: AugmentedEvent<ApiType, [lockId: U8aFixed, currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128], { lockId: U8aFixed, currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128 }>;
+      LockSet: AugmentedEvent<ApiType, [lockId: U8aFixed, currencyId: u32, who: AccountId32, amount: u128], { lockId: U8aFixed, currencyId: u32, who: AccountId32, amount: u128 }>;
       /**
        * Some balance was reserved (moved from free to reserved).
        **/
-      Reserved: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128], { currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128 }>;
+      Reserved: AugmentedEvent<ApiType, [currencyId: u32, who: AccountId32, amount: u128], { currencyId: u32, who: AccountId32, amount: u128 }>;
       /**
        * Some reserved balance was repatriated (moved from reserved to
        * another account).
        **/
-      ReserveRepatriated: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, from: AccountId32, to: AccountId32, amount: u128, status: FrameSupportTokensMiscBalanceStatus], { currencyId: TuringRuntimeCurrencyId, from: AccountId32, to: AccountId32, amount: u128, status: FrameSupportTokensMiscBalanceStatus }>;
+      ReserveRepatriated: AugmentedEvent<ApiType, [currencyId: u32, from: AccountId32, to: AccountId32, amount: u128, status: FrameSupportTokensMiscBalanceStatus], { currencyId: u32, from: AccountId32, to: AccountId32, amount: u128, status: FrameSupportTokensMiscBalanceStatus }>;
       /**
        * Some balances were slashed (e.g. due to mis-behavior)
        **/
-      Slashed: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, who: AccountId32, freeAmount: u128, reservedAmount: u128], { currencyId: TuringRuntimeCurrencyId, who: AccountId32, freeAmount: u128, reservedAmount: u128 }>;
+      Slashed: AugmentedEvent<ApiType, [currencyId: u32, who: AccountId32, freeAmount: u128, reservedAmount: u128], { currencyId: u32, who: AccountId32, freeAmount: u128, reservedAmount: u128 }>;
       /**
        * The total issuance of an currency has been set
        **/
-      TotalIssuanceSet: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, amount: u128], { currencyId: TuringRuntimeCurrencyId, amount: u128 }>;
+      TotalIssuanceSet: AugmentedEvent<ApiType, [currencyId: u32, amount: u128], { currencyId: u32, amount: u128 }>;
       /**
        * Transfer succeeded.
        **/
-      Transfer: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, from: AccountId32, to: AccountId32, amount: u128], { currencyId: TuringRuntimeCurrencyId, from: AccountId32, to: AccountId32, amount: u128 }>;
+      Transfer: AugmentedEvent<ApiType, [currencyId: u32, from: AccountId32, to: AccountId32, amount: u128], { currencyId: u32, from: AccountId32, to: AccountId32, amount: u128 }>;
       /**
        * Some balance was unreserved (moved from reserved to free).
        **/
-      Unreserved: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128], { currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128 }>;
+      Unreserved: AugmentedEvent<ApiType, [currencyId: u32, who: AccountId32, amount: u128], { currencyId: u32, who: AccountId32, amount: u128 }>;
       /**
        * Some balances were withdrawn (e.g. pay for transaction fee)
        **/
-      Withdrawn: AugmentedEvent<ApiType, [currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128], { currencyId: TuringRuntimeCurrencyId, who: AccountId32, amount: u128 }>;
+      Withdrawn: AugmentedEvent<ApiType, [currencyId: u32, who: AccountId32, amount: u128], { currencyId: u32, who: AccountId32, amount: u128 }>;
       /**
        * Generic event
        **/
@@ -1083,11 +1077,11 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * XCM data was added for a chain/currency pair.
        **/
-      XcmDataAdded: AugmentedEvent<ApiType, [paraId: u32, currencyId: TuringRuntimeCurrencyId], { paraId: u32, currencyId: TuringRuntimeCurrencyId }>;
+      XcmDataAdded: AugmentedEvent<ApiType, [paraId: u32, currencyId: u32], { paraId: u32, currencyId: u32 }>;
       /**
        * XCM data was removed for a chain/currency pair.
        **/
-      XcmDataRemoved: AugmentedEvent<ApiType, [paraId: u32, currencyId: TuringRuntimeCurrencyId], { paraId: u32, currencyId: TuringRuntimeCurrencyId }>;
+      XcmDataRemoved: AugmentedEvent<ApiType, [paraId: u32, currencyId: u32], { paraId: u32, currencyId: u32 }>;
       /**
        * XCM fees failed to transfer.
        **/

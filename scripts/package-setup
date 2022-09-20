@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+const fs = require("fs");
+
+
+process.chdir("packages");
+const dirs = fs.readdirSync(".")
+
+process.chdir(`api-augment/build`);
+const aaPkg = JSON.parse(fs.readFileSync('../package.json'));
+
+aaPkg.scripts = {};
+aaPkg.main = "./index.cjs";
+aaPkg.module = "./index.js";
+aaPkg.types = "./index.d.ts";
+aaPkg.type = "module";
+fs.writeFileSync("./package.json", JSON.stringify(aaPkg, null, 2));
+fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
+
+process.chdir("../..");
+
+process.chdir(`types/build`);
+const tPkg = JSON.parse(fs.readFileSync('../package.json'));
+
+tPkg.scripts = {};
+tPkg.main = "./index.js";
+tPkg.types = "./index.d.ts";
+fs.writeFileSync("./package.json", JSON.stringify(tPkg, null, 2));
+
+process.chdir("../..");

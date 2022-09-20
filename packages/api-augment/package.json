@@ -1,6 +1,6 @@
 {
   "name": "@oak-foundation/api-augment",
-  "version": "0.0.1",
+  "version": "0.0.12",
   "main": "./build/index.js",
   "license": "MIT",
   "scripts": {
@@ -12,7 +12,6 @@
     "clean:defs": "find ./src/interfaces ! -name 'definitions.ts' -type f -exec rm {} +"
   },
   "dependencies": {
-    "@oak-foundation/types": "*",
     "@polkadot/types": "^9.2.3"
   },
   "devDependencies": {

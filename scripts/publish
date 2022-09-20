@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+version=$1
+otp=$2
+
+npm pkg set version=$version
+
+for package in $(ls packages); do
+  cd packages/$package/build
+  npm pkg set version=$version
+  npm publish --otp $otp
+  cd -
+done

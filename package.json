@@ -1,14 +1,16 @@
 {
   "name": "oak.js",
-  "version": "0.0.1",
+  "version": "0.0.15",
   "main": "index.js",
   "repository": "https://github.com/oak-foundation/oak.js",
   "author": "OAK Team <contact@oak.tech>",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "npx tsc --build tsconfig.build.json",
-    "clean": "npx tsc --build --clean tsconfig.build.json"
+    "build": "npm exec -- tsc --build tsconfig.build.json",
+    "postbuild": "scripts/package-setup",
+    "clean": "npm exec -- tsc --build --clean tsconfig.build.json",
+    "publish": "bash scripts/publish"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",

@@ -9,7 +9,7 @@ import type { ApiTypes, AugmentedConst } from '@polkadot/api-base/types';
 import type { Option, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { Codec } from '@polkadot/types-codec/types';
 import type { Perbill, Percent, Permill } from '@polkadot/types/interfaces/runtime';
-import type { FrameSupportPalletId, FrameSupportWeightsRuntimeDbWeight, FrameSystemLimitsBlockLength, FrameSystemLimitsBlockWeights, SpVersionRuntimeVersion, TuringRuntimeCurrencyId, XcmV1MultiLocation } from '@polkadot/types/lookup';
+import type { FrameSupportPalletId, FrameSupportWeightsRuntimeDbWeight, FrameSystemLimitsBlockLength, FrameSystemLimitsBlockWeights, SpVersionRuntimeVersion, XcmV1MultiLocation } from '@polkadot/types/lookup';
 
 export type __AugmentedConst<ApiType extends ApiTypes> = AugmentedConst<ApiType>;
 
@@ -51,7 +51,7 @@ declare module '@polkadot/api-base/types/consts' {
       /**
        * The currencyId for the native currency.
        **/
-      getNativeCurrencyId: TuringRuntimeCurrencyId & AugmentedConst<ApiType>;
+      getNativeCurrencyId: u32 & AugmentedConst<ApiType>;
       /**
        * The maximum weight per block.
        **/
@@ -73,9 +73,9 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxWeightPercentage: Perbill & AugmentedConst<ApiType>;
       /**
-       * The time each block takes.
+       * The maximum supported execution weight per automation slot
        **/
-      secondsPerBlock: u64 & AugmentedConst<ApiType>;
+      maxWeightPerSlot: u128 & AugmentedConst<ApiType>;
       /**
        * The maximum percentage of weight per block used for scheduled tasks.
        **/
@@ -152,7 +152,7 @@ declare module '@polkadot/api-base/types/consts' {
       [key: string]: Codec;
     };
     currencies: {
-      getNativeCurrencyId: TuringRuntimeCurrencyId & AugmentedConst<ApiType>;
+      getNativeCurrencyId: u32 & AugmentedConst<ApiType>;
       /**
        * Generic const
        **/
@@ -249,31 +249,6 @@ declare module '@polkadot/api-base/types/consts' {
        * be another trie item whose value is the size of an account ID plus 32 bytes.
        **/
       subAccountDeposit: u128 & AugmentedConst<ApiType>;
-      /**
-       * Generic const
-       **/
-      [key: string]: Codec;
-    };
-    multisig: {
-      /**
-       * The base amount of currency needed to reserve for creating a multisig execution or to
-       * store a dispatch call for later.
-       * 
-       * This is held for an additional storage item whose value size is
-       * `4 + sizeof((BlockNumber, Balance, AccountId))` bytes and whose key size is
-       * `32 + sizeof(AccountId)` bytes.
-       **/
-      depositBase: u128 & AugmentedConst<ApiType>;
-      /**
-       * The amount of currency needed per unit threshold when creating a multisig execution.
-       * 
-       * This is held for adding 32 bytes more into a pre-existing storage value.
-       **/
-      depositFactor: u128 & AugmentedConst<ApiType>;
-      /**
-       * The maximum amount of signatories allowed in the multisig.
-       **/
-      maxSignatories: u16 & AugmentedConst<ApiType>;
       /**
        * Generic const
        **/
@@ -555,7 +530,7 @@ declare module '@polkadot/api-base/types/consts' {
       /**
        * The currencyId for the native currency.
        **/
-      getNativeCurrencyId: TuringRuntimeCurrencyId & AugmentedConst<ApiType>;
+      getNativeCurrencyId: u32 & AugmentedConst<ApiType>;
       /**
        * Generic const
        **/

@@ -40,7 +40,7 @@ const automationTime = {
         'Notify',
         'NativeTransfer',
         'XCMP',
-        'AutoCompoundDelgatedStake'
+        'AutoCompoundDelegatedStake'
       ],
     },
     AutostakingResult: {

@@ -85,7 +85,7 @@ declare module '@polkadot/rpc-core/types/jsonrpc' {
       /**
        * Retrieve automation fees
        **/
-      getTimeAutomationFees: AugmentedRpc<(action: AutomationAction | 'Notify' | 'NativeTransfer' | 'XCMP' | 'AutoCompoundDelgatedStake' | number | Uint8Array, executions: u32 | AnyNumber | Uint8Array) => Observable<Balance>>;
+      getTimeAutomationFees: AugmentedRpc<(action: AutomationAction | 'Notify' | 'NativeTransfer' | 'XCMP' | 'AutoCompoundDelegatedStake' | number | Uint8Array, executions: u32 | AnyNumber | Uint8Array) => Observable<Balance>>;
     };
     babe: {
       /**

@@ -8,8 +8,8 @@ export interface AutomationAction extends Enum {
   readonly isNotify: boolean;
   readonly isNativeTransfer: boolean;
   readonly isXcmp: boolean;
-  readonly isAutoCompoundDelgatedStake: boolean;
-  readonly type: 'Notify' | 'NativeTransfer' | 'Xcmp' | 'AutoCompoundDelgatedStake';
+  readonly isAutoCompoundDelegatedStake: boolean;
+  readonly type: 'Notify' | 'NativeTransfer' | 'Xcmp' | 'AutoCompoundDelegatedStake';
 }
 
 /** @name AutostakingResult */

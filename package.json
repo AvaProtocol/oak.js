@@ -1,6 +1,6 @@
 {
   "name": "oak.js",
-  "version": "0.0.15",
+  "version": "0.0.18",
   "main": "index.js",
   "repository": "https://github.com/oak-foundation/oak.js",
   "author": "OAK Team <contact@oak.tech>",

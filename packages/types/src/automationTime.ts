@@ -38,7 +38,7 @@ export default {
         'Notify',
         'NativeTransfer',
         'XCMP',
-        'AutoCompoundDelgatedStake'
+        'AutoCompoundDelegatedStake'
       ],
     },
     AutostakingResult: {

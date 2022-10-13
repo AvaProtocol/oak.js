@@ -7,10 +7,10 @@ import '@polkadot/api-base/types/submittable';
 
 import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@polkadot/api-base/types';
 import type { Data } from '@polkadot/types';
-import type { Bytes, Compact, Option, Struct, Vec, bool, i128, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
+import type { Bytes, Compact, Option, Struct, U8aFixed, Vec, WrapperKeepOpaque, bool, i128, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
-import type { CumulusPrimitivesParachainInherentParachainInherentData, FrameSupportScheduleMaybeHashed, NeumannRuntimeOriginCaller, NeumannRuntimeProxyType, NeumannRuntimeSessionKeys, OrmlTraitsAssetRegistryAssetMetadata, PalletAutomationPriceDirection, PalletDemocracyConviction, PalletDemocracyVoteAccountVote, PalletIdentityBitFlags, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletXcmpHandlerXcmCurrencyData, PrimitivesAssetsCustomMetadata, SpRuntimeHeader, XcmV1MultiLocation, XcmV2WeightLimit, XcmVersionedMultiAsset, XcmVersionedMultiAssets, XcmVersionedMultiLocation, XcmVersionedXcm } from '@polkadot/types/lookup';
+import type { CumulusPrimitivesParachainInherentParachainInherentData, FrameSupportScheduleMaybeHashed, OrmlTraitsAssetRegistryAssetMetadata, PalletAutomationPriceDirection, PalletAutomationTimeScheduleParam, PalletDemocracyConviction, PalletDemocracyVoteAccountVote, PalletIdentityBitFlags, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletMultisigTimepoint, PalletXcmpHandlerXcmCurrencyData, PrimitivesAssetsCustomMetadata, SpRuntimeHeader, TuringRuntimeOriginCaller, TuringRuntimeProxyType, TuringRuntimeSessionKeys, XcmV1MultiLocation, XcmV2WeightLimit, XcmVersionedMultiAsset, XcmVersionedMultiAssets, XcmVersionedMultiLocation, XcmVersionedXcm } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -155,7 +155,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `TimeSlotFull`: Time slot is full. No more tasks can be scheduled for this time.
        * * `TimeTooFarOut`: Execution time or frequency are past the max time horizon.
        **/
-      scheduleDynamicDispatchTask: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, executionTimes: Vec<u64> | (u64 | AnyNumber | Uint8Array)[], call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Vec<u64>, Call]>;
+      scheduleDynamicDispatchTask: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, schedule: PalletAutomationTimeScheduleParam | { Fixed: any } | { Recurring: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, PalletAutomationTimeScheduleParam, Call]>;
       /**
        * Schedule a task to transfer native token balance from sender to recipient.
        * 
@@ -229,7 +229,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `TimeTooFarOut`: Execution time or frequency are past the max time horizon.
        * * `TimeSlotFull`: Time slot is full. No more tasks can be scheduled for this time.
        **/
-      scheduleXcmpTask: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, executionTimes: Vec<u64> | (u64 | AnyNumber | Uint8Array)[], paraId: u32 | AnyNumber | Uint8Array, currencyId: u32 | AnyNumber | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Vec<u64>, u32, u32, Bytes, u64]>;
+      scheduleXcmpTask: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, schedule: PalletAutomationTimeScheduleParam | { Fixed: any } | { Recurring: any } | string | Uint8Array, paraId: u32 | AnyNumber | Uint8Array, currencyId: u32 | AnyNumber | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, PalletAutomationTimeScheduleParam, u32, u32, Bytes, u64]>;
       /**
        * Generic tx
        **/
@@ -1256,6 +1256,146 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       [key: string]: SubmittableExtrinsicFunction<ApiType>;
     };
+    multisig: {
+      /**
+       * Register approval for a dispatch to be made from a deterministic composite account if
+       * approved by a total of `threshold - 1` of `other_signatories`.
+       * 
+       * Payment: `DepositBase` will be reserved if this is the first approval, plus
+       * `threshold` times `DepositFactor`. It is returned once this dispatch happens or
+       * is cancelled.
+       * 
+       * The dispatch origin for this call must be _Signed_.
+       * 
+       * - `threshold`: The total number of approvals for this dispatch before it is executed.
+       * - `other_signatories`: The accounts (other than the sender) who can approve this
+       * dispatch. May not be empty.
+       * - `maybe_timepoint`: If this is the first approval, then this must be `None`. If it is
+       * not the first approval, then it must be `Some`, with the timepoint (block number and
+       * transaction index) of the first approval transaction.
+       * - `call_hash`: The hash of the call to be executed.
+       * 
+       * NOTE: If this is the final approval, you will want to use `as_multi` instead.
+       * 
+       * # <weight>
+       * - `O(S)`.
+       * - Up to one balance-reserve or unreserve operation.
+       * - One passthrough operation, one insert, both `O(S)` where `S` is the number of
+       * signatories. `S` is capped by `MaxSignatories`, with weight being proportional.
+       * - One encode & hash, both of complexity `O(S)`.
+       * - Up to one binary search and insert (`O(logS + S)`).
+       * - I/O: 1 read `O(S)`, up to 1 mutate `O(S)`. Up to one remove.
+       * - One event.
+       * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
+       * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
+       * ----------------------------------
+       * - DB Weight:
+       * - Read: Multisig Storage, [Caller Account]
+       * - Write: Multisig Storage, [Caller Account]
+       * # </weight>
+       **/
+      approveAsMulti: AugmentedSubmittable<(threshold: u16 | AnyNumber | Uint8Array, otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], maybeTimepoint: Option<PalletMultisigTimepoint> | null | Uint8Array | PalletMultisigTimepoint | { height?: any; index?: any } | string, callHash: U8aFixed | string | Uint8Array, maxWeight: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Vec<AccountId32>, Option<PalletMultisigTimepoint>, U8aFixed, u64]>;
+      /**
+       * Register approval for a dispatch to be made from a deterministic composite account if
+       * approved by a total of `threshold - 1` of `other_signatories`.
+       * 
+       * If there are enough, then dispatch the call.
+       * 
+       * Payment: `DepositBase` will be reserved if this is the first approval, plus
+       * `threshold` times `DepositFactor`. It is returned once this dispatch happens or
+       * is cancelled.
+       * 
+       * The dispatch origin for this call must be _Signed_.
+       * 
+       * - `threshold`: The total number of approvals for this dispatch before it is executed.
+       * - `other_signatories`: The accounts (other than the sender) who can approve this
+       * dispatch. May not be empty.
+       * - `maybe_timepoint`: If this is the first approval, then this must be `None`. If it is
+       * not the first approval, then it must be `Some`, with the timepoint (block number and
+       * transaction index) of the first approval transaction.
+       * - `call`: The call to be executed.
+       * 
+       * NOTE: Unless this is the final approval, you will generally want to use
+       * `approve_as_multi` instead, since it only requires a hash of the call.
+       * 
+       * Result is equivalent to the dispatched result if `threshold` is exactly `1`. Otherwise
+       * on success, result is `Ok` and the result from the interior call, if it was executed,
+       * may be found in the deposited `MultisigExecuted` event.
+       * 
+       * # <weight>
+       * - `O(S + Z + Call)`.
+       * - Up to one balance-reserve or unreserve operation.
+       * - One passthrough operation, one insert, both `O(S)` where `S` is the number of
+       * signatories. `S` is capped by `MaxSignatories`, with weight being proportional.
+       * - One call encode & hash, both of complexity `O(Z)` where `Z` is tx-len.
+       * - One encode & hash, both of complexity `O(S)`.
+       * - Up to one binary search and insert (`O(logS + S)`).
+       * - I/O: 1 read `O(S)`, up to 1 mutate `O(S)`. Up to one remove.
+       * - One event.
+       * - The weight of the `call`.
+       * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
+       * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
+       * -------------------------------
+       * - DB Weight:
+       * - Reads: Multisig Storage, [Caller Account], Calls (if `store_call`)
+       * - Writes: Multisig Storage, [Caller Account], Calls (if `store_call`)
+       * - Plus Call Weight
+       * # </weight>
+       **/
+      asMulti: AugmentedSubmittable<(threshold: u16 | AnyNumber | Uint8Array, otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], maybeTimepoint: Option<PalletMultisigTimepoint> | null | Uint8Array | PalletMultisigTimepoint | { height?: any; index?: any } | string, call: WrapperKeepOpaque<Call> | object | string | Uint8Array, storeCall: bool | boolean | Uint8Array, maxWeight: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Vec<AccountId32>, Option<PalletMultisigTimepoint>, WrapperKeepOpaque<Call>, bool, u64]>;
+      /**
+       * Immediately dispatch a multi-signature call using a single approval from the caller.
+       * 
+       * The dispatch origin for this call must be _Signed_.
+       * 
+       * - `other_signatories`: The accounts (other than the sender) who are part of the
+       * multi-signature, but do not participate in the approval process.
+       * - `call`: The call to be executed.
+       * 
+       * Result is equivalent to the dispatched result.
+       * 
+       * # <weight>
+       * O(Z + C) where Z is the length of the call and C its execution weight.
+       * -------------------------------
+       * - DB Weight: None
+       * - Plus Call Weight
+       * # </weight>
+       **/
+      asMultiThreshold1: AugmentedSubmittable<(otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>, Call]>;
+      /**
+       * Cancel a pre-existing, on-going multisig transaction. Any deposit reserved previously
+       * for this operation will be unreserved on success.
+       * 
+       * The dispatch origin for this call must be _Signed_.
+       * 
+       * - `threshold`: The total number of approvals for this dispatch before it is executed.
+       * - `other_signatories`: The accounts (other than the sender) who can approve this
+       * dispatch. May not be empty.
+       * - `timepoint`: The timepoint (block number and transaction index) of the first approval
+       * transaction for this dispatch.
+       * - `call_hash`: The hash of the call to be executed.
+       * 
+       * # <weight>
+       * - `O(S)`.
+       * - Up to one balance-reserve or unreserve operation.
+       * - One passthrough operation, one insert, both `O(S)` where `S` is the number of
+       * signatories. `S` is capped by `MaxSignatories`, with weight being proportional.
+       * - One encode & hash, both of complexity `O(S)`.
+       * - One event.
+       * - I/O: 1 read `O(S)`, one remove.
+       * - Storage: removes one item.
+       * ----------------------------------
+       * - DB Weight:
+       * - Read: Multisig Storage, [Caller Account], Refund Account, Calls
+       * - Write: Multisig Storage, [Caller Account], Refund Account, Calls
+       * # </weight>
+       **/
+      cancelAsMulti: AugmentedSubmittable<(threshold: u16 | AnyNumber | Uint8Array, otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], timepoint: PalletMultisigTimepoint | { height?: any; index?: any } | string | Uint8Array, callHash: U8aFixed | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Vec<AccountId32>, PalletMultisigTimepoint, U8aFixed]>;
+      /**
+       * Generic tx
+       **/
+      [key: string]: SubmittableExtrinsicFunction<ApiType>;
+    };
     parachainStaking: {
       /**
        * Cancel pending request to adjust the collator candidate self bond
@@ -1636,7 +1776,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Weight is a function of the number of proxies the user has (P).
        * # </weight>
        **/
-      addProxy: AugmentedSubmittable<(delegate: AccountId32 | string | Uint8Array, proxyType: NeumannRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, NeumannRuntimeProxyType, u32]>;
+      addProxy: AugmentedSubmittable<(delegate: AccountId32 | string | Uint8Array, proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, TuringRuntimeProxyType, u32]>;
       /**
        * Publish the hash of a proxy-call that will be made in the future.
        * 
@@ -1686,7 +1826,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * # </weight>
        * TODO: Might be over counting 1 read
        **/
-      anonymous: AugmentedSubmittable<(proxyType: NeumannRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array, index: u16 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [NeumannRuntimeProxyType, u32, u16]>;
+      anonymous: AugmentedSubmittable<(proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array, index: u16 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [TuringRuntimeProxyType, u32, u16]>;
       /**
        * Removes a previously spawned anonymous proxy.
        * 
@@ -1709,7 +1849,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Weight is a function of the number of proxies the user has (P).
        * # </weight>
        **/
-      killAnonymous: AugmentedSubmittable<(spawner: AccountId32 | string | Uint8Array, proxyType: NeumannRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, index: u16 | AnyNumber | Uint8Array, height: Compact<u32> | AnyNumber | Uint8Array, extIndex: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, NeumannRuntimeProxyType, u16, Compact<u32>, Compact<u32>]>;
+      killAnonymous: AugmentedSubmittable<(spawner: AccountId32 | string | Uint8Array, proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, index: u16 | AnyNumber | Uint8Array, height: Compact<u32> | AnyNumber | Uint8Array, extIndex: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, TuringRuntimeProxyType, u16, Compact<u32>, Compact<u32>]>;
       /**
        * Dispatch the given `call` from an account that the sender is authorised for through
        * `add_proxy`.
@@ -1727,7 +1867,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Weight is a function of the number of proxies the user has (P).
        * # </weight>
        **/
-      proxy: AugmentedSubmittable<(real: AccountId32 | string | Uint8Array, forceProxyType: Option<NeumannRuntimeProxyType> | null | Uint8Array | NeumannRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, Option<NeumannRuntimeProxyType>, Call]>;
+      proxy: AugmentedSubmittable<(real: AccountId32 | string | Uint8Array, forceProxyType: Option<TuringRuntimeProxyType> | null | Uint8Array | TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, Option<TuringRuntimeProxyType>, Call]>;
       /**
        * Dispatch the given `call` from an account that the sender is authorized for through
        * `add_proxy`.
@@ -1747,7 +1887,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * - P: the number of proxies the user has.
        * # </weight>
        **/
-      proxyAnnounced: AugmentedSubmittable<(delegate: AccountId32 | string | Uint8Array, real: AccountId32 | string | Uint8Array, forceProxyType: Option<NeumannRuntimeProxyType> | null | Uint8Array | NeumannRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, AccountId32, Option<NeumannRuntimeProxyType>, Call]>;
+      proxyAnnounced: AugmentedSubmittable<(delegate: AccountId32 | string | Uint8Array, real: AccountId32 | string | Uint8Array, forceProxyType: Option<TuringRuntimeProxyType> | null | Uint8Array | TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, AccountId32, Option<TuringRuntimeProxyType>, Call]>;
       /**
        * Remove the given announcement of a delegate.
        * 
@@ -1812,7 +1952,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Weight is a function of the number of proxies the user has (P).
        * # </weight>
        **/
-      removeProxy: AugmentedSubmittable<(delegate: AccountId32 | string | Uint8Array, proxyType: NeumannRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, NeumannRuntimeProxyType, u32]>;
+      removeProxy: AugmentedSubmittable<(delegate: AccountId32 | string | Uint8Array, proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, TuringRuntimeProxyType, u32]>;
       /**
        * Generic tx
        **/
@@ -1892,66 +2032,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * - DbWrites per key id: `KeyOwner`
        * # </weight>
        **/
-      setKeys: AugmentedSubmittable<(keys: NeumannRuntimeSessionKeys | { aura?: any } | string | Uint8Array, proof: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [NeumannRuntimeSessionKeys, Bytes]>;
-      /**
-       * Generic tx
-       **/
-      [key: string]: SubmittableExtrinsicFunction<ApiType>;
-    };
-    sudo: {
-      /**
-       * Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo
-       * key.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * # <weight>
-       * - O(1).
-       * - Limited storage reads.
-       * - One DB change.
-       * # </weight>
-       **/
-      setKey: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
-      /**
-       * Authenticates the sudo key and dispatches a function call with `Root` origin.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * # <weight>
-       * - O(1).
-       * - Limited storage reads.
-       * - One DB write (event).
-       * - Weight of derivative `call` execution + 10,000.
-       * # </weight>
-       **/
-      sudo: AugmentedSubmittable<(call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call]>;
-      /**
-       * Authenticates the sudo key and dispatches a function call with `Signed` origin from
-       * a given account.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * # <weight>
-       * - O(1).
-       * - Limited storage reads.
-       * - One DB write (event).
-       * - Weight of derivative `call` execution + 10,000.
-       * # </weight>
-       **/
-      sudoAs: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Call]>;
-      /**
-       * Authenticates the sudo key and dispatches a function call with `Root` origin.
-       * This function does not check the weight of the call, and instead allows the
-       * Sudo user to specify the weight of the call.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * # <weight>
-       * - O(1).
-       * - The weight of this call is defined by the caller.
-       * # </weight>
-       **/
-      sudoUncheckedWeight: AugmentedSubmittable<(call: Call | IMethod | string | Uint8Array, weight: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call, u64]>;
+      setKeys: AugmentedSubmittable<(keys: TuringRuntimeSessionKeys | { aura?: any } | string | Uint8Array, proof: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [TuringRuntimeSessionKeys, Bytes]>;
       /**
        * Generic tx
        **/
@@ -2398,7 +2479,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * - Weight of derivative `call` execution + T::WeightInfo::dispatch_as().
        * # </weight>
        **/
-      dispatchAs: AugmentedSubmittable<(asOrigin: NeumannRuntimeOriginCaller | { system: any } | { Void: any } | { PolkadotXcm: any } | { CumulusXcm: any } | { Council: any } | { TechnicalCommittee: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [NeumannRuntimeOriginCaller, Call]>;
+      dispatchAs: AugmentedSubmittable<(asOrigin: TuringRuntimeOriginCaller | { system: any } | { Void: any } | { PolkadotXcm: any } | { CumulusXcm: any } | { Council: any } | { TechnicalCommittee: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [TuringRuntimeOriginCaller, Call]>;
       /**
        * Send a batch of dispatch calls.
        * Unlike `batch`, it allows errors and won't interrupt.

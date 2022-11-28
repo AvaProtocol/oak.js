@@ -1,36 +1,40 @@
 import _ from 'lodash';
+import { ApiPromise } from '@polkadot/api';
 
 import { OakChains, AutomationAction } from '../utils/constants'
-import { Scheduler } from '../utils/scheduler';
-// import { getPolkadotApi } from './helpFn';
+import { getPolkadotApi } from '../utils/fnHelper';
 
-beforeEach(() => {
+let api: ApiPromise;
+
+const initialize = async () => {
   jest.setTimeout(540000);
-});
+  api = await getPolkadotApi(OakChains.STUR, { providerUrl: process.env.PROVIDER_URL });
+}
+
+beforeEach(() => initialize());
+afterEach(() => api.disconnect());
 
 test('scheduler.getTimeAutomationFees works', async () => {
-  const options = { providerUrl: process.env.PROVIDER_URL };
-  const scheduler = new Scheduler(OakChains.STUR, options);
-  const fee = await scheduler.getTimeAutomationFees(AutomationAction.Notify, 3);
+  const resultCodec = await (api.rpc as any).automationTime.getTimeAutomationFees(AutomationAction.Notify, 3)
+  const fee =  resultCodec.toJSON();
+
   expect(fee > 0).toEqual(true);
 });
 
-// test('scheduler.calculateOptimalAutostaking works', async () => {
-//   const options = { providerUrl: process.env.PROVIDER_URL };
-//   const scheduler = new Scheduler(OakChains.STUR, options);
-//   const polkadotApi = await getPolkadotApi();
-  
-//   // Find first collator
-//   const pool = (await polkadotApi.query.parachainStaking.candidatePool()).toJSON() as { owner }[];
-//   const { owner } = pool[0];
+test('scheduler.calculateOptimalAutostaking works', async () => {
+  // Find first collator
+  const pool = (await api.query.parachainStaking.candidatePool()).toJSON() as { owner: any }[];
+  const { owner } = pool[0];
 
-//   const result = await scheduler.calculateOptimalAutostaking(10000000000, owner);
-//   expect(Object.keys(result).sort()).toEqual(["apy", "period"].sort());
-// });
+  const resultCodec = await (api.rpc as any).automationTime.calculateOptimalAutostaking(10000000000, owner);
+  const result = resultCodec.toPrimitive();
 
-// test('scheduler.getAutoCompoundDelegatedStakeTaskIds works', async () => {
-//   const options = { providerUrl: process.env.PROVIDER_URL };
-//   const scheduler = new Scheduler(OakChains.STUR, options);
-//   const result = await scheduler.getAutoCompoundDelegatedStakeTaskIds("68vqVx27xVYeCkqJTQnyXrcMCaKADUa7Rywn9TSrUZyp4NGP");
-//   expect(_.isArray(result)).toEqual(true);
-// });
+  expect(Object.keys(result).sort()).toEqual(["apy", "period"].sort());
+});
+
+test('scheduler.getAutoCompoundDelegatedStakeTaskIds works', async () => {
+  const resultCodec = await (api.rpc as any).automationTime.getAutoCompoundDelegatedStakeTaskIds('68vqVx27xVYeCkqJTQnyXrcMCaKADUa7Rywn9TSrUZyp4NGP')
+  const result = resultCodec.toJSON();
+
+  expect(_.isArray(result)).toEqual(true);
+});

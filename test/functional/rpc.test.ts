@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { ApiPromise } from '@polkadot/api';
 
 import { OakChains, AutomationAction } from '../utils/constants'
-import { getPolkadotApi } from '../utils/fnHelper';
+import { getPolkadotApi } from '../utils/helpFn';
 
 let api: ApiPromise;
 

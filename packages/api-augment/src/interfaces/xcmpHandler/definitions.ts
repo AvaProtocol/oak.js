@@ -1,4 +1,5 @@
-import { Definitions } from '@polkadot/types/types'
+import { Definitions } from '@polkadot/types/types';
+import { runtime } from './runtime';
 
 const xcmpHandler =  {
   rpc: {
@@ -18,5 +19,6 @@ const xcmpHandler =  {
     }
   },
   types: {},
+  runtime,
 }
 export default xcmpHandler as Definitions

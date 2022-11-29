@@ -5,8 +5,9 @@
 // this is required to allow for ambient/previous definitions
 import '@polkadot/api-base/types/calls';
 
+import type { AutomationAction, AutostakingResult } from '@oak-foundation/api-augment/interfaces/automationTime';
 import type { ApiTypes, AugmentedCall, DecoratedCallBase } from '@polkadot/api-base/types';
-import type { Bytes, Null, Option, Vec, u32 } from '@polkadot/types-codec';
+import type { Bytes, Null, Option, Text, Vec, i128, u32, u64 } from '@polkadot/types-codec';
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
 import type { CheckInherentsResult, InherentData } from '@polkadot/types/interfaces/blockbuilder';
 import type { BlockHash } from '@polkadot/types/interfaces/chain';
@@ -15,7 +16,7 @@ import type { CollationInfo } from '@polkadot/types/interfaces/cumulus';
 import type { Extrinsic } from '@polkadot/types/interfaces/extrinsics';
 import type { OpaqueMetadata } from '@polkadot/types/interfaces/metadata';
 import type { FeeDetails, RuntimeDispatchInfo } from '@polkadot/types/interfaces/payment';
-import type { AccountId, Block, Header, Index, KeyTypeId, SlotDuration } from '@polkadot/types/interfaces/runtime';
+import type { AccountId, AccountId32, Balance, Block, Hash, Header, Index, KeyTypeId, SlotDuration } from '@polkadot/types/interfaces/runtime';
 import type { RuntimeVersion } from '@polkadot/types/interfaces/state';
 import type { ApplyExtrinsicResult } from '@polkadot/types/interfaces/system';
 import type { TransactionSource, TransactionValidity } from '@polkadot/types/interfaces/txqueue';
@@ -47,6 +48,29 @@ declare module '@polkadot/api-base/types/calls' {
        * Returns the slot duration for Aura.
        **/
       slotDuration: AugmentedCall<ApiType, () => Observable<SlotDuration>>;
+      /**
+       * Generic call
+       **/
+      [key: string]: DecoratedCallBase<ApiType>;
+    };
+    /** 0x889fffe29b918d24/1 */
+    automationTimeApi: {
+      /**
+       * Calculate the optimal period to restake
+       **/
+      calculateOptimalAutostaking: AugmentedCall<ApiType, (principal: i128 | AnyNumber | Uint8Array, collator: AccountId | string | Uint8Array) => Observable<AutostakingResult>>;
+      /**
+       * Getting task ID given account ID and provided ID
+       **/
+      generateTaskId: AugmentedCall<ApiType, (accountId: AccountId | string | Uint8Array, providedId: Text | string) => Observable<Hash>>;
+      /**
+       * Return autocompounding tasks by account
+       **/
+      getAutoCompoundDelegatedStakeTaskIds: AugmentedCall<ApiType, (account_id: AccountId | string | Uint8Array) => Observable<Vec<Hash>>>;
+      /**
+       * Retrieve automation fees
+       **/
+      getTimeAutomationFees: AugmentedCall<ApiType, (action: AutomationAction | 'Notify' | 'NativeTransfer' | 'XCMP' | 'AutoCompoundDelegatedStake' | number | Uint8Array, executions: u32 | AnyNumber | Uint8Array) => Observable<Balance>>;
       /**
        * Generic call
        **/
@@ -163,6 +187,21 @@ declare module '@polkadot/api-base/types/calls' {
        * The transaction info
        **/
       queryInfo: AugmentedCall<ApiType, (uxt: Extrinsic | IExtrinsic | string | Uint8Array, len: u32 | AnyNumber | Uint8Array) => Observable<RuntimeDispatchInfo>>;
+      /**
+       * Generic call
+       **/
+      [key: string]: DecoratedCallBase<ApiType>;
+    };
+    /** 0x8efeb658e7eac37d/1 */
+    xcmpHandlerApi: {
+      /**
+       * Find xcmp account id
+       **/
+      generateTaskId: AugmentedCall<ApiType, (accountId: AccountId32 | string | Uint8Array) => Observable<AccountId32>>;
+      /**
+       * Determine fees for a scheduled xcmp task
+       **/
+      getTimeAutomationFees: AugmentedCall<ApiType, (encodedXt: Bytes | string | Uint8Array) => Observable<u64>>;
       /**
        * Generic call
        **/

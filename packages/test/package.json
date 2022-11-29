@@ -8,10 +8,14 @@
   },
   "author": "",
   "license": "ISC",
+  "paths": {
+    "@oak-foundation/api-augment": ["./packages/api-augment/src"],
+    "@oak-foundation/api-augment/*": ["./packages/api-augment/src/*"],
+    "@oak-foundation/types": ["../types/build"]
+  },
   "dependencies": {
-    "lodash": "^4.17.21",
-    "@oak-foundation/api-augment": "file:../packages/api-augment/build",
-    "@oak-foundation/types": "file:../packages/types"
+    "@types/lodash": "^4.14.190",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.19.4",

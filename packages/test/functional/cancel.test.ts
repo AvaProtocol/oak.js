@@ -1,15 +1,32 @@
 import _ from 'lodash';
-import { sendExtrinsic, getNativeTransferExtrinsicParams, getNotifyExtrinsicParams, cancelTaskAndVerify, SECTION_NAME, checkBalance, getContext, scheduleNotifyTaskAndVerify, scheduleNativeTransferAndVerify } from './helpFn';
+import { ApiPromise } from '@polkadot/api';
+import type { KeyringPair } from '@polkadot/keyring/types';
 
-beforeEach(() => {
+import { sendExtrinsic, getNativeTransferExtrinsicParams, getNotifyExtrinsicParams, cancelTaskAndVerify, SECTION_NAME, checkBalance, getContext, scheduleNotifyTaskAndVerify, scheduleNativeTransferAndVerify } from './helpFn';
+import { getPolkadotApi } from '../utils/helpFn';
+import { OakChains } from '../utils/constants'
+import { Observer, Scheduler } from '../utils';
+
+let api: ApiPromise;
+let scheduler: Scheduler;
+let observer: Observer;
+let keyringPair: KeyringPair;
+
+const initialize = async () => {
   jest.setTimeout(540000);
-});
+  api = await getPolkadotApi(OakChains.STUR, { providerUrl: process.env.PROVIDER_URL });
+  const { scheduler: contextSchduler, observer: contextObserver, keyringPair: contextkeyringPair } = await getContext(api);
+  scheduler = contextSchduler;
+  observer = contextObserver;
+  keyringPair = contextkeyringPair;
+}
+
+beforeEach(() => initialize());
+afterEach(() => api.disconnect());
 
 test('Cancel failed with incorrect format taskID', async () => {
   const nonexistentTaskID = "A string(<32 bytes).";
-
-  const { scheduler, keyringPair } = await getContext();
-  await checkBalance(keyringPair);
+  await checkBalance(api, keyringPair);
 
   // Cancel failed with incorrect format taskID
   await expect(scheduler.buildCancelTaskExtrinsic(keyringPair, nonexistentTaskID)).rejects.toBeInstanceOf(Error);
@@ -19,16 +36,15 @@ test('Cancel failed with nonexistent taskID', async () => {
   // Please put a string of length greater than or equal to 32 bytes here, and make sure it is a non-existing taskID.
   const nonexistentTaskID = "12345678901234567890123456789012";
   
-  const { scheduler, keyringPair } = await getContext();
-  await checkBalance(keyringPair);
+  const { scheduler, keyringPair } = await getContext(api);
+  await checkBalance(api, keyringPair);
 
   const cancelExtrinsicHex = await scheduler.buildCancelTaskExtrinsic(keyringPair, nonexistentTaskID);
   await expect(sendExtrinsic(scheduler, cancelExtrinsicHex)).rejects.toThrow(`${SECTION_NAME}.TaskDoesNotExist`);
 });
 
 test('Repeated cancellation of scheduleNotifyExtrinsic will fail.', async () => {
-  const { scheduler, observer, keyringPair } = await getContext();
-  await checkBalance(keyringPair);
+  await checkBalance(api, keyringPair);
   const extrinsicParams = getNotifyExtrinsicParams();
   const { executionTimestamps } = extrinsicParams;
 
@@ -44,8 +60,7 @@ test('Repeated cancellation of scheduleNotifyExtrinsic will fail.', async () => 
 });
 
 test('Repeated cancellation of scheduleNativeTransferExtrinsic will fail.', async () => {
-  const { scheduler, observer, keyringPair } = await getContext();
-  await checkBalance(keyringPair);
+  await checkBalance(api, keyringPair);
   const extrinsicParams = getNativeTransferExtrinsicParams();
   const { executionTimestamps } = extrinsicParams;
 

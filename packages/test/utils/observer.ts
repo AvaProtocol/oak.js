@@ -18,7 +18,6 @@ import { OakChainWebsockets } from './constants'
  * @param chain: OakChains ("STUR"/"TUR")
  */
 export class Observer {
-  wsProvider: WsProvider
   api: ApiPromise
 
   /**
@@ -26,15 +25,11 @@ export class Observer {
    * @param chain 
    * @param options { providerUrl }, You can specify a custom provider url.
    */
-  constructor(chain: OakChains, options: { providerUrl: string | undefined }) {
-    const { providerUrl } = options || {};
-    this.wsProvider = new WsProvider(providerUrl || OakChainWebsockets[chain])
+   constructor(api: ApiPromise) {
+    this.api = api;
   }
 
   private async getAPIClient(): Promise<ApiPromise> {
-    if (_.isNil(this.api)) {
-      this.api = await ApiPromise.create({ provider: this.wsProvider })
-    }
     return this.api
   }
 

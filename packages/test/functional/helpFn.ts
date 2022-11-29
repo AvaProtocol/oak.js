@@ -7,10 +7,10 @@ import type { BalanceOf } from '@polkadot/types/interfaces';
 import BN from 'bn.js';
 import { waitReady } from '@polkadot/wasm-crypto';
 
-import { OakChains, OakChainWebsockets, SS58_PREFIX, MS_IN_SEC } from '../../src/constants';
-import { Scheduler } from '../../src/scheduler';
-import { Recurrer } from '../../src/recurrer'
-import { Observer } from '../../src/observer'
+import { OakChains, OakChainWebsockets, SS58_PREFIX, MS_IN_SEC } from '../utils/constants';
+import { Scheduler } from '../utils/scheduler';
+import { Recurrer } from '../utils/recurrer'
+import { Observer } from '../utils/observer'
 
 export const SECTION_NAME = 'automationTime';
 export const MIN_RUNNING_TEST_BALANCE = 20000000000;
@@ -72,40 +72,40 @@ export const hexToAscii = (hexStr: String, hasPrefix = false) => {
   return str;
 }
 
-export const getPolkadotApi = async () : Promise<ApiPromise> => {
-  const providerUrl = process.env.PROVIDER_URL || OakChainWebsockets[OakChains.STUR]; // PROVIDER_URL environment variable for local testing
-  const wsProvider = new WsProvider(providerUrl);
-  const polkadotApi = await ApiPromise.create({
-    provider: wsProvider,
-    rpc: {
-      automationTime: {
-        generateTaskId: {
-          description: 'Getting task ID given account ID and provided ID',
-          params: [
-            {
-              name: 'accountId',
-              type: 'AccountId',
-            },
-            {
-              name: 'providedId',
-              type: 'Text',
-            },
-          ],
-          type: 'Hash',
-        },
-      },
-    },
-  });
-  return polkadotApi;
-}
+// export const getPolkadotApi = async () : Promise<ApiPromise> => {
+//   const providerUrl = process.env.PROVIDER_URL || OakChainWebsockets[OakChains.STUR]; // PROVIDER_URL environment variable for local testing
+//   const wsProvider = new WsProvider(providerUrl);
+//   const polkadotApi = await ApiPromise.create({
+//     provider: wsProvider,
+//     rpc: {
+//       automationTime: {
+//         generateTaskId: {
+//           description: 'Getting task ID given account ID and provided ID',
+//           params: [
+//             {
+//               name: 'accountId',
+//               type: 'AccountId',
+//             },
+//             {
+//               name: 'providedId',
+//               type: 'Text',
+//             },
+//           ],
+//           type: 'Hash',
+//         },
+//       },
+//     },
+//   });
+//   return polkadotApi;
+// }
 
 /**
  * checkBalance: Check test account balance
  * @param keyringPair 
  */
-export const checkBalance = async (keyringPair: KeyringPair) => {
-  const polkadotApi = await getPolkadotApi();
-  const { data: balanceRaw } = await polkadotApi.query.system.account(keyringPair.address) as any;
+export const checkBalance = async (api: ApiPromise, keyringPair: KeyringPair) => {
+  // const polkadotApi = await getPolkadotApi();
+  const { data: balanceRaw } = await api.query.system.account(keyringPair.address) as any;
   expect((<BalanceOf>balanceRaw.free).gte(new BN(MIN_RUNNING_TEST_BALANCE))).toEqual(true);
 };
 
@@ -260,7 +260,7 @@ export const scheduleNativeTransferAndVerify = async (scheduler: Scheduler, obse
 export const scheduleDynamicDispatchTaskAndVerify = async (scheduler: Scheduler, observer: Observer, keyringPair: KeyringPair, extrinsicParams: any) => {
   // Send extrinsic and get extrinsicHash, blockHash.
   const { providedID, schedule, call } = extrinsicParams;
-  await checkBalance(keyringPair);
+  await checkBalance(observer.api, keyringPair);
   const hexString = await scheduler.buildScheduleDynamicDispatchTask(keyringPair, providedID, schedule, call);
   const { extrinsicHash, blockHash } = await sendExtrinsic(scheduler, hexString);
 
@@ -325,9 +325,7 @@ export const getNotifyExtrinsicParams = () => ({
  * @param scheduleType
  * @returns parameter object: { providedID, schedule, call }
  */
-export const getDynamicDispatchExtrinsicParams = async (scheduleType: string) => {
-  const polkadotApi = await getPolkadotApi();
-
+export const getDynamicDispatchExtrinsicParams = async (api: ApiPromise, scheduleType: string) => {
   let schedule = {};
   if (scheduleType === 'recurring') {
     const [nextExecutionTime] = _.map(new Recurrer().getHourlyRecurringTimestamps(Date.now(), 1), (time) => time / MS_IN_SEC);
@@ -345,7 +343,7 @@ export const getDynamicDispatchExtrinsicParams = async (scheduleType: string) =>
   return {
     providedID: generateProviderId(),
     schedule,
-    call: polkadotApi.tx['balances']['transfer'](RECEIVER_ADDRESS, TRANSFER_AMOUNT),
+    call: api.tx['balances']['transfer'](RECEIVER_ADDRESS, TRANSFER_AMOUNT),
   }
 }
 
@@ -353,12 +351,12 @@ export const getDynamicDispatchExtrinsicParams = async (scheduleType: string) =>
  * getContext: Get test context
  * @returns context object: { scheduler, observer, keyringPair }
  */
-export const getContext = async () => {
+export const getContext = async (api: ApiPromise) => {
   const chain = OakChains.STUR;
   const options = { providerUrl: process.env.PROVIDER_URL };
   return {
-    scheduler: new Scheduler(chain, options),
-    observer: new Observer(chain, options),
+    scheduler: new Scheduler(chain, api),
+    observer: new Observer(api),
     keyringPair: await getKeyringPair(),
   };
 }

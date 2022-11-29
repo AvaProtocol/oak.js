@@ -10,7 +10,6 @@ import {
   MIN_IN_HOUR,
   MS_IN_SEC,
   OakChainSchedulingLimit,
-  OakChainWebsockets,
   RECURRING_TASK_LIMIT,
   SEC_IN_MIN,
   AutomationAction,
@@ -27,9 +26,7 @@ interface AutostakingResult {
  * @param chain: OakChains
  */
 export class Scheduler {
-  wsProvider: WsProvider
   api: ApiPromise
-  chain: OakChains
   schedulingTimeLimit: number
 
   /**
@@ -37,10 +34,8 @@ export class Scheduler {
    * @param chain 
    * @param options { providerUrl }, You can specify a custom provider url.
    */
-   constructor(chain: OakChains, options: { providerUrl: string | undefined}) {
-    const { providerUrl } = options || {};
-    this.chain = chain
-    this.wsProvider = new WsProvider(providerUrl || OakChainWebsockets[chain]);
+  constructor(chain: OakChains, api: ApiPromise) {
+    this.api = api;
     this.schedulingTimeLimit = OakChainSchedulingLimit[chain]
   }
 
@@ -49,99 +44,7 @@ export class Scheduler {
    * @returns ApiPromise
    */
   private async getAPIClient(): Promise<ApiPromise> {
-    if (_.isNil(this.api)) {
-      this.api = await ApiPromise.create({
-        provider: this.wsProvider,
-        rpc: {
-          automationTime: {
-            generateTaskId: {
-              description: 'Getting task ID given account ID and provided ID',
-              params: [
-                {
-                  name: 'accountId',
-                  type: 'AccountId',
-                },
-                {
-                  name: 'providedId',
-                  type: 'Text',
-                },
-              ],
-              type: 'Hash',
-            },
-            getTimeAutomationFees: {
-              description: 'Retrieve automation fees',
-              params: [
-                {
-                  name: 'action',
-                  type: 'AutomationAction',
-                },
-                {
-                  name: 'executions',
-                  type: 'u32',
-                },
-              ],
-              type: 'Balance',
-            },
-            calculateOptimalAutostaking: {
-              description: 'Calculate the optimal period to restake',
-              params: [
-                {
-                  name: 'principal',
-                  type: 'i128',
-                },
-                {
-                  name: 'collator',
-                  type: 'AccountId',
-                },
-              ],
-              type: 'AutostakingResult',
-            },
-            getAutoCompoundDelegatedStakeTaskIds: {
-              description: 'Return autocompounding tasks by account',
-              params: [
-                {
-                  name: 'account_id',
-                  type: 'AccountId',
-                },
-              ],
-              type: 'Vec<Hash>',
-            },
-          },
-          xcmpHandler: {
-            fees: {
-              description: 'Return XCMP fee for a automationTime.scheduleXCMPTask',
-              params: [
-                {
-                  name: 'encoded_xt',
-                  type: 'Bytes',
-                },
-              ],
-              type: 'u64',
-            },
-            crossChainAccount: {
-              description: "Find OAK's cross chain access account from an account",
-              params: [
-                {
-                  name: 'account_id',
-                  type: 'AccountId32',
-                },
-              ],
-              type: 'AccountId32',
-            },
-          },
-        },
-        types: {
-          AutomationAction: {
-            _enum: ['Notify', 'NativeTransfer', 'XCMP', 'AutoCompoundDelegatedStake'],
-          },
-          AutostakingResult: {
-            period: 'i32',
-            apy: 'f64',
-          },
-        },
-      })
-    }
-    return this.api
+    return this.api;
   }
 
   /**

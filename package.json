@@ -10,7 +10,8 @@
     "build": "npm exec -- tsc --build tsconfig.build.json",
     "postbuild": "scripts/package-setup",
     "clean": "npm exec -- tsc --build --clean tsconfig.build.json",
-    "publish": "bash scripts/publish"
+    "publish": "bash scripts/publish",
+    "test": "npm run build && jest --runInBand ./packages/test/functional"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",

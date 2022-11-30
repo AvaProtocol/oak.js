@@ -1,6 +1,5 @@
-import { Scheduler } from './scheduler'
+import { AutomationTimeApi } from './apis/AutomationTimeApi'
 import { Recurrer } from './recurrer'
-import { Observer } from './observer'
 import * as oakConstants from './constants'
 
-export { Scheduler, Recurrer, Observer, oakConstants }
+export { AutomationTimeApi, Recurrer, oakConstants }

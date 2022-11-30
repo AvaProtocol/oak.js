@@ -1,9 +1,9 @@
-import { WsProvider, ApiPromise } from '@polkadot/api'
+import _ from 'lodash'
+import { ApiPromise } from '@polkadot/api'
 import { Signer, SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types'
 import { Balance } from '@polkadot/types/interfaces'
 import { ISubmittableResult } from '@polkadot/types/types'
 import { HexString } from '@polkadot/util/types'
-import * as _ from 'lodash'
 
 import {
   LOWEST_TRANSFERRABLE_AMOUNT,
@@ -12,21 +12,15 @@ import {
   OakChainSchedulingLimit,
   RECURRING_TASK_LIMIT,
   SEC_IN_MIN,
-  AutomationAction,
-} from './constants'
-
-interface AutostakingResult {
-  period: number
-  apy: number
-}
+} from '../constants'
 
 /**
  * The constructor takes the input to create an API client to connect to the blockchain.
  * Further commands are performed via this API client in order to reach the blockchain.
  * @param chain: OakChains
  */
-export class Scheduler {
-  api: ApiPromise
+export class AutomationTimeApi {
+  polkadotApi: ApiPromise
   schedulingTimeLimit: number
 
   /**
@@ -35,7 +29,7 @@ export class Scheduler {
    * @param options { providerUrl }, You can specify a custom provider url.
    */
   constructor(chain: OakChains, api: ApiPromise) {
-    this.api = api;
+    this.polkadotApi = api;
     this.schedulingTimeLimit = OakChainSchedulingLimit[chain]
   }
 
@@ -44,7 +38,7 @@ export class Scheduler {
    * @returns ApiPromise
    */
   private async getAPIClient(): Promise<ApiPromise> {
-    return this.api;
+    return this.polkadotApi;
   }
 
   /**
@@ -58,30 +52,6 @@ export class Scheduler {
       if (isMillisecond) return startTimestamp / MS_IN_SEC
       return startTimestamp
     })
-  }
-
-  /**
-   * Default error handler for websockets updates for extrinsic
-   * @param result
-   * @returns null
-   */
-  async defaultErrorHandler(result: ISubmittableResult): Promise<void> {
-    console.log(`Tx status: ${result.status.type}`)
-    if (result.status.isFinalized) {
-      if (!_.isNil(result.dispatchError)) {
-        if (result.dispatchError.isModule) {
-          const api = await this.getAPIClient()
-          const metaError = api.registry.findMetaError(result.dispatchError.asModule)
-          const { docs, name, section } = metaError
-          const dispatchErrorMessage = JSON.stringify({ docs, name, section })
-          const errMsg = `Transaction finalized with error by blockchain ${dispatchErrorMessage}`
-          console.log(errMsg)
-        } else {
-          const errMsg = `Transaction finalized with error by blockchain ${result.dispatchError.toString()}`
-          console.log(errMsg)
-        }
-      }
-    }
   }
 
   /**
@@ -112,41 +82,6 @@ export class Scheduler {
     // TODO: hack until we can merge correct types into polkadotAPI
     const taskIdCodec = await (polkadotApi.rpc as any).automationTime.generateTaskId(address, providedID)
     return taskIdCodec.toString()
-  }
-
-  /**
-   * getTimeAutomationFees
-   * @param action type
-   * @param executions
-   * @returns fee
-   */
-  async getTimeAutomationFees(action: AutomationAction, executions: number): Promise<number> {
-    const polkadotApi = await this.getAPIClient()
-    const resultCodec = await (polkadotApi.rpc as any).automationTime.getTimeAutomationFees(action, executions)
-    return resultCodec.toJSON() as unknown as number
-  }
-
-  /**
-   * calculateOptimalAutostaking
-   * @param principal
-   * @param collator
-   * @returns duration and apy result
-   */
-  async calculateOptimalAutostaking(principal: number, collator: string): Promise<AutostakingResult> {
-    const polkadotApi = await this.getAPIClient()
-    const resultCodec = await (polkadotApi.rpc as any).automationTime.calculateOptimalAutostaking(principal, collator)
-    return resultCodec.toPrimitive() as AutostakingResult
-  }
-
-  /**
-   * getAutoCompoundDelegatedStakeTaskIds
-   * @param account
-   * @returns list of autocompounding tasks
-   */
-  async getAutoCompoundDelegatedStakeTaskIds(account_id: string): Promise<Array<string>> {
-    const polkadotApi = await this.getAPIClient()
-    const resultCodec = await (polkadotApi.rpc as any).automationTime.getAutoCompoundDelegatedStakeTaskIds(account_id)
-    return resultCodec.toJSON() as unknown as Array<string>
   }
 
   /**
@@ -220,121 +155,6 @@ export class Scheduler {
     if (sendingAddress === receivingAddress) throw new Error(`Cannot send to self`)
   }
 
-  /**
-   * SendExtrinsic: sends built and signed extrinsic to the chain.
-   * Accepts pre-built extrinsic hex string. You may provide your own error handler.
-   * If none provided, a default error handler is provided, seen below.
-   * A transaction hash should be returned as a result of the extrinsic.
-   * @param extrinsic
-   * @param handleDispatch
-   * @returns transaction hash
-   */
-  async sendExtrinsic(
-    extrinsicHex: HexString,
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    handleDispatch: (result: ISubmittableResult) => any
-  ): Promise<string> {
-    const polkadotApi = await this.getAPIClient()
-    const txObject = polkadotApi.tx(extrinsicHex)
-    const unsub = await txObject.send(async (result) => {
-      const { status } = result
-      if (_.isNil(handleDispatch)) {
-        await this.defaultErrorHandler(result)
-      } else {
-        await handleDispatch(result)
-      }
-      if (status.isFinalized) {
-        unsub()
-      }
-    })
-    return txObject.hash.toString()
-  }
-
-  /**
-   * BuildScheduleNotifyExtrinsic: builds and signs a schedule notify task extrinsic.
-   * Function gets the next available nonce for user.
-   * Therefore, will need to wait for transaction finalization before sending another.
-   * Timestamps are converted into seconds if in milliseconds.
-   *
-   * Timestamps must be:
-   * 1. on the hour
-   * 2. in a future time slot, but within a chain-dependent scheduling limit.
-   * 3. limited to 24 time slots
-   *
-   * @param address
-   * @param providedID
-   * @param timestamp
-   * @param receivingAddress
-   * @param amount
-   * @returns extrinsic hex, format: `0x${string}`
-   */
-  async buildScheduleNotifyExtrinsic(
-    address: AddressOrPair,
-    providedID: string,
-    timestamps: number[],
-    message: string,
-    signer?: Signer
-  ): Promise<HexString> {
-    this.validateTimestamps(timestamps)
-    const secondTimestamps = this.convertToSeconds(timestamps)
-    const polkadotApi = await this.getAPIClient()
-    const extrinsic = polkadotApi.tx['automationTime']['scheduleNotifyTask'](providedID, secondTimestamps, message)
-    const signedExtrinsic = await extrinsic.signAsync(address, {
-      signer,
-      nonce: -1,
-    })
-    return signedExtrinsic.toHex()
-  }
-
-  /**
-   * BuildScheduleNativeTransferExtrinsic: builds and signs native transfer task extrinsic.
-   * Function gets the next available nonce for each wallet.
-   * Therefore, will need to wait for transaction finalization before sending another.
-   * Timestamps is an array of 1-24 unix timestamps, depending on recurrences needed.
-   * ProvidedID needs to be a unique ID per wallet address.
-   * Timestamps are converted into seconds if in milliseconds.
-   *
-   * Timestamps must be:
-   * 1. on the hour
-   * 2. in a future time slot, but within a chain-dependent scheduling limit.
-   * 3. limited to 24 time slots
-   *
-   * Native Transfer Params:
-   * 1. Must send a baseline amount of 1_000_000_000 plancks (0.1 STUR/TUR).
-   * 2. The receiving address must not be the same as that of the sender.
-   *
-   * @param address
-   * @param providedID
-   * @param timestamp
-   * @param receivingAddress
-   * @param amount
-   * @returns extrinsic hex, format: `0x${string}`
-   */
-  async buildScheduleNativeTransferExtrinsic(
-    address: AddressOrPair,
-    providedID: string,
-    timestamps: number[],
-    receivingAddress: string,
-    amount: number,
-    signer?: Signer
-  ): Promise<HexString> {
-    this.validateTimestamps(timestamps)
-    this.validateTransferParams(amount, address, receivingAddress)
-    const secondTimestamps = this.convertToSeconds(timestamps)
-    const polkadotApi = await this.getAPIClient()
-    const extrinsic = polkadotApi.tx['automationTime']['scheduleNativeTransferTask'](
-      providedID,
-      secondTimestamps,
-      receivingAddress,
-      amount
-    )
-    const signedExtrinsic = await extrinsic.signAsync(address, {
-      signer,
-      nonce: -1,
-    })
-    return signedExtrinsic.toHex()
-  }
-
   async buildScheduleDynamicDispatchTask(
     address: AddressOrPair,
     providedID: string,
@@ -382,12 +202,69 @@ export class Scheduler {
    * @returns extrinsic hex, format: `0x${string}`
    */
   async buildCancelTaskExtrinsic(address: AddressOrPair, taskID: string, signer?: Signer): Promise<HexString> {
+    const polkadotApi = await this.getAPIClient();
+    const extrinsic = polkadotApi.tx['automationTime']['cancelTask'](taskID);
+    const signedExtrinsic = await extrinsic.signAsync(address, { signer, nonce: -1});
+    return signedExtrinsic.toHex();
+  }
+
+  /**
+   * Gets Last Time Slots for AutomationTime pallet on chain
+   * @returns (number, number)
+   */
+   async getAutomationTimeLastTimeSlot(): Promise<number[]> {
     const polkadotApi = await this.getAPIClient()
-    const extrinsic = polkadotApi.tx['automationTime']['cancelTask'](taskID)
-    const signedExtrinsic = await extrinsic.signAsync(address, {
-      signer,
-      nonce: -1,
-    })
-    return signedExtrinsic.toHex()
+    const resultCodec = await polkadotApi.query['automationTime']['lastTimeSlot']()
+    return resultCodec.toJSON() as number[]
+  }
+
+  /**
+   * Gets Task hashes in Missed Queue. Missed Queue holds tasks that were not able
+   * to be run during their scheduled time slot and will no longer run.
+   * Tasks on the missed queue will be processed and an event will be emitted, marking
+   * completion of the task.
+   * @returns { task_id: 0xstring, execution_time: number }[]
+   */
+  async getAutomationTimeMissedQueue(): Promise<MissedTask[][]> {
+    const polkadotApi = await this.getAPIClient()
+    const resultCodec = await polkadotApi.query['automationTime']['missedQueueV2']()
+    return resultCodec.toJSON() as unknown as MissedTask[][]
+  }
+
+  /**
+   * Gets Task hashes in Task Queue. These are tasks that will be run in a time slot.
+   * Current time slots are only in hours.
+   * @returns 0xstring[]
+   */
+  async getAutomationTimeTaskQueue(): Promise<string[][]> {
+    const polkadotApi = await this.getAPIClient()
+    const resultCodec = await polkadotApi.query['automationTime']['taskQueueV2']()
+    return resultCodec.toJSON() as string[][]
+  }
+
+  /**
+   * Gets list of Task hashes for a given future time slot. These are the hashes for tasks
+   * scheduled in future time slots, which are defined by the beginning of each hour.
+   * @param inputTime
+   * @returns 0xstring[]
+   */
+  async getAutomationTimeScheduledTasks(inputTime: number): Promise<string[][]> {
+    const polkadotApi = await this.getAPIClient()
+    const resultCodec = await polkadotApi.query['automationTime']['scheduledTasksV3'](inputTime)
+    const tasksAfterCanceled = resultCodec.toJSON() as { tasks: string[][] }
+    const tasks = tasksAfterCanceled ? tasksAfterCanceled.tasks : []
+    return tasks
+  }
+
+  /**
+   * Gets an Automation Task given a task ID. This will have all data and metadata
+   * regarding each task.
+   * @param taskID
+   * @returns AutomationTask
+   */
+  async getAutomationTimeTasks(accountID: string, taskID: HexString): Promise<AutomationTask> {
+    const polkadotApi = await this.getAPIClient()
+    const resultCodec = await polkadotApi.query['automationTime']['accountTasks'](accountID, taskID)
+    return resultCodec.toJSON() as unknown as AutomationTask
   }
 }

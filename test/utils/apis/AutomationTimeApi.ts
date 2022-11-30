@@ -28,9 +28,9 @@ export class AutomationTimeApi {
    * @param chain 
    * @param options { providerUrl }, You can specify a custom provider url.
    */
-  constructor(chain: OakChains, api: ApiPromise) {
+  constructor(config: any, api: ApiPromise) {
     this.polkadotApi = api;
-    this.schedulingTimeLimit = OakChainSchedulingLimit[chain]
+    this.schedulingTimeLimit = config.schedulingTimeLimit;
   }
 
   /**
@@ -47,7 +47,7 @@ export class AutomationTimeApi {
    * @returns timestamp[] in seconds
    */
   private convertToSeconds(startTimestamps: number[]): number[] {
-    return _.map(startTimestamps, (startTimestamp) => {
+    return _.map(startTimestamps, (startTimestamp: number) => {
       const isMillisecond = startTimestamp > 100000000000
       if (isMillisecond) return startTimestamp / MS_IN_SEC
       return startTimestamp

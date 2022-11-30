@@ -27,5 +27,11 @@ Now you should be able to start the test using
 
 The tests are not meant to run repeatedly against live networks, but you could run against Turing Staging environment with
 ```
-export env="Turing Staging" && export mnemonic="<wallet_keywords>" && npm run test
+ENV="Turing Staging" MNEMONIC="<MNEMONIC>" npm run test
+```
+
+You can specify the endpoint in Turing Dev environment.
+
+```
+MNEMONIC="<MNEMONIC>" ENDPOINT="ws://127.0.0.1:9944" npm run test
 ```

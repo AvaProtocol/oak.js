@@ -12,8 +12,8 @@ import BN from 'bn.js';
 import { rpc, types, runtime } from '@oak-foundation/types'; 
 import '@oak-foundation/api-augment'; 
 
-import { AutomationTimeApi, Recurrer, oakConstants } from '../utils';
-const { OakChains, OakChainWebsockets, SS58_PREFIX, MS_IN_SEC } = oakConstants;
+import { AutomationTimeApi, Recurrer, oakConstants, config } from '../utils';
+const { SS58_PREFIX } = oakConstants;
 
 export const SECTION_NAME = 'automationTime';
 export const MIN_RUNNING_TEST_BALANCE = 20000000000;
@@ -21,24 +21,21 @@ export const TRANSFER_AMOUNT = 1000000000;
 export const RECEIVER_ADDRESS = '66fhJwYLiK87UDXYDQP9TfYdHpeEyMvQ3MK8Z6GgWAdyyCL3';
 const RECURRING_FREQUENCY = 3600;
 
-export const createPolkadotApi = async (chain: OakChains, options: { providerUrl: string | undefined}) => {
-  const { providerUrl } = options || {};
-  const wsProvider = new WsProvider(providerUrl || OakChainWebsockets[chain]);
-
+export const createPolkadotApi = async (endpoint: string) => {
+  const wsProvider = new WsProvider(endpoint);
   const polkadotApi = await ApiPromise.create({ provider: wsProvider, rpc, types, runtime });
   return polkadotApi;
 }
 
-export const getPolkadotApi = async () => createPolkadotApi(OakChains.STUR, { providerUrl: process.env.PROVIDER_URL });
+export const getPolkadotApi = async () => createPolkadotApi(config.endpoint);
 
  /**
   * getContext: Get test context
   * @returns context object: { scheduler, observer, keyringPair }
   */
 export const getContext = async (polkadotApi: ApiPromise) => {
-  const chain = OakChains.STUR;
   return {
-    automationTimeApi: new AutomationTimeApi(chain, polkadotApi),
+    automationTimeApi: new AutomationTimeApi(config, polkadotApi),
     keyringPair: await getKeyringPair(),
   };
 } 
@@ -103,22 +100,22 @@ export const getContext = async (polkadotApi: ApiPromise) => {
    const { data: balanceRaw } = await polkadotApi.query.system.account(keyringPair.address) as any;
    expect((<BalanceOf>balanceRaw.free).gte(new BN(MIN_RUNNING_TEST_BALANCE))).toEqual(true);
  };
- 
- /**
-  * getKeyringPair: Get keyring pair for testing
-  * @returns keyring pair
-  */
- export const getKeyringPair = async () => {
-   await waitReady();
-   if (_.isEmpty(process.env.SENDER_MNEMONIC)) {
-     throw new Error('The SENDER_MNEMONIC environment variable is not set.')
-   }
-   // Generate sender keyring pair from mnemonic
-   const keyring = new Keyring({ type: 'sr25519', ss58Format: SS58_PREFIX });
-   const keyringPair = keyring.addFromMnemonic(process.env.SENDER_MNEMONIC);
-   return keyringPair;
- }
- 
+
+/**
+ * getKeyringPair: Get keyring pair for testing
+ * @returns keyring pair
+ */
+export const getKeyringPair = async () => {
+  await waitReady();
+  if (config.env !== 'Turing Dev' && _.isEmpty(process.env.MNEMONIC)) {
+    throw new Error('The MNEMONIC environment variable is not set.')
+  }
+  // Generate sender keyring pair from mnemonic
+  const keyring = new Keyring({ type: 'sr25519', ss58Format: SS58_PREFIX });
+  const keyringPair = config.env === 'Turing Dev' && _.isEmpty(process.env.MNEMONIC) ? keyring.addFromUri('//Alice') : keyring.addFromMnemonic(process.env.MNEMONIC);
+  return keyringPair;
+}
+
  /**
   * findExtrinsicFromChain: Find extrinsic from chain
   * @param polkadotApi 
@@ -127,11 +124,11 @@ export const getContext = async (polkadotApi: ApiPromise) => {
   * @returns extrinsic
   */
  export const findExtrinsicFromChain = async (polkadotApi: ApiPromise, blockHash: string, extrinsicHash: string) : Promise<Extrinsic> => {
-   const signedBlock = await polkadotApi.rpc.chain.getBlock(blockHash);
-   const { block: { extrinsics } } = signedBlock;
-   const extrinsic = _.find(extrinsics, (extrinsic) => extrinsic.hash.toHex() === extrinsicHash);
-   return extrinsic;
- }
+  const signedBlock = await polkadotApi.rpc.chain.getBlock(blockHash);
+  const { block: { extrinsics } } = signedBlock;
+  const extrinsic = _.find(extrinsics, (extrinsic) => extrinsic.hash.toHex() === extrinsicHash);
+  return extrinsic;
+}
  
  /**
   * cancelTaskAndVerify: Cancel task and verify on chain
@@ -141,25 +138,25 @@ export const getContext = async (polkadotApi: ApiPromise) => {
   * @param extrinsicParams
   * @returns taskID
   */
- export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, keyringPair: KeyringPair, taskID: string, executionTimestamp: number) => {
-   const cancelExtrinsicHex = await automationTimeApi.buildCancelTaskExtrinsic(keyringPair, taskID);
-   const { extrinsicHash, blockHash } = await sendExtrinsic(automationTimeApi.polkadotApi, cancelExtrinsicHex);
- 
-   // Fetch extrinsic from chain
-   const extrinsic = await findExtrinsicFromChain(automationTimeApi.polkadotApi, blockHash, extrinsicHash);
- 
-   //  Verify arguments
-   const { section, method, args } = extrinsic.method;
-   const [taskIdOnChain] = args;
- 
-   expect(section).toEqual(SECTION_NAME);
-   expect(method).toEqual('cancelTask');
-   expect(taskIdOnChain.toString()).toEqual(taskID);
- 
-    // Make sure the task has been canceled.
-    const tasks = await automationTimeApi.getAutomationTimeScheduledTasks(executionTimestamp);
-    expect(_.find(tasks, (task) => !_.isNil(_.find(task, ([_account, scheduledTaskId]) => scheduledTaskId === taskID)))).toBeUndefined();
- }
+export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, keyringPair: KeyringPair, taskID: string, executionTimestamp: number) => {
+  const cancelExtrinsicHex = await automationTimeApi.buildCancelTaskExtrinsic(keyringPair, taskID);
+  const { extrinsicHash, blockHash } = await sendExtrinsic(automationTimeApi.polkadotApi, cancelExtrinsicHex);
+
+  // Fetch extrinsic from chain
+  const extrinsic = await findExtrinsicFromChain(automationTimeApi.polkadotApi, blockHash, extrinsicHash);
+
+  //  Verify arguments
+  const { section, method, args } = extrinsic.method;
+  const [taskIdOnChain] = args;
+
+  expect(section).toEqual(SECTION_NAME);
+  expect(method).toEqual('cancelTask');
+  expect(taskIdOnChain.toString()).toEqual(taskID);
+
+  // Make sure the task has been canceled.
+  const tasks = await automationTimeApi.getAutomationTimeScheduledTasks(executionTimestamp);
+  expect(_.find(tasks, (task) => !_.isNil(_.find(task, ([_account, scheduledTaskId]) => scheduledTaskId === taskID)))).toBeUndefined();
+}
  
  /**
   * scheduleDynamicDispatchTaskAndVerify: Schedule dynamic dispath task and verify extrinsic parameters on chain
@@ -217,7 +214,7 @@ export const getContext = async (polkadotApi: ApiPromise) => {
  export const getDynamicDispatchExtrinsicParams = async (polkadotApi: ApiPromise, scheduleType: string) => {
    let schedule = {};
    if (scheduleType === 'recurring') {
-     const [nextExecutionTime] = _.map(new Recurrer().getHourlyRecurringTimestamps(Date.now(), 1), (time) => time / MS_IN_SEC);
+     const [nextExecutionTime] = _.map(new Recurrer().getHourlyRecurringTimestamps(Date.now(), 1), (time: number) => (time / 1000));
      schedule =  {
        recurring: {
          nextExecutionTime,
@@ -225,7 +222,7 @@ export const getContext = async (polkadotApi: ApiPromise) => {
        }
      };
    } else {
-     const executionTimes = _.map(new Recurrer().getDailyRecurringTimestamps(Date.now(), 3, 7), (time) => time / MS_IN_SEC);
+     const executionTimes = _.map(new Recurrer().getDailyRecurringTimestamps(Date.now(), 3, 7), (time: number) => (time / 1000));
      schedule =  { fixed: { executionTimes } };
    }
  

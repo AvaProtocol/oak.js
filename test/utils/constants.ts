@@ -4,22 +4,18 @@ export const RECURRING_TASK_LIMIT = 24
 export const LOWEST_TRANSFERRABLE_AMOUNT = 1000000000
 export const SS58_PREFIX = 51
 
-export ChainConfig:object {
+export const chainConfigs = {
   "Turing Dev": {
-    endpoint: 'ws://127.0.0.1:9946',
-    mnemonic: '<use Alice’s mnemonic is Turing dev chain config>',
-    symbol: 'TUR',
+    endpoint: process.env.ENDPOINT || 'ws://127.0.0.1:9946',
     scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,  // 6 months
   },
   "Turing Staging": {
     endpoint: 'wss://rpc.turing-staging.oak.tech',
-    symbol: 'TUR',
-    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,  // 6 months
+    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,
   },
   "Turing": {
     endpoint: 'wss://rpc.turing.oak.tech',
-    symbol: 'TUR',
-    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,  // 6 months
+    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,
   }
 }
 

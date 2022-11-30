@@ -3,7 +3,6 @@ import { ApiPromise } from '@polkadot/api';
 import type { KeyringPair } from '@polkadot/keyring/types';
 
 import { getPolkadotApi, sendExtrinsic, getDynamicDispatchExtrinsicParams, scheduleDynamicDispatchTaskAndVerify, cancelTaskAndVerify, SECTION_NAME, checkBalance, getContext } from '../utils/helpFn';
-import { OakChains } from '../utils/constants'
 import { AutomationTimeApi } from '../utils';
 
 let polkadotApi: ApiPromise;

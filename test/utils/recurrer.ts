@@ -36,7 +36,7 @@ export class Recurrer {
     const startMonth = startDate.getUTCMonth()
     const startDay = startHour < hourOfDay ? startDate.getUTCDate() : startDate.getUTCDate() + ADDITIONAL_UNIT
     const firstEventTimestamp = Date.UTC(startYear, startMonth, startDay, hourOfDay)
-    const milliSecondsInDay = HOUR_IN_DAY * MIN_IN_HOUR * SEC_IN_MIN * MS_IN_SEC
+    const milliSecondsInDay = 
     return _.times(numberRecurring, (index) => {
       return firstEventTimestamp + index * milliSecondsInDay
     })

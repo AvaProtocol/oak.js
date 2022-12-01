@@ -14,12 +14,12 @@ export ChainConfig:object {
   "Turing Staging": {
     endpoint: 'wss://rpc.turing-staging.oak.tech',
     symbol: 'TUR',
-    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,
+    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,  // 6 months
   },
   "Turing": {
     endpoint: 'wss://rpc.turing.oak.tech',
     symbol: 'TUR',
-    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,
+    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,  // 6 months
   }
 }
 

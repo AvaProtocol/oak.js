@@ -8,7 +8,7 @@ on:
   schedule:
     # Please set the start time (UTC time zone).
     # https://docs.github.com/cn/actions/using-workflows/events-that-trigger-workflows#schedule
-    - cron: '0 12 * * MON-FRI'
+    # - cron: '0 12 * * MON-FRI'
   workflow_dispatch:
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
         env:
           SENDER_MNEMONIC: ${{ secrets.SENDER_MNEMONIC }}
         run: |
-          npm run test:all
+          npm run test
 
   report-failure:
     name: Report failure status

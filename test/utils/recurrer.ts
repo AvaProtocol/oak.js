@@ -51,11 +51,9 @@ export class Recurrer {
    * @returns hourly recurring timestamps
    */
   getHourlyRecurringTimestamps(startTimestamp: number, numberRecurring: number): number[] {
-    const secondsInHour = 3600;
-    const firstEventTimestamp = startTimestamp - (startTimestamp % secondsInHour) + secondsInHour
-    return _.times(numberRecurring, (index) => {
-      return firstEventTimestamp + index * secondsInHour
-    })
+    const millisecondsInHour = 360000;
+    const firstEventTimestamp = startTimestamp - (startTimestamp % millisecondsInHour) + millisecondsInHour;
+    return _.times(numberRecurring, (index) => firstEventTimestamp + index * millisecondsInHour)
   }
 
   private findWeekdayStartDate(startWeekday: number, dayOfWeek: DayOfWeek, canStartSameDay: boolean): number {

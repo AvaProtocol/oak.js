@@ -9,12 +9,12 @@
     "generate:defs": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-defs --package @oak-foundation/api-augment/interfaces --input ./src/interfaces --endpoint ./edgeware.json",
     "generate:meta": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-chain --package @oak-foundation/api-augment/interfaces --endpoint ./edgeware.json --output ./src/interfaces",
     "lint": "tsc --noEmit --pretty",
-    "clean:defs": "find ./src/interfaces ! -name 'definitions.ts' -type f -exec rm {} +"
+    "clean:defs": "find ./src/interfaces ! -name 'definitions.ts' ! -name 'runtime.ts' -type f -exec rm {} +"
   },
   "dependencies": {
-    "@polkadot/types": "^9.2.3"
+    "@polkadot/types": "^9.9.4"
   },
   "devDependencies": {
-    "@polkadot/typegen": "^9.2.3"
+    "@polkadot/typegen": "^9.9.4"
   }
 }

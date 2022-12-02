@@ -1,4 +1,5 @@
 import { Definitions } from '@polkadot/types/types'
+import { runtime } from './runtime';
 
 const automationTime = {
   rpc: {
@@ -48,5 +49,6 @@ const automationTime = {
       apy: 'f64',
     },
   },
+  runtime,
 }
 export default automationTime as Definitions

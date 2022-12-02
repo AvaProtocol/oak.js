@@ -1,5 +1,5 @@
 import * as _ from 'lodash'
-import { ADDITIONAL_UNIT, DAYS_IN_WEEK, HOUR_IN_DAY, MIN_IN_HOUR, MS_IN_SEC, NO_DIFF, SEC_IN_MIN } from './constants'
+import { ADDITIONAL_UNIT, NO_DIFF } from './constants'
 
 /**
  * Recurring timestamps is a feature that allows for users to schedule regularly
@@ -36,10 +36,8 @@ export class Recurrer {
     const startMonth = startDate.getUTCMonth()
     const startDay = startHour < hourOfDay ? startDate.getUTCDate() : startDate.getUTCDate() + ADDITIONAL_UNIT
     const firstEventTimestamp = Date.UTC(startYear, startMonth, startDay, hourOfDay)
-    const milliSecondsInDay = HOUR_IN_DAY * MIN_IN_HOUR * SEC_IN_MIN * MS_IN_SEC
-    return _.times(numberRecurring, (index) => {
-      return firstEventTimestamp + index * milliSecondsInDay
-    })
+    const milliSecondsInDay = 86400000;
+    return _.times(numberRecurring, (index) => firstEventTimestamp + index * milliSecondsInDay);
   }
 
   /**
@@ -53,23 +51,22 @@ export class Recurrer {
    * @returns hourly recurring timestamps
    */
   getHourlyRecurringTimestamps(startTimestamp: number, numberRecurring: number): number[] {
-    const secondsInHour = MIN_IN_HOUR * SEC_IN_MIN * MS_IN_SEC
-    const firstEventTimestamp = startTimestamp - (startTimestamp % secondsInHour) + secondsInHour
-    return _.times(numberRecurring, (index) => {
-      return firstEventTimestamp + index * secondsInHour
-    })
+    const millisecondsInHour = 3600000;
+    const firstEventTimestamp = startTimestamp - (startTimestamp % millisecondsInHour) + millisecondsInHour;
+    return _.times(numberRecurring, (index) => firstEventTimestamp + index * millisecondsInHour)
   }
 
   private findWeekdayStartDate(startWeekday: number, dayOfWeek: DayOfWeek, canStartSameDay: boolean): number {
+    const daysInWeek = 7
     const isSameDayOfWeek = startWeekday - dayOfWeek === NO_DIFF
     if (isSameDayOfWeek) {
       if (canStartSameDay) {
         return NO_DIFF
       } else {
-        return DAYS_IN_WEEK
+        return daysInWeek
       }
     } else if (startWeekday > dayOfWeek) {
-      return DAYS_IN_WEEK - (startWeekday - dayOfWeek)
+      return daysInWeek - (startWeekday - dayOfWeek)
     } else {
       return dayOfWeek - startWeekday
     }
@@ -93,7 +90,7 @@ export class Recurrer {
     hourOfDay: HourOfDay,
     dayOfWeek: DayOfWeek
   ): number[] {
-    const secondsInWeek = DAYS_IN_WEEK * HOUR_IN_DAY * MIN_IN_HOUR * SEC_IN_MIN * MS_IN_SEC
+    const secondsInWeek = 604800;
     const startDate = new Date(startTimestamp)
     const startHour = startDate.getUTCHours()
     const startYear = startDate.getUTCFullYear()
@@ -140,7 +137,7 @@ export class Recurrer {
     dayOfWeek: DayOfWeek,
     weekOfMonth: WeekOfMonth
   ): number {
-    const secondsInWeek = DAYS_IN_WEEK * HOUR_IN_DAY * MIN_IN_HOUR * SEC_IN_MIN * MS_IN_SEC
+    const secondsInWeek = 604800;
     const firstDayOfMonth = new Date(Date.UTC(startYear, startMonth))
     const firstDayOfMonthWeekday = firstDayOfMonth.getUTCDay()
     const dateOfFirstDayOfWeekInMonth =

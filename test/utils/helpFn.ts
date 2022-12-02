@@ -106,13 +106,16 @@ export const getContext = async (polkadotApi: ApiPromise) => {
  * @returns keyring pair
  */
 export const getKeyringPair = async () => {
-  await waitReady();
-  if (config.env !== 'Turing Dev' && _.isEmpty(process.env.MNEMONIC)) {
+  const { mnemonic } = config;
+  if (_.isEmpty(mnemonic)) {
     throw new Error('The MNEMONIC environment variable is not set.')
   }
+
+  await waitReady();
+
   // Generate sender keyring pair from mnemonic
   const keyring = new Keyring({ type: 'sr25519', ss58Format: SS58_PREFIX });
-  const keyringPair = config.env === 'Turing Dev' && _.isEmpty(process.env.MNEMONIC) ? keyring.addFromUri('//Alice') : keyring.addFromMnemonic(process.env.MNEMONIC);
+  const keyringPair = _.startsWith(mnemonic, '//') ? keyring.addFromUri(mnemonic) : keyring.addFromMnemonic(mnemonic);
   return keyringPair;
 }
 

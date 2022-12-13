@@ -31,6 +31,13 @@ export default {
       ],
       type: 'Vec<Hash>',
     },
+    queryFeeDetails: {
+      description: 'The transaction fee details',
+      params: [
+        { name: 'extrinsic', type: 'Extrinsic' },
+      ],
+      type: 'AutomationFeeDetails'
+    },
   },
   types: {
     AutomationAction: {
@@ -44,6 +51,10 @@ export default {
     AutostakingResult: {
       period: 'i32',
       apy: 'f64',
+    },
+    AutomationFeeDetails: {
+      executionFee: 'Balance',
+      xcmpFee: 'Balance',
     },
   },
   runtime: {
@@ -80,7 +91,14 @@ export default {
               { name: 'account_id', type: 'AccountId' },
             ],
             type: 'Vec<Hash>',
-          }
+          },
+          query_fee_details: {
+            description: 'The transaction fee details',
+            params: [
+              { name: 'extrinsic', type: 'Extrinsic' },
+            ],
+            type: 'AutomationFeeDetails'
+          },
         },
         version: 1
       }

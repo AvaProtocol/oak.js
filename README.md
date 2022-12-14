@@ -1,5 +1,9 @@
 # oak.js OAK Network Javascript SDK
-This Javascript library extends polkadot.js and provides typing information for OAK Network functionalities.
+This Javascript library extends polkadot.js and provides typing decoration for OAK Network functions. With the installation of
+
+`@oak-network/api-augment`, and `@oak-network/types`
+
+you will be able to call OAK’s unique extrinsic such as timeAutomation.scheduleXcmpTask with polkadot.js library.
 
 ## Usage
 ### Install
@@ -9,7 +13,7 @@ First, determine the runtime version of the blockchain your code is connecting t
 
 Second, find the version number of the blockchain from [OAK-blockchain Releases](https://github.com/OAK-Foundation/OAK-blockchain/releases), for example, in "287 runtime & v1.7.0" "1.7.0" is the version number.
 
-Run `npm i @oak-network/api-augment@1.7.0`
+Run `npm i @oak-network/api-augment@1.7.0`, and `npm i @oak-network/types@1.7.0`.
 
 ### Include the library in code
 Check out code snippet in [./demo/src](https://github.com/OAK-Foundation/oak.js/tree/main/demo/src) for Time Automation code, but put simply, below lines will add type check of OAK extrinsic to the existing polkadot.js library.

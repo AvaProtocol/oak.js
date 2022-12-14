@@ -1,14 +1,19 @@
 # oak.js OAK Network Javascript SDK
-This Javascript library extends polkadot.js and provides typing information for OAK Network functionalities.
+This Javascript library extends polkadot.js and provides typing decoration for OAK Network functions. With the installation of
+
+`@oak-network/api-augment`, and `@oak-network/types`
+
+you will be able to call OAK’s unique extrinsic such as timeAutomation.scheduleXcmpTask with polkadot.js library.
 
 ## Usage
 ### Install
 First, determine the runtime version of the blockchain your code is connecting to. Navigate to [Polkadot.js app](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.turing.oak.tech) and check out the runtime version at the top right corner.
-![]("./media/runtime-version.png")
+
+![Runtime version in polkadot.js](/media/runtime-version.png)
 
 Second, find the version number of the blockchain from [OAK-blockchain Releases](https://github.com/OAK-Foundation/OAK-blockchain/releases), for example, in "287 runtime & v1.7.0" "1.7.0" is the version number.
 
-Run `npm i @oak-network/api-augment@1.7.0`
+Run `npm i @oak-network/api-augment@1.7.0`, and `npm i @oak-network/types@1.7.0`.
 
 ### Include the library in code
 Check out code snippet in [./demo/src](https://github.com/OAK-Foundation/oak.js/tree/main/demo/src) for Time Automation code, but put simply, below lines will add type check of OAK extrinsic to the existing polkadot.js library.
@@ -45,6 +50,10 @@ You can specify the endpoint in Turing Dev environment.
 MNEMONIC="<MNEMONIC>" ENDPOINT="ws://127.0.0.1:9944" npm run test
 ```
 
-## NPM Publish
-1. First install `np` package manger with `sudo npm install --global np`.
-2. Run `np` and follow its prompt.
+## Publish the packages
+> Pre-requisite: only @oak-network developer team on https://www.npmjs.com/ has the rights to publish new versions
+
+1. Run `npm run publish <publish_version> <2fa_code>`
+   1. The first parameter <publish_version> should match OAK-blockchain code version.
+   2. The second parameter <2fa_code> is the Two-Factor Authenticator code of your npmjs.com account, which is enforced enable when joining @oak-network team.
+2. You should receive an email from support@npmjs.com if the package is successfully published.

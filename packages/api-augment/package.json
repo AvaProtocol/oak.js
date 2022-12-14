@@ -2,7 +2,7 @@
   "name": "@oak-foundation/api-augment",
   "version": "0.0.12",
   "main": "./build/index.js",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "generate": "npm run load:meta && npm run generate:defs && npm run generate:meta && npm run lint",
     "load:meta": "bash scripts/download-metadata",

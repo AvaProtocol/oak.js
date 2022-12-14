@@ -4,7 +4,8 @@ This Javascript library extends polkadot.js and provides typing information for 
 ## Usage
 ### Install
 First, determine the runtime version of the blockchain your code is connecting to. Navigate to [Polkadot.js app](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.turing.oak.tech) and check out the runtime version at the top right corner.
-![]("./media/runtime-version.png")
+
+![Runtime version in polkadot.js](/media/runtime-version.png)
 
 Second, find the version number of the blockchain from [OAK-blockchain Releases](https://github.com/OAK-Foundation/OAK-blockchain/releases), for example, in "287 runtime & v1.7.0" "1.7.0" is the version number.
 

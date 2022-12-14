@@ -35,3 +35,7 @@ You can specify the endpoint in Turing Dev environment.
 ```
 MNEMONIC="<MNEMONIC>" ENDPOINT="ws://127.0.0.1:9944" npm run test
 ```
+
+## NPM Publish
+1. First install `np` package manger with `sudo npm install --global np`.
+2. Run `np` and follow its prompt.

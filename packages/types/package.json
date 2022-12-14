@@ -1,5 +1,5 @@
 {
-  "name": "@oak-foundation/types",
+  "name": "@oak-network/types",
   "version": "0.0.12",
   "main": "./build/index.js",
   "license": "Apache-2.0",

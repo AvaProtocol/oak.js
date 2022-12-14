@@ -1,10 +1,9 @@
 {
   "name": "oak.js",
   "version": "0.0.18",
-  "main": "index.js",
   "repository": "https://github.com/oak-foundation/oak.js",
   "author": "OAK Team <contact@oak.tech>",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "scripts": {
     "build": "npm exec -- tsc --build tsconfig.build.json",

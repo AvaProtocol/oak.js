@@ -50,7 +50,6 @@ MNEMONIC="<MNEMONIC>" ENDPOINT="ws://127.0.0.1:9944" npm run test
 > Pre-requisite: only @oak-network developer team on https://www.npmjs.com/ has the rights to publish new versions
 
 1. Run `npm run publish <publish_version> <2fa_code>`
-   1. The <publish_version> should be the same as that of OAK-blockchain.
-   2. <2fa_code> is the Two-Factor Authenticator code of your npmjs.com account.
-   3. If "running tests ..." gets stuck, run `np --no-tests`.
+   1. The first parameter <publish_version> should match OAK-blockchain code version.
+   2. The second parameter <2fa_code> is the Two-Factor Authenticator code of your npmjs.com account, which is enforced enable when joining @oak-network team.
 2. You should receive an email from support@npmjs.com if the package is successfully published.

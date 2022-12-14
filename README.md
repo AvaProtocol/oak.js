@@ -45,6 +45,11 @@ You can specify the endpoint in Turing Dev environment.
 MNEMONIC="<MNEMONIC>" ENDPOINT="ws://127.0.0.1:9944" npm run test
 ```
 
-## NPM Publish
-1. First install `np` package manger with `sudo npm install --global np`.
-2. Run `np` and follow its prompt.
+## Publish the packages
+> Pre-requisite: only @oak-network developer team on https://www.npmjs.com/ has the rights to publish new versions
+
+1. Run `npm run publish <publish_version> <2fa_code>`
+   1. The <publish_version> should be the same as that of OAK-blockchain.
+   2. <2fa_code> is the Two-Factor Authenticator code of your npmjs.com account.
+   3. If "running tests ..." gets stuck, run `np --no-tests`.
+2. You should receive an email from support@npmjs.com if the package is successfully published.

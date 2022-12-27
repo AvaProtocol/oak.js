@@ -34,6 +34,13 @@ const automationTime = {
       ],
       type: 'Vec<Hash>',
     },
+    queryFeeDetails: {
+      description: 'The transaction fee details',
+      params: [
+        { name: 'extrinsic', type: 'Extrinsic' },
+      ],
+      type: 'AutomationFeeDetails'
+    },
   },
   types: {
     AutomationAction: {
@@ -47,6 +54,10 @@ const automationTime = {
     AutostakingResult: {
       period: 'i32',
       apy: 'f64',
+    },
+    AutomationFeeDetails: {
+      executionFee: 'Balance',
+      xcmpFee: 'Balance',
     },
   },
   runtime,

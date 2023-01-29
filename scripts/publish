@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Publish packages to npm
-# usage: npm run publish -- <version> <opt>
+# usage: npm run publish -- <version> <otp>
 # Publish production version: npm run publish -- 1.9.0 111111
 # Publish release-candidate version: npm run publish -- 1.9.0-rc.1 111111
 version=$1

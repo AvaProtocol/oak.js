@@ -10,7 +10,7 @@ import type { Data } from '@polkadot/types';
 import type { Bytes, Compact, Option, Struct, U8aFixed, Vec, WrapperKeepOpaque, bool, i128, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress, Perbill, Percent, Weight } from '@polkadot/types/interfaces/runtime';
-import type { CumulusPrimitivesParachainInherentParachainInherentData, FrameSupportScheduleMaybeHashed, OrmlTraitsAssetRegistryAssetMetadata, PalletAutomationPriceDirection, PalletAutomationTimeScheduleParam, PalletDemocracyConviction, PalletDemocracyVoteAccountVote, PalletIdentityBitFlags, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletMultisigTimepoint, PalletXcmpHandlerXcmCurrencyData, PrimitivesAssetsCustomMetadata, SpRuntimeHeader, TuringRuntimeOriginCaller, TuringRuntimeProxyType, TuringRuntimeSessionKeys, XcmV1MultiLocation, XcmV2WeightLimit, XcmVersionedMultiAsset, XcmVersionedMultiAssets, XcmVersionedMultiLocation, XcmVersionedXcm } from '@polkadot/types/lookup';
+import type { CumulusPrimitivesParachainInherentParachainInherentData, FrameSupportScheduleMaybeHashed, OrmlTraitsAssetRegistryAssetMetadata, PalletAutomationPriceDirection, PalletAutomationTimeScheduleParam, PalletDemocracyConviction, PalletDemocracyVoteAccountVote, PalletIdentityBitFlags, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletMultisigTimepoint, PalletXcmpHandlerXcmAssetConfig, PrimitivesAssetsCustomMetadata, SpRuntimeHeader, TuringRuntimeOriginCaller, TuringRuntimeProxyType, TuringRuntimeSessionKeys, XcmV1MultiLocation, XcmV2WeightLimit, XcmVersionedMultiAsset, XcmVersionedMultiAssets, XcmVersionedMultiLocation, XcmVersionedXcm } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -212,7 +212,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * * The transaction is signed
        * * The provided_id's length > 0
        * * The times are valid
-       * * The chain/currency pair is supported
+       * * The given asset location is supported
        * 
        * # Parameters
        * * `provided_id`: An id provided by the user. This id must be unique for the user.
@@ -229,7 +229,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `TimeTooFarOut`: Execution time or frequency are past the max time horizon.
        * * `TimeSlotFull`: Time slot is full. No more tasks can be scheduled for this time.
        **/
-      scheduleXcmpTask: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, schedule: PalletAutomationTimeScheduleParam | { Fixed: any } | { Recurring: any } | string | Uint8Array, paraId: u32 | AnyNumber | Uint8Array, currencyId: u32 | AnyNumber | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, PalletAutomationTimeScheduleParam, u32, u32, Bytes, u64]>;
+      scheduleXcmpTask: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, schedule: PalletAutomationTimeScheduleParam | { Fixed: any } | { Recurring: any } | string | Uint8Array, paraId: u32 | AnyNumber | Uint8Array, currencyId: u32 | AnyNumber | Uint8Array, xcmAssetLocation: XcmVersionedMultiLocation | { V0: any } | { V1: any } | string | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, PalletAutomationTimeScheduleParam, u32, u32, XcmVersionedMultiLocation, Bytes, u64]>;
+      scheduleXcmpTaskThroughProxy: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, schedule: PalletAutomationTimeScheduleParam | { Fixed: any } | { Recurring: any } | string | Uint8Array, paraId: u32 | AnyNumber | Uint8Array, currencyId: u32 | AnyNumber | Uint8Array, xcmAssetLocation: XcmVersionedMultiLocation | { V0: any } | { V1: any } | string | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: u64 | AnyNumber | Uint8Array, scheduleAs: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, PalletAutomationTimeScheduleParam, u32, u32, XcmVersionedMultiLocation, Bytes, u64, AccountId32]>;
       /**
        * Generic tx
        **/
@@ -1741,7 +1742,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Weight is a function of the number of proxies the user has (P).
        * # </weight>
        **/
-      addProxy: AugmentedSubmittable<(delegate: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, TuringRuntimeProxyType, u32]>;
+      addProxy: AugmentedSubmittable<(delegate: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | 'Automation' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, TuringRuntimeProxyType, u32]>;
       /**
        * Publish the hash of a proxy-call that will be made in the future.
        * 
@@ -1791,7 +1792,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * # </weight>
        * TODO: Might be over counting 1 read
        **/
-      anonymous: AugmentedSubmittable<(proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array, index: u16 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [TuringRuntimeProxyType, u32, u16]>;
+      anonymous: AugmentedSubmittable<(proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | 'Automation' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array, index: u16 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [TuringRuntimeProxyType, u32, u16]>;
       /**
        * Removes a previously spawned anonymous proxy.
        * 
@@ -1814,7 +1815,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Weight is a function of the number of proxies the user has (P).
        * # </weight>
        **/
-      killAnonymous: AugmentedSubmittable<(spawner: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, index: u16 | AnyNumber | Uint8Array, height: Compact<u32> | AnyNumber | Uint8Array, extIndex: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, TuringRuntimeProxyType, u16, Compact<u32>, Compact<u32>]>;
+      killAnonymous: AugmentedSubmittable<(spawner: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | 'Automation' | number | Uint8Array, index: u16 | AnyNumber | Uint8Array, height: Compact<u32> | AnyNumber | Uint8Array, extIndex: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, TuringRuntimeProxyType, u16, Compact<u32>, Compact<u32>]>;
       /**
        * Dispatch the given `call` from an account that the sender is authorised for through
        * `add_proxy`.
@@ -1832,7 +1833,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Weight is a function of the number of proxies the user has (P).
        * # </weight>
        **/
-      proxy: AugmentedSubmittable<(real: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, forceProxyType: Option<TuringRuntimeProxyType> | null | Uint8Array | TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Option<TuringRuntimeProxyType>, Call]>;
+      proxy: AugmentedSubmittable<(real: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, forceProxyType: Option<TuringRuntimeProxyType> | null | Uint8Array | TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | 'Automation' | number, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Option<TuringRuntimeProxyType>, Call]>;
       /**
        * Dispatch the given `call` from an account that the sender is authorized for through
        * `add_proxy`.
@@ -1852,7 +1853,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * - P: the number of proxies the user has.
        * # </weight>
        **/
-      proxyAnnounced: AugmentedSubmittable<(delegate: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, real: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, forceProxyType: Option<TuringRuntimeProxyType> | null | Uint8Array | TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, MultiAddress, Option<TuringRuntimeProxyType>, Call]>;
+      proxyAnnounced: AugmentedSubmittable<(delegate: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, real: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, forceProxyType: Option<TuringRuntimeProxyType> | null | Uint8Array | TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | 'Automation' | number, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, MultiAddress, Option<TuringRuntimeProxyType>, Call]>;
       /**
        * Remove the given announcement of a delegate.
        * 
@@ -1917,7 +1918,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Weight is a function of the number of proxies the user has (P).
        * # </weight>
        **/
-      removeProxy: AugmentedSubmittable<(delegate: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, TuringRuntimeProxyType, u32]>;
+      removeProxy: AugmentedSubmittable<(delegate: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, proxyType: TuringRuntimeProxyType | 'Any' | 'Session' | 'Staking' | 'Automation' | number | Uint8Array, delay: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, TuringRuntimeProxyType, u32]>;
       /**
        * Generic tx
        **/
@@ -2524,14 +2525,13 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     xcmpHandler: {
       /**
-       * Add or update XCM data for a chain/currency pair.
-       * For now we only support our native currency.
+       * Remove asset config for a given asset location
        **/
-      addChainCurrencyData: AugmentedSubmittable<(paraId: u32 | AnyNumber | Uint8Array, currencyId: u32 | AnyNumber | Uint8Array, xcmData: PalletXcmpHandlerXcmCurrencyData | { native?: any; feePerSecond?: any; instructionWeight?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, PalletXcmpHandlerXcmCurrencyData]>;
+      removeAssetConfig: AugmentedSubmittable<(assetLocation: XcmVersionedMultiLocation | { V0: any } | { V1: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [XcmVersionedMultiLocation]>;
       /**
-       * Remove XCM data for a chain/currency pair.
+       * Set asset config for a given asset location
        **/
-      removeChainCurrencyData: AugmentedSubmittable<(paraId: u32 | AnyNumber | Uint8Array, currencyId: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
+      setAssetConfig: AugmentedSubmittable<(assetLocation: XcmVersionedMultiLocation | { V0: any } | { V1: any } | string | Uint8Array, xcmAssetConfig: PalletXcmpHandlerXcmAssetConfig | { feePerSecond?: any; instructionWeight?: any; flow?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [XcmVersionedMultiLocation, PalletXcmpHandlerXcmAssetConfig]>;
       /**
        * Generic tx
        **/

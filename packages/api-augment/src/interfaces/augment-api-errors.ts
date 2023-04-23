@@ -140,6 +140,11 @@ declare module '@polkadot/api-base/types/errors' {
     };
     automationTime: {
       /**
+       * The version of the `VersionedMultiLocation` value used is not able
+       * to be interpreted.
+       **/
+      BadVersion: AugmentedError<ApiType>;
+      /**
        * Block time not set.
        **/
       BlockTimeNotSet: AugmentedError<ApiType>;
@@ -159,6 +164,10 @@ declare module '@polkadot/api-base/types/errors' {
        * The provided_id cannot be empty
        **/
       EmptyProvidedId: AugmentedError<ApiType>;
+      /**
+       * Incoverible currency ID.
+       **/
+      IncoveribleCurrencyId: AugmentedError<ApiType>;
       /**
        * Insufficient balance to pay execution fee.
        **/
@@ -1129,18 +1138,16 @@ declare module '@polkadot/api-base/types/errors' {
       [key: string]: AugmentedError<ApiType>;
     };
     xcmpHandler: {
+      AssetNotFound: AugmentedError<ApiType>;
+      /**
+       * The version of the `VersionedMultiLocation` value used is not able
+       * to be interpreted.
+       **/
+      BadVersion: AugmentedError<ApiType>;
       /**
        * Unable to reanchor the asset.
        **/
       CannotReanchor: AugmentedError<ApiType>;
-      /**
-       * There is no entry for that currency/chain combination.
-       **/
-      CurrencyChainComboNotFound: AugmentedError<ApiType>;
-      /**
-       * We only support certain currency/chain combinations.
-       **/
-      CurrencyChainComboNotSupported: AugmentedError<ApiType>;
       /**
        * Failed to get weight of call.
        **/

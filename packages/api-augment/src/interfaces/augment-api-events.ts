@@ -1093,14 +1093,8 @@ declare module '@polkadot/api-base/types/events' {
       [key: string]: AugmentedEvent<ApiType>;
     };
     xcmpHandler: {
-      /**
-       * XCM data was added for a chain/currency pair.
-       **/
-      XcmDataAdded: AugmentedEvent<ApiType, [paraId: u32, currencyId: u32], { paraId: u32, currencyId: u32 }>;
-      /**
-       * XCM data was removed for a chain/currency pair.
-       **/
-      XcmDataRemoved: AugmentedEvent<ApiType, [paraId: u32, currencyId: u32], { paraId: u32, currencyId: u32 }>;
+      DestAssetConfigChanged: AugmentedEvent<ApiType, [assetLocation: XcmV1MultiLocation], { assetLocation: XcmV1MultiLocation }>;
+      DestAssetConfigRemoved: AugmentedEvent<ApiType, [assetLocation: XcmV1MultiLocation], { assetLocation: XcmV1MultiLocation }>;
       /**
        * XCM fees failed to transfer.
        **/

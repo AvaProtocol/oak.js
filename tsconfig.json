@@ -2,7 +2,7 @@
   "compilerOptions": {
     "incremental": true,
     "target": "esnext",
-    "module": "commonjs",
+    "module": "esnext",
     "declaration": true,
     "sourceMap": true,
     "composite": true,
@@ -10,11 +10,22 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
     "paths": {
       "@oak-foundation/api-augment": ["./packages/api-augment/src"],
       "@oak-foundation/api-augment/*": ["./packages/api-augment/src/*"],
       "@oak-foundation/types": ["./packages/types/src"],
-      "@oak-foundation/types/*": ["./packages/types/src/*"]
+      "@oak-foundation/types/*": ["./packages/types/src/*"],
+      "@polkadot/api/augment": ["src/interfaces/augment-api.ts"],
+      "@polkadot/types/augment": ["src/interfaces/augment-types.ts"],
+      "@polkadot/types/lookup": ["src/interfaces/types-lookup.ts"]
     }
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   }
 }

@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "build",
+    "module": "esnext",
   },
   "exclude": ["node_modules", "build"]
 }

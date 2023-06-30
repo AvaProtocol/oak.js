@@ -1,10 +1,10 @@
 import { jsonrpcFromDefs, typesFromDefs } from '@open-web3/orml-type-definitions/utils';
 
-import automationTime from './automationTime'
-import xcmpHandler from './xcmpHandler'
+import automationTime from './automationTime.js'
+import xcmpHandler from './xcmpHandler.js'
 
-export * from './automationTime'
-export * from './xcmpHandler'
+export * from './automationTime.js'
+export * from './xcmpHandler.js'
 
 const extractFromDefs = (defs: any, keyItem: string) => {
   const items: Record<string, any> = {};

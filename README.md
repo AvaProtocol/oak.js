@@ -20,8 +20,8 @@ Next, locate the version number of the blockchain from the [OAK-blockchain Relea
 Run the following commands to install the required packages:
 
 ```bash
-npm i @oak-network/api-augment@1.9.0
-npm i @oak-network/types@1.9.0
+npm i @oak-network/api-augment@latest
+npm i @oak-network/types@latest
 ```
 
 ### Including the Library in Your Code

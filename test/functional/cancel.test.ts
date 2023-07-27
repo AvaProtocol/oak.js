@@ -20,14 +20,6 @@ const initialize = async () => {
 beforeEach(() => initialize());
 afterEach(() => polkadotApi.disconnect());
 
-test('Cancel failed with incorrect format taskID', async () => {
-  const nonexistentTaskID = "A string(<32 bytes).";
-  await checkBalance(polkadotApi, keyringPair);
-
-  // Cancel failed with incorrect format taskID
-  await expect(automationTimeApi.buildCancelTaskExtrinsic(keyringPair, nonexistentTaskID)).rejects.toBeInstanceOf(Error);
-});
-
 test('Cancel failed with nonexistent taskID', async () => {
   // Please put a string of length greater than or equal to 32 bytes here, and make sure it is a non-existing taskID.
   const nonexistentTaskID = "12345678901234567890123456789012";

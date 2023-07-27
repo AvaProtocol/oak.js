@@ -70,21 +70,6 @@ export class AutomationTimeApi {
   }
 
   /**
-   * getTaskID: gets a txHash for a task.
-   * Wallet Address and Provided ID are required inputs.
-   * TxHash for a task will be returned.
-   * @param address
-   * @param providedID
-   * @returns next available task ID
-   */
-  async getTaskID(address: string, providedID: string): Promise<string> {
-    const polkadotApi = await this.getAPIClient()
-    // TODO: hack until we can merge correct types into polkadotAPI
-    const taskIdCodec = await (polkadotApi.rpc as any).automationTime.generateTaskId(address, providedID)
-    return taskIdCodec.toString()
-  }
-
-  /**
    * crossChainAccount: OAK's XCMP account on another chain.
    * Account ID is required input
    * Account ID will be returned.
@@ -157,7 +142,6 @@ export class AutomationTimeApi {
 
   async buildScheduleDynamicDispatchTask(
     address: AddressOrPair,
-    providedID: string,
     schedule: { recurring: { frequency: number, nextExecutionTime: number }, fixed: { executionTimes: Array<number> } },
     call: object,
     signer?: Signer
@@ -186,7 +170,7 @@ export class AutomationTimeApi {
       throw new Error("call is null or undefined");
     }
 
-    const extrinsic = polkadotApi.tx['automationTime']['scheduleDynamicDispatchTask'](providedID, schedule, call)
+    const extrinsic = polkadotApi.tx['automationTime']['scheduleDynamicDispatchTask'](schedule, call)
     const signedExtrinsic = await extrinsic.signAsync(address, {
       signer,
       nonce: -1,

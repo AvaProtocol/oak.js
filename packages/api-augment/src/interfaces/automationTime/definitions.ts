@@ -3,14 +3,6 @@ import { runtime } from './runtime';
 
 const automationTime = {
   rpc: {
-    generateTaskId: {
-      description: 'Getting task ID given account ID and provided ID',
-      params: [
-        { name: 'accountId', type: 'AccountId' },
-        { name: 'providedId', type: 'Text' },
-      ],
-      type: 'Hash',
-    },
     getTimeAutomationFees: {
       description: 'Retrieve automation fees',
       params: [

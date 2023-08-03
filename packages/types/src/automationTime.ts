@@ -1,13 +1,5 @@
 export default {
   rpc: {
-    generateTaskId: {
-      description: 'Getting task ID given account ID and provided ID',
-      params: [
-        { name: 'accountId', type: 'AccountId' },
-        { name: 'providedId', type: 'Text' },
-      ],
-      type: 'Hash',
-    },
     getTimeAutomationFees: {
       description: 'Retrieve automation fees',
       params: [
@@ -61,14 +53,6 @@ export default {
     AutomationTimeApi: [
       {
         methods: {
-          generate_task_id: {
-            description: 'Getting task ID given account ID and provided ID',
-            params: [
-              { name: 'accountId', type: 'AccountId' },
-              { name: 'providedId', type: 'Text' },
-            ],
-            type: 'Hash',
-          },
           get_time_automation_fees: {
             description: 'Retrieve automation fees',
             params: [

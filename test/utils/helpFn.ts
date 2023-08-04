@@ -65,6 +65,8 @@ export const getContext = async (polkadotApi: ApiPromise) => {
            }
  
            const event = _.find(events, ({ event }) => polkadotApi.events.system.ExtrinsicSuccess.is(event));
+           // We pass the event array out so the caller can access and fetch relevant data in extrinsic such as the task id. Recall that task id is emit from the TaskScheduled { who, taskId } event
+           // if the event is empty that mean the extrinsic failed the test resolve to error
            if (event) {
              resolve({ extrinsicHash: txHash, blockHash: status?.asFinalized?.toString(), events });
            } else {

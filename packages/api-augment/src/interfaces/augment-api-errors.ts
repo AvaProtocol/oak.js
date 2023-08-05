@@ -118,6 +118,7 @@ declare module '@polkadot/api-base/types/errors' {
        * The call can no longer be decoded.
        **/
       CallCannotBeDecoded: AugmentedError<ApiType>;
+      CannotReanchor: AugmentedError<ApiType>;
       /**
        * There can be no duplicate tasks.
        **/
@@ -126,10 +127,6 @@ declare module '@polkadot/api-base/types/errors' {
        * The message cannot be empty.
        **/
       EmptyMessage: AugmentedError<ApiType>;
-      /**
-       * The provided_id cannot be empty
-       **/
-      EmptyProvidedId: AugmentedError<ApiType>;
       /**
        * Incoverible currency ID.
        **/
@@ -174,6 +171,7 @@ declare module '@polkadot/api-base/types/errors' {
        * Sender cannot transfer money to self.
        **/
       TransferToSelf: AugmentedError<ApiType>;
+      UnsupportedFeePayment: AugmentedError<ApiType>;
       /**
        * Generic error
        **/
@@ -1123,7 +1121,6 @@ declare module '@polkadot/api-base/types/errors' {
       [key: string]: AugmentedError<ApiType>;
     };
     xcmpHandler: {
-      AssetNotFound: AugmentedError<ApiType>;
       /**
        * The version of the `VersionedMultiLocation` value used is not able
        * to be interpreted.
@@ -1149,6 +1146,7 @@ declare module '@polkadot/api-base/types/errors' {
        * Either the weight or fee per second is too large.
        **/
       FeeOverflow: AugmentedError<ApiType>;
+      TransactInfoNotFound: AugmentedError<ApiType>;
       /**
        * Either the instruction weight or the transact weight is too large.
        **/

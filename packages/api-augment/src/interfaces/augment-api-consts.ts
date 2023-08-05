@@ -37,10 +37,6 @@ declare module '@polkadot/api-base/types/consts' {
     automationTime: {
       executionWeightFee: u128 & AugmentedConst<ApiType>;
       /**
-       * The currencyId for the native currency.
-       **/
-      getNativeCurrencyId: u32 & AugmentedConst<ApiType>;
-      /**
        * The maximum weight per block.
        **/
       maxBlockWeight: u64 & AugmentedConst<ApiType>;

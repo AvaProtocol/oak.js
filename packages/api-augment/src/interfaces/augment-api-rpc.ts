@@ -75,10 +75,6 @@ declare module '@polkadot/rpc-core/types/jsonrpc' {
        **/
       calculateOptimalAutostaking: AugmentedRpc<(principal: i128 | AnyNumber | Uint8Array, collator: AccountId | string | Uint8Array) => Observable<AutostakingResult>>;
       /**
-       * Getting task ID given account ID and provided ID
-       **/
-      generateTaskId: AugmentedRpc<(accountId: AccountId | string | Uint8Array, providedId: Text | string) => Observable<Hash>>;
-      /**
        * Return autocompounding tasks by account
        **/
       getAutoCompoundDelegatedStakeTaskIds: AugmentedRpc<(account_id: AccountId | string | Uint8Array) => Observable<Vec<Hash>>>;

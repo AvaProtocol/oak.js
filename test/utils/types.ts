@@ -1,6 +1,5 @@
 interface AutomationTask {
   ownerId: string
-  providedId: `0x${string}`
   execution_times: number[]
   executions_left: number
   action: AutomationTaskNotifyAction | AutomationTaskTransferAction

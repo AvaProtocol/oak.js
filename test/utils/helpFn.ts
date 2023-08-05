@@ -13,6 +13,7 @@ import { rpc, types, runtime } from '@oak-foundation/types';
 import '@oak-foundation/api-augment'; 
 
 import { AutomationTimeApi, Recurrer, oakConstants, config } from '../utils';
+
 const { SS58_PREFIX } = oakConstants;
 
 export const SECTION_NAME = 'automationTime';
@@ -40,19 +41,13 @@ export const getContext = async (polkadotApi: ApiPromise) => {
   };
 } 
 
-/**
- * generateProviderId: Generate a provider Id
- * @returns providerId
- */
- export const generateProviderId = () => `functional-test-${new Date().getTime()}-${_.random(0, Number.MAX_SAFE_INTEGER, false)}`;
-
  /**
   * sendExtrinsic: Send extrinsic to chain
   * @param scheduler 
   * @param extrinsicHex 
   * @returns promise
   */
- export const sendExtrinsic = async (polkadotApi: ApiPromise, extrinsicHex: HexString) : Promise<{extrinsicHash: string, blockHash: string}> => {
+ export const sendExtrinsic = async (polkadotApi: ApiPromise, extrinsicHex: HexString) : Promise<{extrinsicHash: string, blockHash: string, events: any[]}> => {
    return new Promise(async (resolve, reject) => {
      try {
        const txHash = await sendExtrinsicToChain(polkadotApi, extrinsicHex, ({ status, events, dispatchError }) => {
@@ -70,8 +65,10 @@ export const getContext = async (polkadotApi: ApiPromise) => {
            }
  
            const event = _.find(events, ({ event }) => polkadotApi.events.system.ExtrinsicSuccess.is(event));
+           // We pass the event array out so the caller can access and fetch relevant data in extrinsic such as the task id. Recall that task id is emit from the TaskScheduled { who, taskId } event
+           // if the event is empty that mean the extrinsic failed the test resolve to error
            if (event) {
-             resolve({ extrinsicHash: txHash, blockHash: status?.asFinalized?.toString() });
+             resolve({ extrinsicHash: txHash, blockHash: status?.asFinalized?.toString(), events });
            } else {
              reject(new Error('The event.ExtrinsicSuccess is not found'));
            }
@@ -154,7 +151,7 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
 
   expect(section).toEqual(SECTION_NAME);
   expect(method).toEqual('cancelTask');
-  expect(taskIdOnChain.toString()).toEqual(taskID);
+  expect(new Buffer(taskIdOnChain).toString()).toEqual(taskID);
 
   // Make sure the task has been canceled.
   const tasks = await automationTimeApi.getAutomationTimeScheduledTasks(executionTimestamp);
@@ -171,25 +168,24 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
   */
  export const scheduleDynamicDispatchTaskAndVerify = async (automationTimeApi: AutomationTimeApi, keyringPair: KeyringPair, extrinsicParams: any) => {
    // Send extrinsic and get extrinsicHash, blockHash.
-   const { providedID, schedule, call } = extrinsicParams;
+   const { schedule, call } = extrinsicParams;
    await checkBalance(automationTimeApi.polkadotApi, keyringPair);
-   const hexString = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, providedID, schedule, call);
-   const { extrinsicHash, blockHash } = await sendExtrinsic(automationTimeApi.polkadotApi, hexString);
- 
+   const hexString = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
+
+   const { extrinsicHash, blockHash, events } = await sendExtrinsic(automationTimeApi.polkadotApi, hexString);
+
    // Fetch extrinsic from chain
    const extrinsic = await findExtrinsicFromChain(automationTimeApi.polkadotApi, blockHash, extrinsicHash);
- 
+
    //  Verify arguments
    const { section, method, args } = extrinsic.method;
-   const [providedIdOnChainHex, scheduleOnChain, callOnChain] = args;
+   const [ scheduleOnChain, callOnChain] = args;
    const scheduleObject =  scheduleOnChain.toJSON()
- 
+
    expect(section).toEqual(SECTION_NAME);
    expect(method).toEqual('scheduleDynamicDispatchTask');
-   const providedIdOnChain = hexToAscii(providedIdOnChainHex.toString());
-   expect(providedIdOnChain).toEqual(providedID);
    expect(callOnChain).toBeInstanceOf(Object);
- 
+
    const { recurring, fixed } = scheduleObject;
    let firstExecutionTime = -1;
    if (recurring) {
@@ -200,9 +196,14 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
      const { executionTimes } = fixed;
      firstExecutionTime = executionTimes[0];
    }
- 
+
    // Make use the task has been scheduled
-   const taskID = (await automationTimeApi.getTaskID(keyringPair.address, providedID)).toString();
+   const taskScheduledEvent = events.find(record => {
+     const { event } = record;
+     return event.method == "TaskScheduled" && event.section == "automationTime"
+   });
+
+   const taskID = Buffer.from(taskScheduledEvent.event.data.taskId).toString();
    const tasks = await automationTimeApi.getAutomationTimeScheduledTasks(firstExecutionTime);
    expect(_.find(tasks, (task) => !_.isNil(_.find(task, ([_account, scheduledTaskId]) => scheduledTaskId === taskID)))).toBeUndefined();
  
@@ -212,7 +213,7 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
  /**
   * getDynamicDispatchExtrinsicParams: Get parameters of recurring dynamic dispatch extrinsic for testing
   * @param scheduleType
-  * @returns parameter object: { providedID, schedule, call }
+  * @returns parameter object: { schedule, call }
   */
  export const getDynamicDispatchExtrinsicParams = async (polkadotApi: ApiPromise, scheduleType: string) => {
    let schedule = {};
@@ -230,7 +231,6 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
    }
  
    return {
-     providedID: generateProviderId(),
      schedule,
      call: polkadotApi.tx['balances']['transfer'](RECEIVER_ADDRESS, TRANSFER_AMOUNT),
    }

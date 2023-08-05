@@ -56,8 +56,8 @@ const automationTime = {
       apy: 'f64',
     },
     AutomationFeeDetails: {
+      scheduleFee: 'Balance',
       executionFee: 'Balance',
-      xcmpFee: 'Balance',
     },
   },
   runtime,

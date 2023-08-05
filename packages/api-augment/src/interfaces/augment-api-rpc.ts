@@ -81,7 +81,7 @@ declare module '@polkadot/rpc-core/types/jsonrpc' {
       /**
        * Retrieve automation fees
        **/
-      getTimeAutomationFees: AugmentedRpc<(action: AutomationAction | 'Notify' | 'NativeTransfer' | 'XCMP' | 'AutoCompoundDelegatedStake' | number | Uint8Array, executions: u32 | AnyNumber | Uint8Array) => Observable<Balance>>;
+      getTimeAutomationFees: AugmentedRpc<(action: AutomationAction | 'NativeTransfer' | 'XCMP' | 'AutoCompoundDelegatedStake' | number | Uint8Array, executions: u32 | AnyNumber | Uint8Array) => Observable<Balance>>;
       /**
        * The transaction fee details
        **/
@@ -294,7 +294,7 @@ declare module '@polkadot/rpc-core/types/jsonrpc' {
       /**
        * Returns the number of transactions sent from given address at given time (block number).
        **/
-      getTransactionCount: AugmentedRpc<(hash: H256 | string | Uint8Array, number?: BlockNumber | AnyNumber | Uint8Array) => Observable<U256>>;
+      getTransactionCount: AugmentedRpc<(address: H160 | string | Uint8Array, number?: BlockNumber | AnyNumber | Uint8Array) => Observable<U256>>;
       /**
        * Returns transaction receipt by transaction hash.
        **/

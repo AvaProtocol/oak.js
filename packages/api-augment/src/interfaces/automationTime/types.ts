@@ -6,17 +6,16 @@ import type { Balance } from '@polkadot/types/interfaces/runtime';
 
 /** @name AutomationAction */
 export interface AutomationAction extends Enum {
-  readonly isNotify: boolean;
   readonly isNativeTransfer: boolean;
   readonly isXcmp: boolean;
   readonly isAutoCompoundDelegatedStake: boolean;
-  readonly type: 'Notify' | 'NativeTransfer' | 'Xcmp' | 'AutoCompoundDelegatedStake';
+  readonly type: 'NativeTransfer' | 'Xcmp' | 'AutoCompoundDelegatedStake';
 }
 
 /** @name AutomationFeeDetails */
 export interface AutomationFeeDetails extends Struct {
+  readonly scheduleFee: Balance;
   readonly executionFee: Balance;
-  readonly xcmpFee: Balance;
 }
 
 /** @name AutostakingResult */

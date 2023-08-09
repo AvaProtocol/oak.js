@@ -6,10 +6,10 @@
 import '@polkadot/api-base/types/events';
 
 import type { ApiTypes, AugmentedEvent } from '@polkadot/api-base/types';
-import type { Bytes, Null, Option, Result, U8aFixed, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
+import type { BTreeMap, Bytes, Null, Option, Result, U8aFixed, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, H256, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
-import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, OrmlTraitsAssetRegistryAssetMetadata, PalletDemocracyVoteAccountVote, PalletDemocracyVoteThreshold, PalletMultisigTimepoint, PalletParachainStakingDelegationRequestsCancelledScheduledRequest, PalletParachainStakingDelegatorAdded, SpRuntimeDispatchError, SpRuntimeDispatchErrorWithPostInfo, SpWeightsWeightV2Weight, TuringRuntimeProxyType, XcmV3MultiAsset, XcmV3MultiLocation, XcmV3MultiassetMultiAssets, XcmV3Response, XcmV3TraitsError, XcmV3TraitsOutcome, XcmV3Xcm, XcmVersionedMultiAssets, XcmVersionedMultiLocation } from '@polkadot/types/lookup';
+import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, OrmlTraitsAssetRegistryAssetMetadata, PalletDemocracyVoteAccountVote, PalletDemocracyVoteThreshold, PalletMultisigTimepoint, PalletParachainStakingDelegationRequestsCancelledScheduledRequest, PalletParachainStakingDelegatorAdded, SpRuntimeDispatchError, SpWeightsWeightV2Weight, TuringRuntimeProxyType, XcmV3MultiAsset, XcmV3MultiLocation, XcmV3MultiassetMultiAssets, XcmV3Response, XcmV3TraitsError, XcmV3TraitsOutcome, XcmV3Xcm, XcmVersionedMultiAssets, XcmVersionedMultiLocation } from '@polkadot/types/lookup';
 
 export type __AugmentedEvent<ApiType extends ApiTypes> = AugmentedEvent<ApiType>;
 
@@ -48,64 +48,54 @@ declare module '@polkadot/api-base/types/events' {
       [key: string]: AugmentedEvent<ApiType>;
     };
     automationTime: {
-      AutoCompoundDelegatorStakeFailed: AugmentedEvent<ApiType, [taskId: H256, errorMessage: Bytes, error: SpRuntimeDispatchErrorWithPostInfo], { taskId: H256, errorMessage: Bytes, error: SpRuntimeDispatchErrorWithPostInfo }>;
-      /**
-       * The call for the DynamicDispatch action can no longer be decoded.
-       **/
-      CallCannotBeDecoded: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256], { who: AccountId32, taskId: H256 }>;
-      /**
-       * The result of the DynamicDispatch action.
-       **/
-      DynamicDispatchResult: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256, result: Result<Null, SpRuntimeDispatchError>], { who: AccountId32, taskId: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
        * Notify event for the task.
        **/
       Notify: AugmentedEvent<ApiType, [message: Bytes], { message: Bytes }>;
-      SuccesfullyAutoCompoundedDelegatorStake: AugmentedEvent<ApiType, [taskId: H256, amount: u128], { taskId: H256, amount: u128 }>;
       /**
        * Successfully transferred funds
        **/
-      SuccessfullyTransferredFunds: AugmentedEvent<ApiType, [taskId: H256], { taskId: H256 }>;
+      SuccessfullyTransferredFunds: AugmentedEvent<ApiType, [taskId: Bytes], { taskId: Bytes }>;
       /**
        * Cancelled a task.
        **/
-      TaskCancelled: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256], { who: AccountId32, taskId: H256 }>;
-      /**
-       * A recurring task attempted but failed to be rescheduled
-       **/
-      TaskFailedToReschedule: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256, error: SpRuntimeDispatchError], { who: AccountId32, taskId: H256, error: SpRuntimeDispatchError }>;
+      TaskCancelled: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
+      TaskCompleted: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
+      TaskExecuted: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
+      TaskExecutionFailed: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError], { who: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError }>;
       /**
        * The task could not be run at the scheduled time.
        **/
-      TaskMissed: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256, executionTime: u64], { who: AccountId32, taskId: H256, executionTime: u64 }>;
+      TaskMissed: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, executionTime: u64], { who: AccountId32, taskId: Bytes, executionTime: u64 }>;
       /**
        * A Task was not found.
        **/
-      TaskNotFound: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256], { who: AccountId32, taskId: H256 }>;
+      TaskNotFound: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
       /**
        * A recurring task was not rescheduled
        **/
-      TaskNotRescheduled: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256, error: SpRuntimeDispatchError], { who: AccountId32, taskId: H256, error: SpRuntimeDispatchError }>;
+      TaskNotRescheduled: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError], { who: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError }>;
       /**
        * A recurring task was rescheduled
        **/
-      TaskRescheduled: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256], { who: AccountId32, taskId: H256 }>;
+      TaskRescheduled: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, scheduleAs: Option<AccountId32>], { who: AccountId32, taskId: Bytes, scheduleAs: Option<AccountId32> }>;
+      /**
+       * A recurring task attempted but failed to be rescheduled
+       **/
+      TaskRescheduleFailed: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError], { who: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError }>;
       /**
        * Schedule task success.
        **/
-      TaskScheduled: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256], { who: AccountId32, taskId: H256 }>;
+      TaskScheduled: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, scheduleAs: Option<AccountId32>], { who: AccountId32, taskId: Bytes, scheduleAs: Option<AccountId32> }>;
+      TaskTriggered: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, condition: BTreeMap<Bytes, Bytes>, encodedCall: Option<Bytes>], { who: AccountId32, taskId: Bytes, condition: BTreeMap<Bytes, Bytes>, encodedCall: Option<Bytes> }>;
       /**
        * Transfer Failed
        **/
-      TransferFailed: AugmentedEvent<ApiType, [taskId: H256, error: SpRuntimeDispatchError], { taskId: H256, error: SpRuntimeDispatchError }>;
+      TransferFailed: AugmentedEvent<ApiType, [taskId: Bytes, error: SpRuntimeDispatchError], { taskId: Bytes, error: SpRuntimeDispatchError }>;
       /**
        * Failed to send XCMP
        **/
-      XcmpTaskFailed: AugmentedEvent<ApiType, [taskId: H256, paraId: u32, error: SpRuntimeDispatchError], { taskId: H256, paraId: u32, error: SpRuntimeDispatchError }>;
-      /**
-       * Successfully sent XCMP
-       **/
-      XcmpTaskSucceeded: AugmentedEvent<ApiType, [taskId: H256, paraId: u32], { taskId: H256, paraId: u32 }>;
+      XcmpTaskFailed: AugmentedEvent<ApiType, [taskId: Bytes, destination: XcmV3MultiLocation, error: SpRuntimeDispatchError], { taskId: Bytes, destination: XcmV3MultiLocation, error: SpRuntimeDispatchError }>;
       /**
        * Generic event
        **/
@@ -1158,8 +1148,8 @@ declare module '@polkadot/api-base/types/events' {
       [key: string]: AugmentedEvent<ApiType>;
     };
     xcmpHandler: {
-      DestAssetConfigChanged: AugmentedEvent<ApiType, [assetLocation: XcmV3MultiLocation], { assetLocation: XcmV3MultiLocation }>;
-      DestAssetConfigRemoved: AugmentedEvent<ApiType, [assetLocation: XcmV3MultiLocation], { assetLocation: XcmV3MultiLocation }>;
+      TransactInfoChanged: AugmentedEvent<ApiType, [destination: XcmV3MultiLocation], { destination: XcmV3MultiLocation }>;
+      TransactInfoRemoved: AugmentedEvent<ApiType, [destination: XcmV3MultiLocation], { destination: XcmV3MultiLocation }>;
       /**
        * XCM fees failed to transfer.
        **/
@@ -1171,7 +1161,7 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * XCM sent to target chain.
        **/
-      XcmSent: AugmentedEvent<ApiType, [paraId: u32], { paraId: u32 }>;
+      XcmSent: AugmentedEvent<ApiType, [destination: XcmV3MultiLocation], { destination: XcmV3MultiLocation }>;
       /**
        * XCM transacted in local chain.
        **/

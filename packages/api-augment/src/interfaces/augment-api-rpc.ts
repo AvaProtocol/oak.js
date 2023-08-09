@@ -75,17 +75,13 @@ declare module '@polkadot/rpc-core/types/jsonrpc' {
        **/
       calculateOptimalAutostaking: AugmentedRpc<(principal: i128 | AnyNumber | Uint8Array, collator: AccountId | string | Uint8Array) => Observable<AutostakingResult>>;
       /**
-       * Getting task ID given account ID and provided ID
-       **/
-      generateTaskId: AugmentedRpc<(accountId: AccountId | string | Uint8Array, providedId: Text | string) => Observable<Hash>>;
-      /**
        * Return autocompounding tasks by account
        **/
       getAutoCompoundDelegatedStakeTaskIds: AugmentedRpc<(account_id: AccountId | string | Uint8Array) => Observable<Vec<Hash>>>;
       /**
        * Retrieve automation fees
        **/
-      getTimeAutomationFees: AugmentedRpc<(action: AutomationAction | 'Notify' | 'NativeTransfer' | 'XCMP' | 'AutoCompoundDelegatedStake' | number | Uint8Array, executions: u32 | AnyNumber | Uint8Array) => Observable<Balance>>;
+      getTimeAutomationFees: AugmentedRpc<(action: AutomationAction | 'NativeTransfer' | 'XCMP' | 'AutoCompoundDelegatedStake' | number | Uint8Array, executions: u32 | AnyNumber | Uint8Array) => Observable<Balance>>;
       /**
        * The transaction fee details
        **/

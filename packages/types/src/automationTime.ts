@@ -34,7 +34,6 @@ export default {
   types: {
     AutomationAction: {
       _enum: [
-        'Notify',
         'NativeTransfer',
         'XCMP',
         'AutoCompoundDelegatedStake'

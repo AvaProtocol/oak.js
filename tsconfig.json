@@ -14,7 +14,13 @@
       "@oak-foundation/api-augment": ["./packages/api-augment/src"],
       "@oak-foundation/api-augment/*": ["./packages/api-augment/src/*"],
       "@oak-foundation/types": ["./packages/types/src"],
-      "@oak-foundation/types/*": ["./packages/types/src/*"]
+      "@oak-foundation/types/*": ["./packages/types/src/*"],
+      "@oak-foundation/xcm-config": ["./packages/xcm-config/src"],
+      "@oak-foundation/xcm-config/*": ["./packages/xcm-config/src/*"],
+      "@oak-foundation/xcm-provider": ["./packages/xcm-provider/src"],
+      "@oak-foundation/xcm-provider/*": ["./packages/xcm-provider/src/*"],
+      "@oak-foundation/xcm-builder": ["./packages/xcm-sdk/src"],
+      "@oak-foundation/xcm-builder/*": ["./packages/xcm-sdk/src/*"]
     }
   }
 }

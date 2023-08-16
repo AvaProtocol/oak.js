@@ -2,6 +2,9 @@
   "files": [],
   "references": [
     { "path": "packages/types" },
-    { "path": "packages/api-augment" }
+    { "path": "packages/api-augment" },
+    { "path": "packages/xcm-config" },
+    { "path": "packages/xcm-provider" },
+    { "path": "packages/xcm-sdk" }
   ]
 }

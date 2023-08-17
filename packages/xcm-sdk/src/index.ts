@@ -1,19 +1,12 @@
-import { TuringChain, ChainProvider } from '@oak-foundation/xcm-config';
+import { ChainProvider, TuringChain } from '@oak-foundation/xcm-provider';
 
-export function Sdk() {
-  return {
-    registryTask: ({ instructionSequnce, turingChain: TuringChain, destinationChainProvider: ChainProvider, taskPayload, schedule, scheduleFee, executionFee, scheduleAs}): hash => {
-			if (instrucitonSequnce == 'PayThroughSoverignAccount') {
-				// const extrinsic = turingChain.scheduleXcmpTask(...)
-				// sendExtrinsic(turingApi,extrinsic) 
-			} else {
-				// destinationChainProvider.taskRegistry.createRegistryTaskExtrinsic()
-				// sendExtrinsic(destinationApi, extrinsic); 
-			}
-		},
-    transfer: ({ sourceChain: ChainProvider, destinationChain: ChainProvider, asset, assetAmount}): hash => {
-			// TODO
-			// sourceChain.transfer(destinationChain, asset, assetAmount);
-		},
-  }
-};
+export const Sdk = () => ({
+	scheduleTask: (turing: TuringChain, dest: ChainProvider) => {
+		// TODO: Implement
+		console.log('scheduleTask');
+	},
+	transfer: (source: TuringChain, dest: ChainProvider) => {
+		// TODO: Implement
+		console.log('transfer');
+	}
+});

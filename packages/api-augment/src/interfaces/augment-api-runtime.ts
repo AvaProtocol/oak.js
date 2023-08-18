@@ -5,7 +5,7 @@
 // this is required to allow for ambient/previous definitions
 import '@polkadot/api-base/types/calls';
 
-import type { AutomationAction, AutostakingResult } from '@oak-foundation/api-augment/interfaces/automationTime';
+import type { AutomationAction, AutostakingResult } from '@oak-network/api-augment/interfaces/automationTime';
 import type { ApiTypes, AugmentedCall, DecoratedCallBase } from '@polkadot/api-base/types';
 import type { Bytes, Null, Option, Vec, i128, u32, u64 } from '@polkadot/types-codec';
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';

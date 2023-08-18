@@ -6,8 +6,8 @@
   "scripts": {
     "generate": "npm run load:meta && npm run generate:defs && npm run generate:meta && npm run lint",
     "load:meta": "bash scripts/download-metadata",
-    "generate:defs": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-defs --package @oak-foundation/api-augment/interfaces --input ./src/interfaces --endpoint ./metadata.json",
-    "generate:meta": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-chain --package @oak-foundation/api-augment/interfaces --endpoint ./metadata.json --output ./src/interfaces",
+    "generate:defs": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-defs --package @oak-network/api-augment/interfaces --input ./src/interfaces --endpoint ./metadata.json",
+    "generate:meta": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-chain --package @oak-network/api-augment/interfaces --endpoint ./metadata.json --output ./src/interfaces",
     "lint": "tsc --noEmit --pretty",
     "clean:defs": "find ./src/interfaces ! -name 'definitions.ts' ! -name 'runtime.ts' -type f -exec rm {} +"
   },

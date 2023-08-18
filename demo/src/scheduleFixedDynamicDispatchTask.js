@@ -1,5 +1,5 @@
-require('@oak-foundation/api-augment');
-const { rpc, types } = require('@oak-foundation/types');
+require('@oak-network/api-augment');
+const { rpc, types } = require('@oak-network/types');
 const { ApiPromise, WsProvider, Keyring } = require('@polkadot/api');
 const { waitReady } = require('@polkadot/wasm-crypto');
 const _ = require('lodash');

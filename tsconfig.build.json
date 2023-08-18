@@ -5,7 +5,6 @@
     { "path": "packages/api-augment" },
     { "path": "packages/xcm-types" },
     { "path": "packages/xcm-config" },
-    { "path": "packages/xcm-provider" },
-    { "path": "packages/xcm-sdk" }
+    { "path": "packages/xcm-provider" }
   ]
 }

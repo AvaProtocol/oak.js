@@ -1,23 +1,20 @@
 export interface AssetConstructorParams {
   key: string;
   symbol: string;
+  decimals: number;
   location: any;
 }
 
 export class Asset {
   key: string;
+  symbol: string;
+  decimals: number;
+  location: any;
 
-  readonly symbol: string;
-
-  readonly location: any;
-
-  constructor({ key, symbol, location }: AssetConstructorParams) {
+  constructor({ key, symbol, decimals, location }: AssetConstructorParams) {
     this.key = key;
     this.symbol = symbol;
+    this.decimals = decimals;
     this.location = location;
-  }
-
-  isEqual(asset: Asset): boolean {
-    return this.key === asset.key && this.symbol === asset.symbol;
   }
 }

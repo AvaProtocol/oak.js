@@ -5,8 +5,7 @@ module.exports = {
     "<rootDir>/packages/types",
     "<rootDir>/packages/xcm-types",
     "<rootDir>/packages/xcm-config",
-    "<rootDir>/packages/xcm-provider",
-    "<rootDir>/packages/xcm-sdk",
+    "<rootDir>/packages/xcm-provider"
   ],
   moduleNameMapper: {
     "^@oak-foundation/(.*)$": "<rootDir>/packages/$1"

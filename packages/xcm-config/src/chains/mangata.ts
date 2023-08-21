@@ -5,11 +5,12 @@ import { assets } from '../assets';
 import { ChainAsset, Weight } from '@oak-foundation/xcm-types';
 
 // mangata-local
-const mgrnAsset = new ChainAsset({ asset: assets.mgr, isNative: true });
+const mgrAsset = new ChainAsset({ asset: assets.mgr, isNative: true });
 const turAsset = new ChainAsset({ asset: assets.tur, isNative: false });
-const mangataRococoAssets = [mgrnAsset, turAsset];
+const mangataRococoAssets = [mgrAsset];
 export const mangataLocal = new Chain({
 	assets: mangataRococoAssets,
+	defaultAsset: mgrAsset,
 	endpoint: 'ws://127.0.0.1:9947',
 	instructionWeight: new Weight(new BN('150000000'), new BN('0')),
 });
@@ -17,15 +18,17 @@ export const mangataLocal = new Chain({
 // mangata-rococo
 export const mangataRococo = new Chain({
 	assets: mangataRococoAssets,
+	defaultAsset: mgrAsset,
 	endpoint: 'wss://collator-01-ws-rococo.mangata.online',
 	instructionWeight: new Weight(new BN('150000000'), new BN('0')),
 });
 
 // mangata-kusama
 const mgxAsset = new ChainAsset({ asset: assets.mgx, isNative: true });
-const mangataKusamaAssets = [mgxAsset, turAsset];
+const mangataKusamaAssets = [mgxAsset];
 export const mangataKusama = new Chain({
 	assets: mangataKusamaAssets,
+	defaultAsset: mgxAsset,
 	endpoint: 'wss://kusama-rpc.mangata.online',
 	instructionWeight: new Weight(new BN('150000000'), new BN('0')),
 });

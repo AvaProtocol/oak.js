@@ -6,6 +6,7 @@ export interface ChainAssetConstructorParams {
 }
 
 export class ChainAsset extends Asset {
+  id: any;
 	isNative: boolean;
 
   constructor({ asset, isNative }: ChainAssetConstructorParams) {

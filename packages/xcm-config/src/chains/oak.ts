@@ -10,6 +10,7 @@ const moonbaseAlphaAsset = new ChainAsset({ asset: assets.moonbaseAlpha, isNativ
 const turingRococoAssets = [turAsset, moonbaseAlphaAsset];
 export const turingLocal = new Chain({
 	assets: turingRococoAssets,
+	defaultAsset: turAsset,
 	endpoint: 'ws://127.0.0.1:9946',
 	instructionWeight: new Weight(new BN('1000000000'), new BN(0)),
 });
@@ -17,6 +18,7 @@ export const turingLocal = new Chain({
 // turing-staging
 export const turingStaging = new Chain({
 	assets: turingRococoAssets,
+	defaultAsset: turAsset,
 	endpoint: 'wss://rpc.turing-staging.oak.tech',
 	instructionWeight: new Weight(new BN('1000000000'), new BN('0')),
 });
@@ -24,6 +26,7 @@ export const turingStaging = new Chain({
 // turing-moonbase
 export const turingMoonbase = new Chain({
 	assets: turingRococoAssets,
+	defaultAsset: turAsset,
 	endpoint: 'ws://167.99.226.24:8846',
 	instructionWeight: new Weight(new BN('1000000000'), new BN('0')),
 });
@@ -32,6 +35,7 @@ export const turingMoonbase = new Chain({
 const turingKusamaAssets = [ turAsset, moonbaseAlphaAsset ];
 export const turing = new Chain({
 	assets: turingKusamaAssets,
+	defaultAsset: turAsset,
 	endpoint: 'wss://rpc.turing.oak.tech',
 	instructionWeight: new Weight(new BN('1000000000'), new BN('0')),
 });

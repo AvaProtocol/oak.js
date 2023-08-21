@@ -1,5 +1,6 @@
 module.exports = {
   transformIgnorePatterns: ['node_modules/(?!@polkadot/.*)'],
+  testEnvironment: 'node',
   modulePathIgnorePatterns: [
     "<rootDir>/packages/api-augment",
     "<rootDir>/packages/types",

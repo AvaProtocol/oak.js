@@ -5,12 +5,12 @@ import { assets } from '../assets';
 import { ChainAsset, Weight } from '@oak-foundation/xcm-types';
 
 const moonbaseAlphaAsset = new ChainAsset({ asset: assets.moonbaseAlpha, isNative: true });
-const turAsset = new ChainAsset({ asset: assets.tur, isNative: false });
-const moonbaseAssets = [moonbaseAlphaAsset, turAsset];
+const moonbaseAssets = [moonbaseAlphaAsset];
 
 // moonbase-local
 export const moonbaseLocal = new Chain({
 	assets: moonbaseAssets,
+	defaultAsset: moonbaseAlphaAsset,
 	endpoint: 'ws://127.0.0.1:9949',
 	instructionWeight: new Weight(new BN('250000000'), new BN('10000')),
 });
@@ -18,6 +18,7 @@ export const moonbaseLocal = new Chain({
 // moonbase-alpha
 export const moonbaseAlpha = new Chain({
 	assets: moonbaseAssets,
+	defaultAsset: moonbaseAlphaAsset,
 	endpoint: 'wss://wss.api.moonbase.moonbeam.network',
 	instructionWeight: new Weight(new BN('250000000'), new BN('10000')),
 });

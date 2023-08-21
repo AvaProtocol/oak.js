@@ -4,7 +4,7 @@ const tur = new Asset({
   key: 'tur',
   symbol: 'TUR',
   decimals: 10,
-	location: { parents: 1, interior: { X1: { parachain: 2114 } } }
+	location: { parents: 1, interior: { X1: { Parachain: 2114 } } }
 });
 
 const moonbaseLocal = new Asset({

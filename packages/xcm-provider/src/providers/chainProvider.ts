@@ -1,6 +1,7 @@
 import BN from 'bn.js';
+// import '@polkadot/api-augment';
 import { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic  } from '@polkadot/api-base/types';
+import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ChainAsset, TransactInfo, Weight } from '@oak-foundation/xcm-types';
 
 // Every chain implements ChainProvider
@@ -16,18 +17,20 @@ export class ChainProvider {
 }
 
 export abstract class Chain {
-  readonly assets: ChainAsset [];
+  protected assets: ChainAsset [];
   readonly instructionWeight: Weight;
+  readonly defaultAsset: ChainAsset;
 
-  constructor(assets: ChainAsset [], instructionWeight: Weight) {
+  constructor(assets: ChainAsset [], defaultAsset: ChainAsset, instructionWeight: Weight) {
     this.assets = assets;
+    this.defaultAsset = defaultAsset;
     this.instructionWeight = instructionWeight;
   }
 
   public abstract initialize(): void;
   public abstract getApi(): ApiPromise;
   public abstract getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ extrinsicWeight: Weight; overallWeight: Weight; }>;
-  public abstract weightToFee(weight: Weight, assetId: number): Promise<BN>;
+  public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
   public abstract transfer(destination: Chain, assetLocation: any, assetAmount: BN): void;
 }
 

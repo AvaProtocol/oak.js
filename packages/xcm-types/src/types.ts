@@ -1,3 +1,4 @@
+import util from 'node:util';
 import BN from 'bn.js';
 import type { Extrinsic } from '@polkadot/types/interfaces';
 
@@ -16,6 +17,11 @@ export class Weight {
 
   public add(weight: Weight): Weight {
     return new Weight(this.refTime.add(weight.refTime), this.proofSize.add(weight.proofSize));
+  }
+
+  [util.inspect.custom]() {
+    const { refTime, proofSize } = this;
+    return `Weight { refTime: ${refTime.toString()}, proofSize: ${proofSize.toString()} }`;
   }
 }
 

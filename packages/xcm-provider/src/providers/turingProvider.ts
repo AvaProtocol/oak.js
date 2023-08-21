@@ -1,11 +1,13 @@
-
+import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { HexString } from '@polkadot/util/types';
-import type { SubmittableExtrinsic } from '@polkadot/api-base/types';
+import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import { rpc, types, runtime } from '@oak-network/types';
 import { Chain as ChainConfig, Weight } from '@oak-foundation/xcm-types';
 import { Chain } from './chainProvider';
+import type { u32, Option } from '@polkadot/types';
+import type { WeightV2 } from '@polkadot/types/interfaces';
 
 // TuringChain implements Chain
 export class TuringChain extends Chain {
@@ -13,7 +15,7 @@ export class TuringChain extends Chain {
   api: ApiPromise | undefined;
 
   constructor(config: ChainConfig) {
-    super(config.assets, config.instructionWeight);
+    super(config.assets, config.defaultAsset, config.instructionWeight);
     this.config = config;
   }
 
@@ -31,53 +33,63 @@ export class TuringChain extends Chain {
   }
 
   async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {
-    return (await extrinsic.paymentInfo(sender)).weight as unknown as Weight;
+    const { refTime, proofSize: proofSize } = (await extrinsic.paymentInfo(sender)).weight as unknown as WeightV2;
+		return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
   async getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ extrinsicWeight: Weight; overallWeight: Weight; }> {
     const extrinsicWeight = await this.getExtrinsicWeight(sender, extrinsic);
-    const overallWeight = extrinsicWeight.add(this.config.instructionWeight.muln(4));
+    const overallWeight = extrinsicWeight.add(this.config.instructionWeight.muln(6));
     return { extrinsicWeight, overallWeight };
   }
 
-  async metadata(assetId: number): Promise<any> {
-    if (!this.api) {
+  async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
+		if (!this.api) {
       throw new Error("Api not initialized");
     }
-    const metadata = await this.api.query.assetRegistry.metadata(assetId);
-    return metadata;
-  }
+    const location = _.isEqual(assetLocation, this.defaultAsset.location)
+      ? { parents: 0, interior: 'Here' } : assetLocation;
+		const storageValue = await this.api.query.assetRegistry.locationToAssetId(location);
+		const item = storageValue as unknown as Option<u32>;
+		if (item.isNone) {
+			throw new Error("AssetTypeUnitsPerSecond not initialized");
+		}
+		const assetId = item.unwrap();
+		const metadataStorageValue = await this.api.query.assetRegistry.metadata(assetId);
+		const metadataItem = metadataStorageValue as unknown as Option<any>;
+		if (metadataItem.isNone) {
+			throw new Error("Metadata not initialized");
+		}
 
-  async weightToFee(weight: Weight, assetId: number): Promise<BN> {
-    if (!this.api) {
-      throw new Error("Api not initialized");
-    }
-    const metadata = await this.metadata(assetId);
-    const feePerSecond = metadata.additional.feePerSecond;
-    return new BN(1234);
-    // return weight.refTime.muln(feePerSecond);
+    const { additional } = metadataItem.unwrap().toJSON() as any;
+    const { feePerSecond } = additional;
+		
+		return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 * 12));
   }
 
   async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
     if (!this.api) {
       throw new Error("Api not initialized");
     }
-    this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
+		// TODO
+    // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
   async scheduleXcmpTask(schedule: any, encodedCall: HexString, encodedCallWeight: Weight, overallWeight: Weight, scheduleFee: BN, executionFee: BN) {
     if (!this.api) {
       throw new Error("Api not initialized");
     }
-    const extrinsic = this.api.tx.automationTime.scheduleXcmpTask(schedule, encodedCall, encodedCallWeight, overallWeight, scheduleFee, executionFee);
-    extrinsic.signAndSend('');
+		// TODO
+    // const extrinsic = this.api.tx.automationTime.scheduleXcmpTask(schedule, encodedCall, encodedCallWeight, overallWeight, scheduleFee, executionFee);
+    // extrinsic.signAndSend('');
   }
 
   async scheduleXcmpTaskThroughProxy(schedule: any, encodedCall: HexString, encodedCallWeight: Weight, overallWeight: Weight, scheduleFee: BN, executionFee: BN) {
     if (!this.api) {
       throw new Error("Api not initialized");
     }
-    const extrinsic = this.api.tx.automationTime.scheduleXcmpTaskThroughProxy(schedule, encodedCall, encodedCallWeight, overallWeight, scheduleFee, executionFee);
-    extrinsic.signAndSend('');
+		// TODO
+    // const extrinsic = this.api.tx.automationTime.scheduleXcmpTaskThroughProxy(schedule, encodedCall, encodedCallWeight, overallWeight, scheduleFee, executionFee);
+    // extrinsic.signAndSend('');
   }
 }

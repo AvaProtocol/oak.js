@@ -3,7 +3,7 @@ import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-foundation/xcm-types';
-import { Chain } from './chainProvider';
+import { Chain, ChainProvider } from './chainProvider';
 import type { u32, u64, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 
@@ -25,6 +25,11 @@ export class MangataChain extends Chain {
 		this.api = api;
   }
 
+  async destroy() {
+    await this.getApi().disconnect();
+    this.api = undefined;
+  }
+
   public getApi(): ApiPromise {
     if (!this.api) throw new Error("Api not initialized");
     return this.api;
@@ -42,21 +47,18 @@ export class MangataChain extends Chain {
   }
 
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-		if (!this.api) {
-      throw new Error("Api not initialized");
-    }
-
+    const api = this.getApi();
 		if (_.isEqual(this.defaultAsset.location, assetLocation)) {
-      const fee = await this.api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
+      const fee = await api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
 			return fee;
     } else {
-      const storageValue = await this.api.query.assetRegistry.locationToAssetId(location);
+      const storageValue = await api.query.assetRegistry.locationToAssetId(location);
 			const item = storageValue as unknown as Option<u32>;
 			if (item.isNone) {
 				throw new Error("AssetTypeUnitsPerSecond not initialized");
 			}
 			const assetId = item.unwrap();
-			const metadataStorageValue = await this.api.query.assetRegistry.metadata(assetId);
+			const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
 			const metadataItem = metadataStorageValue as unknown as Option<any>;
 			if (metadataItem.isNone) {
 				throw new Error("Metadata not initialized");
@@ -70,19 +72,22 @@ export class MangataChain extends Chain {
   }
 
   async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
-    if (!this.api) {
-      throw new Error("Api not initialized");
-    }
 		// TODO
-    // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
+    // const api = this.getApi();
+    // api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
   transact(transactInfo: TransactInfo) {
-    if (!this.api) {
-      throw new Error("Api not initialized");
-    }
 		// TODO
+    // const api = this.getApi();
     // const { encodedCall, encodedCallWeight, overallWeight, fee } = transactInfo;
-    // this.api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
+    // api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
+  }
+}
+
+export class MangataProvider extends ChainProvider {
+  constructor(config: ChainConfig) {
+    const chain = new MangataChain(config);
+    super(chain, undefined);
   }
 }

@@ -1,22 +1,11 @@
 {
   "files": [],
-  "compilerOptions": {
-    "incremental": true,
-    "target": "esnext",
-    "module": "commonjs",
-    "declaration": true,
-    "sourceMap": true,
-    "composite": true,
-    "strict": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-  },
   "references": [
     { "path": "packages/types" },
     { "path": "packages/api-augment" },
     { "path": "packages/xcm-types" },
     { "path": "packages/xcm-config" },
-    { "path": "packages/xcm-provider" }
+    { "path": "packages/xcm-provider" },
+    { "path": "packages/xcm-sdk" }
   ]
 }

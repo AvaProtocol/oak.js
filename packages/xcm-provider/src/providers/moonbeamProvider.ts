@@ -3,30 +3,9 @@ import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import { Asset, ChainAsset, Chain as ChainConfig, TransactInfo, Weight } from '@oak-foundation/xcm-types';
-import { Chain, TaskRegister } from './chainProvider';
+import { Chain, ChainProvider, TaskRegister } from './chainProvider';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { u64, u128, Option } from '@polkadot/types';
-
-function keysToLowerCase(obj: any): any {
-  if (typeof obj !== 'object' || obj === null) {
-    throw new Error('Input is not an object');
-  }
-
-  const newObj: any = {};
-
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const value = obj[key];
-      if (typeof value === 'object' && value !== null) {
-        newObj[key.toLowerCase()] = keysToLowerCase(value);
-      } else {
-        newObj[key.toLowerCase()] = value;
-      }
-    }
-  }
-
-  return newObj;
-}
 
 // MoonbeamChain implements Chain, TaskRegister interface
 export class MoonbeamChain extends Chain implements TaskRegister {
@@ -45,6 +24,11 @@ export class MoonbeamChain extends Chain implements TaskRegister {
 
 		this.api = api;
     await this.updateAssets();
+  }
+  
+  async destroy() {
+    await this.getApi().disconnect();
+    this.api = undefined;
   }
 
   public getApi(): ApiPromise {
@@ -102,14 +86,12 @@ export class MoonbeamChain extends Chain implements TaskRegister {
   }
 
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-    if (!this.api) {
-      throw new Error("Api not initialized");
-    }
+    const api = this.getApi();
     if (_.isEqual(this.defaultAsset.location, assetLocation)) {
-      const fee = await this.api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
+      const fee = await api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
 			return fee;
     } else {
-      const storageValue = await this.api?.query.assetManager.assetTypeUnitsPerSecond({ Xcm: assetLocation });
+      const storageValue = await api.query.assetManager.assetTypeUnitsPerSecond({ Xcm: assetLocation });
       const item = storageValue as unknown as Option<any>;
       if (item.isNone) {
         throw new Error("AssetTypeUnitsPerSecond not initialized");
@@ -120,21 +102,20 @@ export class MoonbeamChain extends Chain implements TaskRegister {
   }
 
   async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
-    if (!this.api) {
-      throw new Error("Api not initialized");
-    }
-    this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
+    // TODO
+    // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
   transact(transactInfo: TransactInfo) {
-    if (!this.api) {
-      throw new Error("Api not initialized");
-    }
-    const { encodedCall, encodedCallWeight, overallWeight, fee } = transactInfo;
-    this.api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
+    // const api = getApi();
+    // const { encodedCall, encodedCallWeight, overallWeight, fee } = transactInfo;
+    // api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
   }
+}
 
-  // transfer(api: polkadotApi, destination, asset: Asset, assetAmount: BN): hash {
-  //   // TODO
-  // }
+export class MoonbeamProvider extends ChainProvider {
+  constructor(config: ChainConfig) {
+    const chain = new MoonbeamChain(config);
+    super(chain, chain);
+  }
 }

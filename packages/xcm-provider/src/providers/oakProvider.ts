@@ -5,12 +5,12 @@ import type { HexString } from '@polkadot/util/types';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import { rpc, types, runtime } from '@oak-network/types';
 import { Chain as ChainConfig, Weight } from '@oak-foundation/xcm-types';
-import { Chain } from './chainProvider';
+import { Chain, ChainProvider } from './chainProvider';
 import type { u32, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 
-// TuringChain implements Chain
-export class TuringChain extends Chain {
+// OakChain implements Chain
+export class OakChain extends Chain {
   readonly config: ChainConfig;
   api: ApiPromise | undefined;
 
@@ -25,6 +25,11 @@ export class TuringChain extends Chain {
 		});
 
 		this.api = api;
+  }
+
+  async destroy() {
+    await this.getApi().disconnect();
+    this.api = undefined;
   }
 
   public getApi(): ApiPromise {
@@ -91,5 +96,12 @@ export class TuringChain extends Chain {
 		// TODO
     // const extrinsic = this.api.tx.automationTime.scheduleXcmpTaskThroughProxy(schedule, encodedCall, encodedCallWeight, overallWeight, scheduleFee, executionFee);
     // extrinsic.signAndSend('');
+  }
+}
+
+export class OakProvider extends ChainProvider {
+  constructor(config: ChainConfig) {
+    const chain = new OakChain(config);
+    super(chain, undefined);
   }
 }

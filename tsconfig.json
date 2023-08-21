@@ -20,7 +20,9 @@
       "@oak-foundation/xcm-config": ["./packages/xcm-config/src"],
       "@oak-foundation/xcm-config/*": ["./packages/xcm-config/src/*"],
       "@oak-foundation/xcm-provider": ["./packages/xcm-provider/src"],
-      "@oak-foundation/xcm-provider/*": ["./packages/xcm-provider/src/*"]
+      "@oak-foundation/xcm-provider/*": ["./packages/xcm-provider/src/*"],
+      "@oak-foundation/xcm-sdk": ["./packages/xcm-sdk/src"],
+      "@oak-foundation/xcm-sdk/*": ["./packages/xcm-sdk/src/*"]
     }
   }
 }

@@ -3,7 +3,7 @@ import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-foundation/xcm-types';
-import { Chain, TaskRegister } from './chainProvider';
+import { Chain, ChainProvider, TaskRegister } from './chainProvider';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 
@@ -28,6 +28,11 @@ export class AstarChain extends Chain implements TaskRegister {
   public getApi(): ApiPromise {
     if (!this.api) throw new Error("Api not initialized");
     return this.api;
+  }
+  
+  async destroy() {
+    await this.getApi().disconnect();
+    this.api = undefined;
   }
 
   async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {
@@ -62,17 +67,11 @@ export class AstarChain extends Chain implements TaskRegister {
   }
 
   async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
-    if (!this.api) {
-      throw new Error("Api not initialized");
-    }
 		// TODO
-    this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
+    // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
   transact(transactInfo: TransactInfo) {
-    if (!this.api) {
-      throw new Error("Api not initialized");
-    }
 		// TODO
     // const { encodedCall, encodedCallWeight, overallWeight, fee } = transactInfo;
     // this.api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
@@ -81,4 +80,11 @@ export class AstarChain extends Chain implements TaskRegister {
   // transfer(api: polkadotApi, destination, asset: Asset, assetAmount: BN): hash {
   //   // TODO
   // }
+}
+
+export class AstarProvider extends ChainProvider {
+  constructor(config: ChainConfig) {
+    const chain = new AstarChain(config);
+    super(chain, chain);
+  }
 }

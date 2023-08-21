@@ -9,16 +9,20 @@ const moonbaseAssets = [moonbaseAlphaAsset];
 
 // moonbase-local
 export const moonbaseLocal = new Chain({
+	key: 'moonbase-local',
 	assets: moonbaseAssets,
 	defaultAsset: moonbaseAlphaAsset,
+	relayChain: 'local',
 	endpoint: 'ws://127.0.0.1:9949',
 	instructionWeight: new Weight(new BN('250000000'), new BN('10000')),
 });
 
 // moonbase-alpha
 export const moonbaseAlpha = new Chain({
+	key: 'moonbase-alpha',
 	assets: moonbaseAssets,
 	defaultAsset: moonbaseAlphaAsset,
+	relayChain: 'moonbase-alpha-relay',
 	endpoint: 'wss://wss.api.moonbase.moonbeam.network',
 	instructionWeight: new Weight(new BN('250000000'), new BN('10000')),
 });

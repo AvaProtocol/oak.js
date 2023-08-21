@@ -14,6 +14,14 @@ export class ChainProvider {
     this.chain = chain;
     this.taskRegister = taskRegister;
   }
+
+  async initialize() {
+    this.chain.initialize();
+  }
+
+  async destroy() {
+    this.chain.destroy();
+  }
 }
 
 export abstract class Chain {
@@ -28,10 +36,12 @@ export abstract class Chain {
   }
 
   public abstract initialize(): void;
+  public abstract destroy(): void;
   public abstract getApi(): ApiPromise;
   public abstract getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ extrinsicWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
   public abstract transfer(destination: Chain, assetLocation: any, assetAmount: BN): void;
+  
 }
 
 export interface TaskRegister {

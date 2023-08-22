@@ -3,9 +3,9 @@
   "references": [
     { "path": "packages/types" },
     { "path": "packages/api-augment" },
-    { "path": "packages/xcm-types" },
-    { "path": "packages/xcm-config" },
-    { "path": "packages/xcm-provider" },
-    { "path": "packages/xcm-sdk" }
+    { "path": "packages/sdk-types" },
+    { "path": "packages/config" },
+    { "path": "packages/provider" },
+    { "path": "packages/sdk" }
   ]
 }

@@ -1,8 +1,8 @@
 import BN from 'bn.js';
-import { Chain, ChainAsset, Weight }  from '@oak-network/xcm-types';
-import { assets, chains } from '@oak-network/xcm-config';
-import { MoonbeamProvider, ChainProvider, OakProvider, MangataProvider, AstarProvider, OakChain } from '@oak-network/xcm-provider';
-import { Sdk } from '@oak-network/xcm-sdk';
+import { Chain, ChainAsset, Weight }  from '@oak-network/sdk-types';
+import { assets, chains } from '@oak-network/config';
+import { MoonbeamProvider, ChainProvider, OakProvider, MangataProvider, AstarProvider, OakChain } from '@oak-network/provider';
+import { Sdk } from '@oak-network/sdk';
 
 test('Test xcm-types', async () => {
 	const turAsset = new ChainAsset({ asset: assets.tur, isNative: true });

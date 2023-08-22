@@ -2,13 +2,13 @@ import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-network/xcm-types';
-import { Chain, ChainProvider } from './chainProvider';
-import type { u32, u64, Option } from '@polkadot/types';
+import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-network/sdk-types';
+import { Chain, ChainProvider, TaskRegister } from './chainProvider';
+import type { u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 
-// MangataChain implements Chain
-export class MangataChain extends Chain {
+// AstarChain implements Chain, TaskRegister interface
+export class AstarChain extends Chain implements TaskRegister {
   readonly config: ChainConfig;
   api: ApiPromise | undefined;
 
@@ -25,14 +25,14 @@ export class MangataChain extends Chain {
 		this.api = api;
   }
 
-  async destroy() {
-    await this.getApi().disconnect();
-    this.api = undefined;
-  }
-
   public getApi(): ApiPromise {
     if (!this.api) throw new Error("Api not initialized");
     return this.api;
+  }
+  
+  async destroy() {
+    await this.getApi().disconnect();
+    this.api = undefined;
   }
 
   async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {
@@ -47,47 +47,44 @@ export class MangataChain extends Chain {
   }
 
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-    const api = this.getApi();
+		if (!this.api) {
+      throw new Error("Api not initialized");
+    }
+
 		if (_.isEqual(this.defaultAsset.location, assetLocation)) {
-      const fee = await api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
+      const fee = await this.api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
 			return fee;
     } else {
-      const storageValue = await api.query.assetRegistry.locationToAssetId(assetLocation);
-			const item = storageValue as unknown as Option<u32>;
-			if (item.isNone) {
-				throw new Error("AssetTypeUnitsPerSecond not initialized");
-			}
-			const assetId = item.unwrap();
-			const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
-			const metadataItem = metadataStorageValue as unknown as Option<any>;
+			const AssetLocationUnitsPerSecond = await this.api.query.xcAssetConfig.assetLocationUnitsPerSecond(assetLocation);
+			const metadataItem = AssetLocationUnitsPerSecond as unknown as Option<u128>;
 			if (metadataItem.isNone) {
-				throw new Error("Metadata not initialized");
+				throw new Error("MetadatAssetLocationUnitsPerSeconda not initialized");
 			}
-
-			const { additional } = metadataItem.unwrap().toJSON() as any;
-			const { xcm: { feePerSecond } } = additional;
+			const unitsPerSecond = metadataItem.unwrap();
 			
-			return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 * 12));
+			return weight.refTime.mul(unitsPerSecond).div(new BN(10 * 12));
     }
   }
 
   async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
 		// TODO
-    // const api = this.getApi();
-    // api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
+    // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
   transact(transactInfo: TransactInfo) {
 		// TODO
-    // const api = this.getApi();
     // const { encodedCall, encodedCallWeight, overallWeight, fee } = transactInfo;
-    // api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
+    // this.api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
   }
+
+  // transfer(api: polkadotApi, destination, asset: Asset, assetAmount: BN): hash {
+  //   // TODO
+  // }
 }
 
-export class MangataProvider extends ChainProvider {
+export class AstarProvider extends ChainProvider {
   constructor(config: ChainConfig) {
-    const chain = new MangataChain(config);
-    super(chain, undefined);
+    const chain = new AstarChain(config);
+    super(chain, chain);
   }
 }

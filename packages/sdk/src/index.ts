@@ -1,6 +1,6 @@
 import BN from 'bn.js';
-import { ChainProvider, OakProvider } from '@oak-network/xcm-provider';
-import { Asset } from '@oak-network/xcm-types';
+import { ChainProvider, OakProvider } from '@oak-network/provider';
+import { Asset } from '@oak-network/sdk-types';
 
 export function Sdk() {
   return {

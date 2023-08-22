@@ -3,10 +3,10 @@ module.exports = {
   modulePathIgnorePatterns: [
     "<rootDir>/packages/api-augment",
     "<rootDir>/packages/types",
-    "<rootDir>/packages/xcm-types",
-    "<rootDir>/packages/xcm-config",
-    "<rootDir>/packages/xcm-provider",
-    "<rootDir>/packages/xcm-sdk"
+    "<rootDir>/packages/sdk-types",
+    "<rootDir>/packages/config",
+    "<rootDir>/packages/provider",
+    "<rootDir>/packages/sdk"
   ],
   moduleNameMapper: {
     "^@oak-network/(.*)$": "<rootDir>/packages/$1"

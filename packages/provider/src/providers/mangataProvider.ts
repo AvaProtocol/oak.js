@@ -2,13 +2,13 @@ import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-network/xcm-types';
-import { Chain, ChainProvider, TaskRegister } from './chainProvider';
-import type { u64, u128, Option } from '@polkadot/types';
+import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-network/sdk-types';
+import { Chain, ChainProvider } from './chainProvider';
+import type { u32, u64, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 
-// AstarChain implements Chain, TaskRegister interface
-export class AstarChain extends Chain implements TaskRegister {
+// MangataChain implements Chain
+export class MangataChain extends Chain {
   readonly config: ChainConfig;
   api: ApiPromise | undefined;
 
@@ -25,14 +25,14 @@ export class AstarChain extends Chain implements TaskRegister {
 		this.api = api;
   }
 
-  public getApi(): ApiPromise {
-    if (!this.api) throw new Error("Api not initialized");
-    return this.api;
-  }
-  
   async destroy() {
     await this.getApi().disconnect();
     this.api = undefined;
+  }
+
+  public getApi(): ApiPromise {
+    if (!this.api) throw new Error("Api not initialized");
+    return this.api;
   }
 
   async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {
@@ -47,44 +47,47 @@ export class AstarChain extends Chain implements TaskRegister {
   }
 
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-		if (!this.api) {
-      throw new Error("Api not initialized");
-    }
-
+    const api = this.getApi();
 		if (_.isEqual(this.defaultAsset.location, assetLocation)) {
-      const fee = await this.api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
+      const fee = await api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
 			return fee;
     } else {
-			const AssetLocationUnitsPerSecond = await this.api.query.xcAssetConfig.assetLocationUnitsPerSecond(assetLocation);
-			const metadataItem = AssetLocationUnitsPerSecond as unknown as Option<u128>;
-			if (metadataItem.isNone) {
-				throw new Error("MetadatAssetLocationUnitsPerSeconda not initialized");
+      const storageValue = await api.query.assetRegistry.locationToAssetId(assetLocation);
+			const item = storageValue as unknown as Option<u32>;
+			if (item.isNone) {
+				throw new Error("AssetTypeUnitsPerSecond not initialized");
 			}
-			const unitsPerSecond = metadataItem.unwrap();
+			const assetId = item.unwrap();
+			const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
+			const metadataItem = metadataStorageValue as unknown as Option<any>;
+			if (metadataItem.isNone) {
+				throw new Error("Metadata not initialized");
+			}
+
+			const { additional } = metadataItem.unwrap().toJSON() as any;
+			const { xcm: { feePerSecond } } = additional;
 			
-			return weight.refTime.mul(unitsPerSecond).div(new BN(10 * 12));
+			return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 * 12));
     }
   }
 
   async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
 		// TODO
-    // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
+    // const api = this.getApi();
+    // api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
   transact(transactInfo: TransactInfo) {
 		// TODO
+    // const api = this.getApi();
     // const { encodedCall, encodedCallWeight, overallWeight, fee } = transactInfo;
-    // this.api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
+    // api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
   }
-
-  // transfer(api: polkadotApi, destination, asset: Asset, assetAmount: BN): hash {
-  //   // TODO
-  // }
 }
 
-export class AstarProvider extends ChainProvider {
+export class MangataProvider extends ChainProvider {
   constructor(config: ChainConfig) {
-    const chain = new AstarChain(config);
-    super(chain, chain);
+    const chain = new MangataChain(config);
+    super(chain, undefined);
   }
 }

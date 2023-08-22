@@ -2,7 +2,7 @@ import BN from 'bn.js';
 // import '@polkadot/api-augment';
 import { ApiPromise } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import { ChainAsset, TransactInfo, Weight } from '@oak-network/xcm-types';
+import { ChainAsset, TransactInfo, Weight } from '@oak-network/sdk-types';
 
 // Every chain implements ChainProvider
 // If you want to use PayThroughRemoteDerivativeAccount instructionSequence to schedule task, implements TaskRegister

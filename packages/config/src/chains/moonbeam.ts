@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import BN from 'bn.js';
-import { Chain } from '@oak-network/xcm-types';
+import { Chain } from '@oak-network/sdk-types';
 import { assets } from '../assets';
-import { ChainAsset, Weight } from '@oak-network/xcm-types';
+import { ChainAsset, Weight } from '@oak-network/sdk-types';
 
 const moonbaseAlphaAsset = new ChainAsset({ asset: assets.moonbaseAlpha, isNative: true });
 const moonbaseAssets = [moonbaseAlphaAsset];

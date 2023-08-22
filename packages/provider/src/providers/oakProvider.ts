@@ -4,7 +4,7 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { HexString } from '@polkadot/util/types';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import { rpc, types, runtime } from '@oak-network/types';
-import { Chain as ChainConfig, Weight } from '@oak-network/xcm-types';
+import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
 import { Chain, ChainProvider } from './chainProvider';
 import type { u32, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';

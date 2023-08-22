@@ -2,11 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "build",
-    "skipLibCheck": true
+    "outDir": "build"
   },
   "references": [
-    { "path": "../types" },
-    { "path": "../xcm-types" }
+    { "path": "../sdk-types" }
   ]
 }

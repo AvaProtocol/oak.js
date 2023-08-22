@@ -6,8 +6,7 @@
     "skipLibCheck": true
   },
   "references": [
-    { "path": "../xcm-types" },
-    { "path": "../xcm-config" },
-    { "path": "../xcm-provider" }
+    { "path": "../sdk-types" },
+    { "path": "../provider" }
   ]
 }

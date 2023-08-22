@@ -1,5 +1,11 @@
 # @oak-network/api-augment
 
+## 2.0.2
+
+### Patch Changes
+
+- eafc6bb: Patch with changeset
+
 ## 2.0.1
 
 ### Patch Changes

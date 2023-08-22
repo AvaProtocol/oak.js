@@ -1,12 +1,8 @@
-name: NPM publish dev version
+name: Publish dev version
 
 on:
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Branch or Tag'
-        required: true
-        default: 'main'
+  workflow_dispatch
+
 jobs:
   publish-dev-versions:
     runs-on: ubuntu-latest
@@ -14,22 +10,14 @@ jobs:
       - name: 🤘 checkout
         uses: actions/checkout@v3
 
-      - name: Set Git Ref
-        id: set-ref
-        run: echo "::set-output name=ref::${{ github.event.inputs.ref }}"
-
-      - name: ⚙️ Setup Node.js environment
+      - name: Setup Node.js environment
         uses: actions/setup-node@v3.0.0
         with:
           node-version: 18.x
           cache: 'npm'
 
-      - name: 🔐 Authenticate with NPM
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
-      - run: npm ci --ignore-scripts
-
-      # - name: ✌️ Update versions (Commented for now since I don’t think we should auto-upgrade dependencies)
-      #   run: npx ts-node --esm ./scripts/update-dev-versions.ts
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
 
       - name: 🛠️ Build
         run: npm run build
@@ -38,7 +26,6 @@ jobs:
           id: changesets
           uses: changesets/action@v1
           with:
-            version: npm run changeset:version
             publish: npm run changeset:publish-dev
           env:
             NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}

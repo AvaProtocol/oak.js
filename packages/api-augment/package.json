@@ -1,6 +1,6 @@
 {
   "name": "@oak-network/api-augment",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "main": "./build/index.js",
   "license": "Apache-2.0",
   "scripts": {

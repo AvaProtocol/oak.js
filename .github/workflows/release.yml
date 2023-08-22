@@ -1,9 +1,12 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or Tag'
+        required: true
+        default: 'main'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -22,6 +25,10 @@ jobs:
 
       - run: npm ci --ignore-scripts
 
+      - name: Set Git Ref
+        id: set-ref
+        run: echo "::set-output name=ref::${{ github.event.inputs.ref }}"
+        
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1

@@ -10,7 +10,10 @@
     "postbuild": "scripts/package-setup",
     "clean": "npm exec -- tsc --build --clean tsconfig.build.json",
     "publish": "bash scripts/publish",
-    "test": "npm run build && jest --verbose --runInBand ./test/functional"
+    "test": "npm run build && jest --verbose --runInBand ./test/functional",
+    "changeset": "changeset",
+    "changeset:version": "changeset version && npm i --package-lock-only",
+    "changeset:publish": "npm run build && changeset publish"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.19.4",

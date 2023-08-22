@@ -1,10 +1,10 @@
 name: Publish dev version
 
 on:
-  workflow_run:
-    workflows: ["Publish dev version"]
-    types:
-      - manual
+  workflow_dispatch:
+    inputs:
+      trigger-manual:
+        description: 'Manually trigger the workflow'
 
 jobs:
   publish-dev-version:

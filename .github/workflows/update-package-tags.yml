@@ -1,0 +1,29 @@
+name: Update dev tag to latest
+
+on:
+  workflow_dispatch:
+    inputs:
+      trigger-manual:
+        description: 'Manually trigger the workflow'
+
+jobs:
+  update-tags:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get dev version
+        run: |
+          dev_version=$(npm show @oak-network/api-augment@dev version)
+          echo "Dev version: $dev_version"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}
+
+      - name: Set latest tag
+        run: |
+          npm dist-tag add @oak-network/api-augment@$dev_version latest --registry=https://registry.npmjs.org/
+          echo "Latest tag set to $dev_version"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}

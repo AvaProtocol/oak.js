@@ -1,10 +1,13 @@
 name: Publish dev version
 
 on:
-  workflow_dispatch
+  workflow_run:
+    workflows: ["Publish dev version"]
+    types:
+      - manual
 
 jobs:
-  publish-dev-versions:
+  publish-dev-version:
     runs-on: ubuntu-latest
     steps:
       - name: 🤘 checkout
@@ -22,11 +25,17 @@ jobs:
       - name: 🛠️ Build
         run: npm run build
 
+      - name: 🔐 Authenticate with NPM
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
+
       - name: Publish packages to NPM with dev tag
-          id: changesets
-          uses: changesets/action@v1
-          with:
-            publish: npm run changeset:publish-dev 
-          env:
-            NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}
+         run: |
+          for dir in packages/*; do
+            if [ -d "$dir" ]; then
+              echo "Publishing $dir package"
+              cd "$dir"
+              npm publish --tag dev
+              cd ..
+            fi
+          done
 

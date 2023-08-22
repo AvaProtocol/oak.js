@@ -27,3 +27,17 @@ jobs:
           echo "Latest tag set to ${{ steps.get-version.outputs.dev_version }}"
         env:
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}
+
+      - name: Get dev version for types
+        id: get-version-types
+        run: |
+          dev_version=$(npm show @oak-network/types@dev version)
+          echo "Dev version: $dev_version"
+          echo "dev_version=$dev_version" >> $GITHUB_OUTPUT
+
+      - name: Set latest tag for types
+        run: |
+          npm dist-tag add @oak-network/types@${{ steps.get-version-types.outputs.dev_version }} latest --registry=https://registry.npmjs.org/
+          echo "Latest tag set to ${{ steps.get-version-types.outputs.dev_version }}"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}

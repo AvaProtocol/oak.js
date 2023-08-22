@@ -1,0 +1,46 @@
+name: Update dev tag to latest
+
+on:
+  workflow_dispatch:
+    inputs:
+      trigger-manual:
+        description: 'Manually trigger the workflow'
+
+jobs:
+  update-tags:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: 🔐 Authenticate with NPM
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
+
+      - name: Get dev version
+        id: get-version
+        run: |
+          dev_version=$(npm show @oak-network/api-augment@dev version)
+          echo "Dev version: $dev_version"
+          echo "dev_version=$dev_version" >> $GITHUB_OUTPUT
+
+      - name: Set latest tag
+        run: |
+          npm dist-tag add @oak-network/api-augment@${{ steps.get-version.outputs.dev_version }} latest --registry=https://registry.npmjs.org/
+          echo "Latest tag set to ${{ steps.get-version.outputs.dev_version }}"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}
+
+      - name: Get dev version for types
+        id: get-version-types
+        run: |
+          dev_version=$(npm show @oak-network/types@dev version)
+          echo "Dev version: $dev_version"
+          echo "dev_version=$dev_version" >> $GITHUB_OUTPUT
+
+      - name: Set latest tag for types
+        run: |
+          npm dist-tag add @oak-network/types@${{ steps.get-version-types.outputs.dev_version }} latest --registry=https://registry.npmjs.org/
+          echo "Latest tag set to ${{ steps.get-version-types.outputs.dev_version }}"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}

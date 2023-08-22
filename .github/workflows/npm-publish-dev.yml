@@ -1,0 +1,37 @@
+name: Publish dev version
+
+on:
+  workflow_dispatch:
+    inputs:
+      trigger-manual:
+        description: 'Manually trigger the workflow'
+
+jobs:
+  publish-dev-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🤘 checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: 18.x
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
+
+      - name: 🛠️ Build
+        run: npm run build
+
+      - name: 🔐 Authenticate with NPM
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
+
+      - name: 🚀 Publish api-augment package
+        working-directory: ./packages/api-augment
+        run: npm publish --tag dev
+
+      - name: 🚀 Publish types package
+        working-directory: ./packages/types
+        run: npm publish --tag dev

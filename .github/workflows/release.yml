@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   push:
@@ -9,25 +9,25 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
+    name: Release
     runs-on: ubuntu-latest
     steps:
       - name: 🤘 checkout
         uses: actions/checkout@v3
 
-      - name: ⚙️ Setup Node.js environment
+      - name: Setup Node.js environment
         uses: actions/setup-node@v3.0.0
         with:
           node-version: 18.x
           cache: 'npm'
+      
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
 
-      - run: npm ci --ignore-scripts
-
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
+      - name: Create Release Pull Request
         uses: changesets/action@v1
         with:
-          version: npm run changeset:version
-          publish: npm run changeset:publish
+          title: Changeset Version Bump
+          commit: Update the version of packages with .changeset md files
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}

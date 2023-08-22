@@ -18,8 +18,9 @@ jobs:
         run: |
           dev_version=$(npm show @oak-network/api-augment@dev version)
           echo "Dev version: $dev_version"
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}
+
+      - name: 🔐 Authenticate with NPM
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
       - name: Set latest tag
         run: |

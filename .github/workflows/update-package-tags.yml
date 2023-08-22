@@ -21,8 +21,8 @@ jobs:
           echo "Dev version: $dev_version"
           echo "dev_version=$dev_version" >> $GITHUB_OUTPUT
 
-      - name: 🔐 Authenticate with NPM
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
+      # - name: 🔐 Authenticate with NPM
+      #   run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
       - name: Set latest tag
         run: |
@@ -30,4 +30,3 @@ jobs:
           echo "Latest tag set to ${{ steps.get-version.outputs.dev_version }}"
         env:
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

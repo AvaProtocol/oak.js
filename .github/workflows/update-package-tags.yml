@@ -21,9 +21,6 @@ jobs:
           echo "Dev version: $dev_version"
           echo "dev_version=$dev_version" >> $GITHUB_OUTPUT
 
-      # - name: 🔐 Authenticate with NPM
-      #   run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
-
       - name: Set latest tag
         run: |
           npm dist-tag add @oak-network/api-augment@${{ steps.get-version.outputs.dev_version }} latest --registry=https://registry.npmjs.org/

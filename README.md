@@ -102,6 +102,6 @@ The release creation and publish is completely handled by Github Actions.
 1. In order to trigger a version update, you need to run `npm run changeset` locally to generate a mark file. The script will create a .md file under .changeset like this PR, https://github.com/OAK-Foundation/oak.js/commit/c35050eb16bb73251fb05dd9010ab577f2adf5d6.
 2. Once the above PR is merged to main, an Action will be triggered by that mark file to create a PR to update all package versions automatically, as seen in this PR, https://github.com/OAK-Foundation/oak.js/pull/42. If you need to stack more changes on to the same version, just re-run step 1 to create another mark file and merge it to the main branch.
 3. If things look good, merge the above PR created by changeset, and run the **Publish dev version** workflow manually to publish an NPM package version with `dev` tag for testing.
-4. If testing goes well, run the **Make dev version latest** workflow manually to update the npm tag of `dev` to `latest`.
+4. If testing goes well, run the **Update dev tag to latest** workflow manually to update the npm tag of `dev` to `latest`.
 
 You should receive an email from `support@npmjs.com` if the package is successfully published.

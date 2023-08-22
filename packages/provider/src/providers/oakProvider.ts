@@ -11,20 +11,15 @@ import type { WeightV2 } from '@polkadot/types/interfaces';
 
 // OakChain implements Chain
 export class OakChain extends Chain {
-  readonly config: ChainConfig;
   api: ApiPromise | undefined;
-
-  constructor(config: ChainConfig) {
-    super(config.assets, config.defaultAsset, config.instructionWeight);
-    this.config = config;
-  }
 
   async initialize() {
     const api = await ApiPromise.create({
-			provider: new WsProvider(this.config.endpoint), rpc, types, runtime,
-		});
+      provider: new WsProvider(this.chainData.endpoint), rpc, types, runtime,
+    });
 
-		this.api = api;
+    this.api = api;
+    await this.updateChainData();
   }
 
   async destroy() {
@@ -38,45 +33,45 @@ export class OakChain extends Chain {
   }
 
   async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {
-    const { refTime, proofSize: proofSize } = (await extrinsic.paymentInfo(sender)).weight as unknown as WeightV2;
-		return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
+    const { refTime, proofSize } = (await extrinsic.paymentInfo(sender)).weight as unknown as WeightV2;
+    return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
-  async getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ extrinsicWeight: Weight; overallWeight: Weight; }> {
-    const extrinsicWeight = await this.getExtrinsicWeight(sender, extrinsic);
-    const overallWeight = extrinsicWeight.add(this.config.instructionWeight.muln(6));
-    return { extrinsicWeight, overallWeight };
+  async getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
+    const { instructionWeight } = this.chainData;
+    if (!instructionWeight) throw new Error("chainData.instructionWeight not set");
+    const encodedCallWeight = await this.getExtrinsicWeight(sender, extrinsic);
+    const overallWeight = encodedCallWeight.add(instructionWeight.muln(6));
+    return { encodedCallWeight, overallWeight };
   }
 
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-		if (!this.api) {
-      throw new Error("Api not initialized");
-    }
-    const location = _.isEqual(assetLocation, this.defaultAsset.location)
+    const { defaultAsset } = this.chainData;
+    if (!defaultAsset) throw new Error("chainData.defaultAsset not set");
+
+    const api = this.getApi();
+    const location = _.isEqual(assetLocation, defaultAsset.location)
       ? { parents: 0, interior: 'Here' } : assetLocation;
-		const storageValue = await this.api.query.assetRegistry.locationToAssetId(location);
-		const item = storageValue as unknown as Option<u32>;
-		if (item.isNone) {
-			throw new Error("AssetTypeUnitsPerSecond not initialized");
-		}
-		const assetId = item.unwrap();
-		const metadataStorageValue = await this.api.query.assetRegistry.metadata(assetId);
-		const metadataItem = metadataStorageValue as unknown as Option<any>;
-		if (metadataItem.isNone) {
-			throw new Error("Metadata not initialized");
-		}
+    const storageValue = await api.query.assetRegistry.locationToAssetId(location);
+    const item = storageValue as unknown as Option<u32>;
+    if (item.isNone) throw new Error("AssetTypeUnitsPerSecond not initialized");
+
+    const assetId = item.unwrap();
+    const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
+    const metadataItem = metadataStorageValue as unknown as Option<any>;
+    if (metadataItem.isNone) throw new Error("Metadata not initialized");
 
     const { additional } = metadataItem.unwrap().toJSON() as any;
     const { feePerSecond } = additional;
-		
-		return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 * 12));
+    
+    return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 * 12));
   }
 
   async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
     if (!this.api) {
       throw new Error("Api not initialized");
     }
-		// TODO
+    // TODO
     // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
@@ -84,7 +79,7 @@ export class OakChain extends Chain {
     if (!this.api) {
       throw new Error("Api not initialized");
     }
-		// TODO
+    // TODO
     // const extrinsic = this.api.tx.automationTime.scheduleXcmpTask(schedule, encodedCall, encodedCallWeight, overallWeight, scheduleFee, executionFee);
     // extrinsic.signAndSend('');
   }
@@ -93,7 +88,7 @@ export class OakChain extends Chain {
     if (!this.api) {
       throw new Error("Api not initialized");
     }
-		// TODO
+    // TODO
     // const extrinsic = this.api.tx.automationTime.scheduleXcmpTaskThroughProxy(schedule, encodedCall, encodedCallWeight, overallWeight, scheduleFee, executionFee);
     // extrinsic.signAndSend('');
   }

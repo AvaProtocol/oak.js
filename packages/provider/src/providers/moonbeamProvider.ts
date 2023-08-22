@@ -9,20 +9,15 @@ import type { u64, u128, Option } from '@polkadot/types';
 
 // MoonbeamChain implements Chain, TaskRegister interface
 export class MoonbeamChain extends Chain implements TaskRegister {
-  readonly config: ChainConfig;
   api: ApiPromise | undefined;
-
-  constructor(config: ChainConfig) {
-    super(config.assets, config.defaultAsset, config.instructionWeight);
-    this.config = config;
-  }
 
   async initialize() {
     const api = await ApiPromise.create({
-			provider: new WsProvider(this.config.endpoint),
+			provider: new WsProvider(this.chainData.endpoint),
 		});
 
 		this.api = api;
+    await this.updateChainData();
     await this.updateAssets();
   }
   
@@ -70,34 +65,36 @@ export class MoonbeamChain extends Chain implements TaskRegister {
       const { name, symbol, decimals } = value;
       const asset = new Asset({ key: name, symbol, decimals, location });
       const chainAsset = new ChainAsset({ asset, isNative: false });
-      this.assets.push(chainAsset);
+      this.chainData.assets.push(chainAsset);
     })
   }
 
   async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {
-		const { refTime, proofSize: proofSize } = (await extrinsic.paymentInfo(sender)).weight as unknown as WeightV2;
+		const { refTime, proofSize } = (await extrinsic.paymentInfo(sender)).weight as unknown as WeightV2;
 		return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
-  async getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ extrinsicWeight: Weight; overallWeight: Weight; }> {
-    const extrinsicWeight = await this.getExtrinsicWeight(sender, extrinsic);
-    const overallWeight = extrinsicWeight.add(this.config.instructionWeight.muln(4));
-    return { extrinsicWeight, overallWeight };
+  async getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
+    const { instructionWeight } = this.chainData;
+    if (!instructionWeight) throw new Error("chainData.instructionWeight not set");
+    const encodedCallWeight = await this.getExtrinsicWeight(sender, extrinsic);
+    const overallWeight = encodedCallWeight.add(instructionWeight.muln(4));
+    return { encodedCallWeight, overallWeight };
   }
 
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
+    const { defaultAsset } = this.chainData;
+    if (!defaultAsset) throw new Error("chainData.defaultAsset not set");
     const api = this.getApi();
-    if (_.isEqual(this.defaultAsset.location, assetLocation)) {
+    if (_.isEqual(defaultAsset.location, assetLocation)) {
       const fee = await api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
 			return fee;
     } else {
       const storageValue = await api.query.assetManager.assetTypeUnitsPerSecond({ Xcm: assetLocation });
       const item = storageValue as unknown as Option<any>;
-      if (item.isNone) {
-        throw new Error("AssetTypeUnitsPerSecond not initialized");
-      }
+      if (item.isNone) throw new Error("AssetTypeUnitsPerSecond not initialized");
       const unitsPerSecond = item.unwrap() as u128;
-      return weight.refTime.mul(unitsPerSecond).div(new BN(10 * 12));
+      return weight.refTime.mul(unitsPerSecond).div(new BN(10 ** 12));
     }
   }
 

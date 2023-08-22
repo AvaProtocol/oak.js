@@ -1,10 +1,13 @@
 name: Publish dev version
 
 on:
-  workflow_dispatch
+  workflow_run:
+    workflows: ["Publish dev version"]
+    types:
+      - manual
 
 jobs:
-  publish-dev-versions:
+  publish-dev-version:
     runs-on: ubuntu-latest
     steps:
       - name: 🤘 checkout

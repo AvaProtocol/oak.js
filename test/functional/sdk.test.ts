@@ -16,6 +16,12 @@ export const readMnemonicFromFile = async () => {
 	return JSON.parse(json.toString());
 };
 
+export const readEthMnemonicFromFile = async () => {
+	const jsonPath = path.join(__dirname, '../../private', 'seed-eth.json');
+	const json = await fs.promises.readFile(jsonPath);
+	return JSON.parse(json.toString());
+};
+
 test('Test sdk-types', async () => {
 	const turAsset = new ChainAsset({ asset: assets.tur, isNative: true });
 	const chain = new Chain({ key: 'turing-local', assets: [turAsset], defaultAsset: turAsset, endpoint: 'ws://127.0.0.1:9946', relayChain: 'local', instructionWeight: new Weight(new BN(1), new BN(2)) });
@@ -99,8 +105,8 @@ test('Test PayThroughSoverignAccount XCMP task', async () => {
 	keyPair.unlock(process.env.PASS_PHRASE);
 
 	// Initialize providers
-	const turingProvider = new OakProvider(chains.turingStaging);
-	await turingProvider.initialize();
+	const oakChain = new OakChain(chains.turingStaging);
+	await oakChain.initialize();
 	const mangataProvider = new MangataProvider(chains.mangataRococo);
 	await mangataProvider.initialize();
 
@@ -110,7 +116,7 @@ test('Test PayThroughSoverignAccount XCMP task', async () => {
 
 	// Schedule task with sdk
 	const executionTimes = [getHourlyTimestamp(1)/1000];
-	await Sdk().scheduleXcmpTask(turingProvider, mangataProvider, {
+	await Sdk().scheduleXcmpTask(oakChain, mangataProvider, {
 		instructionSequnce: 'PayThroughSoverignAccount',
 		taskPayloadExtrinsic,
 		schedule: { Fixed: { executionTimes } },
@@ -118,6 +124,37 @@ test('Test PayThroughSoverignAccount XCMP task', async () => {
 	});
 
 	// Destroy providers
-	await turingProvider.destroy();
+	await oakChain.destroy();
 	await mangataProvider.destroy();
+}, 1000000);
+
+test('Test PayThroughRemoteDerivativeAccount XCMP task', async () => {
+	// Create a keyring instance
+	const jsonEth = await readEthMnemonicFromFile();
+	const ethKeyring = new Keyring({ type: 'ethereum' });
+	const ethKeyPair = ethKeyring.addFromJson(jsonEth);
+	ethKeyPair.unlock(process.env.PASS_PHRASE_ETH);
+
+	// Initialize providers
+	const oakChain = new OakChain(chains.turingMoonbase);
+	await oakChain.initialize();
+	const moonbeamProvider = new MoonbeamProvider(chains.moonbaseAlpha);
+	await moonbeamProvider.initialize();
+
+	// Make task payload extrinsic
+	const moonbeamApi = moonbeamProvider.chain.getApi();
+	const taskPayloadExtrinsic = moonbeamApi.tx.system.remarkWithEvent('hello!');
+
+	// Schedule task with sdk
+	const executionTimes = [getHourlyTimestamp(1)/1000];
+	await Sdk().scheduleXcmpTask(oakChain, moonbeamProvider, {
+		instructionSequnce: 'PayThroughRemoteDerivativeAccount',
+		taskPayloadExtrinsic,
+		schedule: { Fixed: { executionTimes } },
+		keyPair: ethKeyPair,
+	});
+
+	// Destroy providers
+	await oakChain.destroy();
+	await moonbeamProvider.destroy();
 }, 1000000);

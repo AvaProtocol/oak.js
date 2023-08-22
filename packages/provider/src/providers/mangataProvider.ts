@@ -2,10 +2,11 @@ import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-network/sdk-types';
-import { Chain, ChainProvider } from './chainProvider';
+import type { HexString } from '@polkadot/util/types';
 import type { u32, u64, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
+import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-network/sdk-types';
+import { Chain, ChainProvider } from './chainProvider';
 
 // MangataChain implements Chain
 export class MangataChain extends Chain {
@@ -68,17 +69,12 @@ export class MangataChain extends Chain {
     }
   }
 
-  async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
-		// TODO
-    // const api = this.getApi();
-    // api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
+  public transfer(destination: Chain, assetLocation: any, assetAmount: BN): void {
+    throw new Error('Method not implemented.');
   }
 
-  transact(transactInfo: TransactInfo) {
-		// TODO
-    // const api = this.getApi();
-    // const { encodedCall, encodedCallWeight, overallWeight, fee } = transactInfo;
-    // api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
+  public getDeriveAccount(address: string, paraId: number, options: any): string {
+    throw new Error('Method not implemented.');
   }
 }
 

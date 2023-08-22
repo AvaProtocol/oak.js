@@ -3,7 +3,9 @@ import BN from 'bn.js';
 import { ApiPromise } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { u32 } from '@polkadot/types';
-import { ChainAsset, TransactInfo, Weight, Chain as ChainConfig } from '@oak-network/sdk-types';
+import type { HexString } from '@polkadot/util/types';
+import { ChainAsset, Weight, Chain as ChainConfig } from '@oak-network/sdk-types';
+
 
 export class ChainData {
 	key: string | undefined;
@@ -52,6 +54,7 @@ export abstract class Chain {
   public abstract destroy(): Promise<void>;
   public abstract getApi(): ApiPromise;
   
+  public abstract getDeriveAccount(address: string, paraId: number, options: any): string;
   public abstract getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
   public abstract transfer(destination: Chain, assetLocation: any, assetAmount: BN): void;
@@ -74,5 +77,5 @@ export abstract class Chain {
 }
 
 export interface TaskRegister {
-  transact(transactInfo: TransactInfo): void;
+  scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyPair: any): Promise<void>;
 }

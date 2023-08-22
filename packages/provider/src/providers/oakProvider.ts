@@ -8,6 +8,8 @@ import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
 import { Chain, ChainProvider } from './chainProvider';
 import type { u32, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
+import Keyring from '@polkadot/keyring';
+import { getProxyAccount } from '../util';
 
 // OakChain implements Chain
 export class OakChain extends Chain {
@@ -50,21 +52,26 @@ export class OakChain extends Chain {
     if (!defaultAsset) throw new Error("chainData.defaultAsset not set");
 
     const api = this.getApi();
+    console.log('weightToFee, assetLocation: ', assetLocation);
     const location = _.isEqual(assetLocation, defaultAsset.location)
       ? { parents: 0, interior: 'Here' } : assetLocation;
+    console.log('weightToFee, location: ', JSON.stringify(location));
     const storageValue = await api.query.assetRegistry.locationToAssetId(location);
     const item = storageValue as unknown as Option<u32>;
-    if (item.isNone) throw new Error("AssetTypeUnitsPerSecond not initialized");
+    if (item.isNone) throw new Error("AssetId not set");
 
     const assetId = item.unwrap();
     const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
     const metadataItem = metadataStorageValue as unknown as Option<any>;
-    if (metadataItem.isNone) throw new Error("Metadata not initialized");
+    if (metadataItem.isNone) throw new Error("Metadata not set");
 
-    const { additional } = metadataItem.unwrap().toJSON() as any;
-    const { feePerSecond } = additional;
+    const { additional } = metadataItem.unwrap().toHuman() as any;
+    const feePerSecond = additional.feePerSecond.replace(/,/g, '');
+
+    console.log('weight.refTime: ', weight);
+    console.log('feePerSecond: ', feePerSecond);
     
-    return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 * 12));
+    return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 ** 12));
   }
 
   async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
@@ -84,14 +91,12 @@ export class OakChain extends Chain {
     // extrinsic.signAndSend('');
   }
 
-  async scheduleXcmpTaskThroughProxy(schedule: any, encodedCall: HexString, encodedCallWeight: Weight, overallWeight: Weight, scheduleFee: BN, executionFee: BN) {
-    if (!this.api) {
-      throw new Error("Api not initialized");
-    }
-    // TODO
-    // const extrinsic = this.api.tx.automationTime.scheduleXcmpTaskThroughProxy(schedule, encodedCall, encodedCallWeight, overallWeight, scheduleFee, executionFee);
-    // extrinsic.signAndSend('');
-  }
+  getDeriveAccount(address: string, paraId: number, options: any): string {
+    const api = this.getApi();
+    const keyring = new Keyring({ type: 'sr25519', ss58Format: 51 });
+    const { accountId32 } = getProxyAccount(api, paraId, address, options);
+    return keyring.encodeAddress(accountId32);
+  };
 }
 
 export class OakProvider extends ChainProvider {

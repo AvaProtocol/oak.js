@@ -2,10 +2,11 @@ import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-network/sdk-types';
-import { Chain, ChainProvider, TaskRegister } from './chainProvider';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
+import type { HexString } from '@polkadot/util/types';
+import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
+import { Chain, ChainProvider, TaskRegister } from './chainProvider';
 
 // AstarChain implements Chain, TaskRegister interface
 export class AstarChain extends Chain implements TaskRegister {
@@ -60,24 +61,22 @@ export class AstarChain extends Chain implements TaskRegister {
     }
   }
 
-  public getLocation() {
-    throw new Error('Method not implemented.');
-  }
-
   async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
 		// TODO
     // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
-  transact(transactInfo: TransactInfo) {
-		// TODO
-    // const { encodedCall, encodedCallWeight, overallWeight, fee } = transactInfo;
-    // this.api.tx.xcmTransactor.transactThroughSigned(encodedCall, encodedCallWeight,overallWeight, fee);
-  }
-
   // transfer(api: polkadotApi, destination, asset: Asset, assetAmount: BN): hash {
   //   // TODO
   // }
+
+  public getDeriveAccount(address: string, paraId: number, options: any): string {
+    throw new Error('Method not implemented.');
+  }
+
+  scheduleTaskThroughXcm(destination: any, encodedCall: `0x${string}`, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyPair: any): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 }
 
 export class AstarProvider extends ChainProvider {

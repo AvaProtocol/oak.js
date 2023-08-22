@@ -2,13 +2,21 @@ name: NPM publish dev version
 
 on:
   workflow_dispatch:
-
+    inputs:
+      ref:
+        description: 'Branch or Tag'
+        required: true
+        default: 'main'
 jobs:
   publish-dev-versions:
     runs-on: ubuntu-latest
     steps:
       - name: 🤘 checkout
         uses: actions/checkout@v3
+
+      - name: Set Git Ref
+        id: set-ref
+        run: echo "::set-output name=ref::${{ github.event.inputs.ref }}"
 
       - name: ⚙️ Setup Node.js environment
         uses: actions/setup-node@v3.0.0

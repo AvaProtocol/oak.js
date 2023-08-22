@@ -9,6 +9,6 @@ module.exports = {
     "<rootDir>/packages/xcm-sdk"
   ],
   moduleNameMapper: {
-    "^@oak-foundation/(.*)$": "<rootDir>/packages/$1"
+    "^@oak-network/(.*)$": "<rootDir>/packages/$1"
   },
 };

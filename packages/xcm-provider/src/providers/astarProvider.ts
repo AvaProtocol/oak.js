@@ -2,7 +2,7 @@ import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-foundation/xcm-types';
+import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-network/xcm-types';
 import { Chain, ChainProvider, TaskRegister } from './chainProvider';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';

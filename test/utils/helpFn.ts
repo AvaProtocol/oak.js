@@ -9,8 +9,8 @@ import { waitReady } from '@polkadot/wasm-crypto';
 import { ISubmittableResult } from '@polkadot/types/types';
 import BN from 'bn.js';
 
-import { rpc, types, runtime } from '@oak-foundation/types'; 
-import '@oak-foundation/api-augment'; 
+import { rpc, types, runtime } from '@oak-network/types'; 
+import '@oak-network/api-augment'; 
 
 import { AutomationTimeApi, Recurrer, oakConstants, config } from '../utils';
 

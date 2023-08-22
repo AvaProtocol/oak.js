@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import BN from 'bn.js';
-import { Chain } from '@oak-foundation/xcm-types';
+import { Chain } from '@oak-network/xcm-types';
 import { assets } from '../assets';
-import { ChainAsset, Weight } from '@oak-foundation/xcm-types';
+import { ChainAsset, Weight } from '@oak-network/xcm-types';
 
 // Shibuya
 const sbyAsset = new ChainAsset({ asset: assets.sby, isNative: true });

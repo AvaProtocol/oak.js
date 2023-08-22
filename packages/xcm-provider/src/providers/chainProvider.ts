@@ -2,7 +2,7 @@ import BN from 'bn.js';
 // import '@polkadot/api-augment';
 import { ApiPromise } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import { ChainAsset, TransactInfo, Weight } from '@oak-foundation/xcm-types';
+import { ChainAsset, TransactInfo, Weight } from '@oak-network/xcm-types';
 
 // Every chain implements ChainProvider
 // If you want to use PayThroughRemoteDerivativeAccount instructionSequence to schedule task, implements TaskRegister
@@ -16,11 +16,11 @@ export class ChainProvider {
   }
 
   async initialize() {
-    this.chain.initialize();
+    await this.chain.initialize();
   }
 
   async destroy() {
-    this.chain.destroy();
+    await this.chain.destroy();
   }
 }
 
@@ -35,8 +35,8 @@ export abstract class Chain {
     this.instructionWeight = instructionWeight;
   }
 
-  public abstract initialize(): void;
-  public abstract destroy(): void;
+  public abstract initialize(): Promise<void>;
+  public abstract destroy(): Promise<void>;
   public abstract getApi(): ApiPromise;
   public abstract getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ extrinsicWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;

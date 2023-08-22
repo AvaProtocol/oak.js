@@ -6,8 +6,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@oak-foundation/api-augment": "file:../packages/api-augment/build",
-    "@oak-foundation/types": "file:../packages/types/build",
+    "@oak-network/api-augment": "file:../packages/api-augment/build",
+    "@oak-network/types": "file:../packages/types/build",
     "lodash": "^4.17.21"
   }
 }

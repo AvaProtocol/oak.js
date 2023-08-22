@@ -1,4 +1,4 @@
-import { Asset } from '@oak-foundation/xcm-types';
+import { Asset } from '@oak-network/xcm-types';
 
 const tur = new Asset({
   key: 'tur',

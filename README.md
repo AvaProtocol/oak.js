@@ -27,8 +27,8 @@ npm i @oak-network/types@latest
 ### Including the Library in Your Code
 To include the library in your code, refer to the code snippet provided in `./demo/src` for Time Automation code. In summary, the following lines will add type checking of OAK extrinsics to the existing `polkadot.js` library:
 ```
-require('@oak-foundation/api-augment');
-const { rpc, types } = require('@oak-foundation/types');
+require('@oak-network/api-augment');
+const { rpc, types } = require('@oak-network/types');
 const { ApiPromise, WsProvider, Keyring } = require('@polkadot/api');
 ```
 

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-foundation/xcm-types';
+import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-network/xcm-types';
 import { Chain, ChainProvider } from './chainProvider';
 import type { u32, u64, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
@@ -52,7 +52,7 @@ export class MangataChain extends Chain {
       const fee = await api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
 			return fee;
     } else {
-      const storageValue = await api.query.assetRegistry.locationToAssetId(location);
+      const storageValue = await api.query.assetRegistry.locationToAssetId(assetLocation);
 			const item = storageValue as unknown as Option<u32>;
 			if (item.isNone) {
 				throw new Error("AssetTypeUnitsPerSecond not initialized");
@@ -65,7 +65,7 @@ export class MangataChain extends Chain {
 			}
 
 			const { additional } = metadataItem.unwrap().toJSON() as any;
-			const { xcm: feePerSecond } = additional;
+			const { xcm: { feePerSecond } } = additional;
 			
 			return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 * 12));
     }

@@ -1,8 +1,8 @@
 import BN from 'bn.js';
-import { Chain, ChainAsset, Weight }  from '@oak-foundation/xcm-types';
-import { assets, chains } from '@oak-foundation/xcm-config';
-import { MoonbeamProvider, ChainProvider, OakProvider, MangataProvider, AstarProvider, OakChain } from '@oak-foundation/xcm-provider';
-import { Sdk } from '@oak-foundation/xcm-sdk';
+import { Chain, ChainAsset, Weight }  from '@oak-network/xcm-types';
+import { assets, chains } from '@oak-network/xcm-config';
+import { MoonbeamProvider, ChainProvider, OakProvider, MangataProvider, AstarProvider, OakChain } from '@oak-network/xcm-provider';
+import { Sdk } from '@oak-network/xcm-sdk';
 
 test('Test xcm-types', async () => {
 	const turAsset = new ChainAsset({ asset: assets.tur, isNative: true });
@@ -20,12 +20,12 @@ test('Test xcm-provider', async () => {
 	const chainProvider = new ChainProvider(turingChain, undefined);
 	await chainProvider.initialize();
 	console.log('chainProvider: ', chainProvider);
-	chainProvider.destroy();
-});
+	await chainProvider.destroy();
+}, 1000000);
 
 test('Test moonbase', async () => {
 	const moonbeamProvider = new MoonbeamProvider(chains.moonbaseAlpha);
-	moonbeamProvider.initialize();
+	await moonbeamProvider.initialize();
 	const moonbaseApi = moonbeamProvider.chain.getApi();
 	const extrinsic = moonbaseApi.tx.system.remarkWithEvent('hello!');
 	const { extrinsicWeight, overallWeight } = await moonbeamProvider.chain.getXcmWeight('0x31C5aA398Ae12B0dc423f47D47549095aA8c93A5', extrinsic);
@@ -77,9 +77,11 @@ test('Test Astar', async () => {
 }, 1000000);
 
 test('Test xcm-sdk', async () => {
-	const turingProvider = new OakProvider(chains.turingLocal);
-	const moonbeamProvider = new MoonbeamProvider(chains.moonbaseLocal);
+	const turingProvider = new OakProvider(chains.turingStaging);
+	await turingProvider.initialize();
+	const moonbeamProvider = new MoonbeamProvider(chains.moonbaseAlpha);
+	await moonbeamProvider.initialize();
 	Sdk().scheduleXcmpTask(turingProvider, moonbeamProvider, { instructionSequnce: 'PayThroughSoverignAccount' });
 	await turingProvider.destroy();
 	await moonbeamProvider.destroy();
-});
+}, 1000000);

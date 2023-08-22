@@ -11,18 +11,18 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@oak-foundation/api-augment": ["./packages/api-augment/src"],
-      "@oak-foundation/api-augment/*": ["./packages/api-augment/src/*"],
-      "@oak-foundation/types": ["./packages/types/src"],
-      "@oak-foundation/types/*": ["./packages/types/src/*"],
-      "@oak-foundation/xcm-types": ["./packages/xcm-types/src"],
-      "@oak-foundation/xcm-types/*": ["./packages/xcm-types/src/*"],
-      "@oak-foundation/xcm-config": ["./packages/xcm-config/src"],
-      "@oak-foundation/xcm-config/*": ["./packages/xcm-config/src/*"],
-      "@oak-foundation/xcm-provider": ["./packages/xcm-provider/src"],
-      "@oak-foundation/xcm-provider/*": ["./packages/xcm-provider/src/*"],
-      "@oak-foundation/xcm-sdk": ["./packages/xcm-sdk/src"],
-      "@oak-foundation/xcm-sdk/*": ["./packages/xcm-sdk/src/*"]
+      "@oak-network/api-augment": ["./packages/api-augment/src"],
+      "@oak-network/api-augment/*": ["./packages/api-augment/src/*"],
+      "@oak-network/types": ["./packages/types/src"],
+      "@oak-network/types/*": ["./packages/types/src/*"],
+      "@oak-network/xcm-types": ["./packages/xcm-types/src"],
+      "@oak-network/xcm-types/*": ["./packages/xcm-types/src/*"],
+      "@oak-network/xcm-config": ["./packages/xcm-config/src"],
+      "@oak-network/xcm-config/*": ["./packages/xcm-config/src/*"],
+      "@oak-network/xcm-provider": ["./packages/xcm-provider/src"],
+      "@oak-network/xcm-provider/*": ["./packages/xcm-provider/src/*"],
+      "@oak-network/xcm-sdk": ["./packages/xcm-sdk/src"],
+      "@oak-network/xcm-sdk/*": ["./packages/xcm-sdk/src/*"]
     }
   }
 }

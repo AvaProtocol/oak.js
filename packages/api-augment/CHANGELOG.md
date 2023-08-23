@@ -1,5 +1,11 @@
 # @oak-network/api-augment
 
+## 2.0.7
+
+### Patch Changes
+
+- 224cb4a: Patch to test
+
 ## 2.0.6
 
 ### Patch Changes

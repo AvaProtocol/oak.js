@@ -17,8 +17,8 @@ jobs:
     # (avoid running when a PR is discarded - closed without merging)
     if: |
       contains(github.event.pull_request.title, 'Version Bump') &&
-      ${{ steps.check_version.outputs.validVersion == 'true' }} && 
-      github.event.pull_request.merged == true
+      github.event.pull_request.merged == true &&
+      steps.check_version.outputs.validVersion == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

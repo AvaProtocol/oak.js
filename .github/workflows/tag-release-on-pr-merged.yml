@@ -17,8 +17,7 @@ jobs:
     # (avoid running when a PR is discarded - closed without merging)
     if: |
       contains(github.event.pull_request.title, 'Version Bump') &&
-      github.event.pull_request.merged == true &&
-      steps.check_version.outputs.validVersion == 'true'
+      github.event.pull_request.merged == true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -32,7 +31,12 @@ jobs:
             echo "::set-output name=version::$version"
           else
             echo "::set-output name=validVersion::false"
-        
+  
+      - name: Print fetched version
+        run: |
+          echo "validVersion: ${{ steps.check_version.outputs.validVersion }}"
+          echo "version: ${{ steps.check_version.outputs.version }}"
+      
       - name: Tag Version
         if: ${{ steps.check_version.outputs.validVersion == 'true' }}
         run: |
@@ -41,5 +45,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Print fetched version
-        run: echo "${{ steps.check_version.outputs.version }}"

@@ -1,5 +1,11 @@
 # @oak-network/api-augment
 
+## 2.0.6
+
+### Patch Changes
+
+- d625945: Patch to test workflow
+
 ## 2.0.5
 
 ### Patch Changes

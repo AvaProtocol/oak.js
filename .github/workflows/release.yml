@@ -33,9 +33,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Update Pull Request Body
-        run: node .github/scripts/update-pr.js
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Update Pull Request Body
+      #   run: node .github/scripts/update-pr.js
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
           # TODO: retrieve the tag, add it to PR title, and add the tags Tags {NewTag} to the PR body, so we can tag the code upon merge with tag-release-on-pr-merged.yml

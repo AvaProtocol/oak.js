@@ -6,12 +6,12 @@ import type { u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { HexString } from '@polkadot/util/types';
 import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
-import { Chain, ChainProvider, TaskRegister } from './chainProvider';
+import { Chain, ChainProvider, TaskScheduler } from './chainProvider';
 import { getDeriveAccountV3, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 
-// AstarChain implements Chain, TaskRegister interface
-export class AstarChain extends Chain implements TaskRegister {
+// AstarChain implements Chain, TaskScheduler interface
+export class AstarChain extends Chain implements TaskScheduler {
   api: ApiPromise | undefined;
 
   async initialize() {

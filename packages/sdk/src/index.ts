@@ -89,9 +89,9 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
   const taskEncodedCall = extrinsic.method.toHex();
   const { encodedCallWeight: taskEncodedCallWeight, overallWeight: taskOverallWeight } = await oakChain.getXcmWeight(deriveAccountId, extrinsic);
   const taskExecutionFee = await oakChain.weightToFee(taskOverallWeight, executionFeeLocation);
-  if(!destinationChainProvider.taskRegister) throw new Error("destinationChainProvider.taskRegister not set");
+  if(!destinationChainProvider.taskScheduler) throw new Error("destinationChainProvider.taskRegister not set");
   const oakLocation = oakChain.getLocation();
-  const sendExtrinsicResult = await destinationChainProvider.taskRegister.scheduleTaskThroughXcm(oakLocation, taskEncodedCall, executionFeeLocation, taskExecutionFee, taskEncodedCallWeight, taskOverallWeight, deriveAccountId, keyPair);
+  const sendExtrinsicResult = await destinationChainProvider.taskScheduler.scheduleTaskThroughXcm(oakLocation, taskEncodedCall, executionFeeLocation, taskExecutionFee, taskEncodedCallWeight, taskOverallWeight, deriveAccountId, keyPair);
   return sendExtrinsicResult;
 }
 

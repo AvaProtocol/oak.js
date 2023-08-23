@@ -24,10 +24,10 @@ export class ChainData {
 // For example, MoonbeamChain implements TaskRegister, Mangata does not implement TaskRegister
 export class ChainProvider {
   readonly chain: Chain;
-  readonly taskRegister: TaskRegister | undefined;
-  constructor(chain: Chain, taskRegister: TaskRegister | undefined) {
+  readonly taskScheduler: TaskScheduler | undefined;
+  constructor(chain: Chain, taskScheduler: TaskScheduler | undefined) {
     this.chain = chain;
-    this.taskRegister = taskRegister;
+    this.taskScheduler = taskScheduler;
   }
 
   async initialize() {
@@ -77,6 +77,6 @@ export abstract class Chain {
   }
 }
 
-export interface TaskRegister {
+export interface TaskScheduler {
   scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<SendExtrinsicResult>;
 }

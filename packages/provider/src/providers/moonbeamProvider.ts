@@ -6,12 +6,12 @@ import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
 import { Asset, ChainAsset, Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
-import { Chain, ChainProvider, TaskRegister } from './chainProvider';
+import { Chain, ChainProvider, TaskScheduler } from './chainProvider';
 import { getDeriveAccountV3, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 
-// MoonbeamChain implements Chain, TaskRegister interface
-export class MoonbeamChain extends Chain implements TaskRegister {
+// MoonbeamChain implements Chain, TaskScheduler interface
+export class MoonbeamChain extends Chain implements TaskScheduler {
   api: ApiPromise | undefined;
 
   async initialize() {

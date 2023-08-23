@@ -98,10 +98,21 @@ npm run build
 The build command will generate distribution files under `packages/api-augment/build`.
 
 ## Publishing the Packages
-The release creation and publish is completely handled by Github Actions.
-1. In order to trigger a version update, you need to run `npm run changeset` locally to generate a mark file. The script will create a .md file under .changeset like this PR, https://github.com/OAK-Foundation/oak.js/commit/c35050eb16bb73251fb05dd9010ab577f2adf5d6.
-2. Once the above PR is merged to main, an Action will be triggered by that mark file to create a PR to update all package versions automatically, as seen in this PR, https://github.com/OAK-Foundation/oak.js/pull/42. If you need to stack more changes on to the same version, just re-run step 1 to create another mark file and merge it to the main branch.
-3. If things look good, merge the above PR created by changeset, and run the **Publish dev version** workflow manually to publish an NPM package version with `dev` tag for testing.
-4. If testing goes well, run the **Update dev tag to latest** workflow manually to update the npm tag of `dev` to `latest`.
+
+The release creation and publishing process is managed by GitHub Actions. It's important to note that package versions don't need to be consistent across all packages. For example, if changes are made to the `api-augment` library, there's no requirement to bump the version of the `types` library as well.
+
+To publish packages, please follow the steps outlined below:
+
+1. **Generate Changeset Marking File:**
+   To initiate a version update, start by running the command `npm run changeset` locally. This action will create a marking file in the `./changeset` directory. An example of such a change can be found in this PR: [example PR link](https://github.com/OAK-Foundation/oak.js/commit/c35050eb16bb73251fb05dd9010ab577f2adf5d6).
+
+2. **Automated Package Version Update:**
+   After the aforementioned PR is merged into the `main` branch, a GitHub Action will be triggered by the created marking file. This action will automatically generate a new PR, updating the versions of all packages simultaneously. You can observe this process in action with this PR: [example PR link](https://github.com/OAK-Foundation/oak.js/pull/42). Should you need to add additional changes to the same version, simply repeat step 1 to create another marking file and merge it into the `main` branch. The original PR associated with the `main` branch will be updated automatically. Furthermore, a corresponding **git tag** will be generated for each package as part of this process.
+
+3. **Testing with Dev Version:**
+   If everything appears satisfactory, proceed to merge the above-mentioned PR. Following the successful merge, manually trigger the **Publish dev version** workflow. This will lead to the publishing of an NPM package version with the `dev` tag, facilitating thorough testing.
+
+4. **Updating to Latest Tag:**
+   Once confident with the outcome of the dev testing phase, manually initiate the **Update dev tag to latest** workflow. This workflow will update the npm tag from `dev` to `latest`, signifying the readiness of the package for broader use.
 
 You should receive an email from `support@npmjs.com` if the package is successfully published.

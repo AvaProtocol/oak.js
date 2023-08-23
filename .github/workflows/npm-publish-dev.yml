@@ -13,6 +13,10 @@ jobs:
       - name: 🤘 checkout
         uses: actions/checkout@v3
 
+      - name: Set name of packages
+        id: set_package_names
+        run: echo '["@oak-network/api-augment", "@oak-network/types"]' > packages.json
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.0.0
         with:
@@ -28,10 +32,19 @@ jobs:
       - name: 🔐 Authenticate with NPM
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
-      - name: 🚀 Publish api-augment package
-        working-directory: ./packages/api-augment
-        run: npm publish --tag dev
+      - name: Loop through Package Names
+        id: loop-package-names
+        run: |
+          package=($(cat packages.json))
+          for item in "${package[@]}"; do
+            echo "Processing package: $item"
+            
+            - name: 🚀 Publish api-augment package
+            working-directory: ./packages/$item
+            run: npm publish --tag dev
+            
+          done
 
-      - name: 🚀 Publish types package
-        working-directory: ./packages/types
-        run: npm publish --tag dev
+      - name: Use loop outputs
+        run: |
+          echo "Loop completed."

@@ -30,6 +30,9 @@ jobs:
         with:
           title: Changeset Version Bump
           commit: Update the version of packages with .changeset md files
-          publish: yarn changeset tag
+          publish: yarn changeset tag # A hack to generate Release draft but not actually publish the packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Run yarn changeset tag
+        run: yarn changeset tag

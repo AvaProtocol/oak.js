@@ -16,7 +16,8 @@ jobs:
       - name: Set name of packages
         id: set_package_names
         run: |
-          echo '["@oak-network/api-augment", "@oak-network/types"]' > packages.json
+          packages='@oak-network/api-augment @oak-network/types'
+          echo "::set-output name=packages::$packages"
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.0.0
@@ -36,8 +37,7 @@ jobs:
       - name: Loop through Package Names
         id: loop-package-names
         run: |
-          packages=$(cat packages.json)
-          for package in $packages; do
+          for package in ${{ steps.set_package_names.outputs.packages }}; do
             echo "Processing package: $package"
             npm publish --tag dev "packages/$package"
           done

@@ -1,5 +1,11 @@
 # @oak-network/types
 
+## 2.0.8
+
+### Patch Changes
+
+- f7df577: Patch to test
+
 ## 2.0.7
 
 ### Patch Changes

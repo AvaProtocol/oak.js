@@ -34,3 +34,6 @@ jobs:
           # We set the changeset tag command here to auto-create github tag for each package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run yarn changeset tag
+        run: yarn changeset tag

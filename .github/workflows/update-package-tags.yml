@@ -17,30 +17,36 @@ jobs:
       - name: 🔐 Authenticate with NPM
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
-      - name: Get dev version
-        id: get-version
+      - name: Set package names
+        id: set_package_names
         run: |
-          dev_version=$(npm show @oak-network/api-augment@dev version)
-          echo "Dev version: $dev_version"
-          echo "dev_version=$dev_version" >> $GITHUB_OUTPUT
+          echo '["@oak-network/api-augment", "@oak-network/types"]' > packages.json
 
-      - name: Set latest tag
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: 18.x
+          cache: 'npm'
+
+      - name: Loop through Package Names
+        id: loop-package-names
         run: |
-          npm dist-tag add @oak-network/api-augment@${{ steps.get-version.outputs.dev_version }} latest --registry=https://registry.npmjs.org/
-          echo "Latest tag set to ${{ steps.get-version.outputs.dev_version }}"
+          packages=$(cat packages.json)
+          for package in $packages; do
+            echo "Processing package: $package"
+
+            # Get dev version
+            dev_version=$(npm show $package@dev version)
+            echo "Dev version: $dev_version"
+
+            # Set latest tag
+            npm dist-tag add $package@$dev_version latest --registry=https://registry.npmjs.org/
+            echo "Latest tag set to $dev_version"
+
+          done
         env:
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}
-
-      - name: Get dev version for types
-        id: get-version-types
+          
+      - name: Use loop outputs
         run: |
-          dev_version=$(npm show @oak-network/types@dev version)
-          echo "Dev version: $dev_version"
-          echo "dev_version=$dev_version" >> $GITHUB_OUTPUT
-
-      - name: Set latest tag for types
-        run: |
-          npm dist-tag add @oak-network/types@${{ steps.get-version-types.outputs.dev_version }} latest --registry=https://registry.npmjs.org/
-          echo "Latest tag set to ${{ steps.get-version-types.outputs.dev_version }}"
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}
+          echo "Loop completed."

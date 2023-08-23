@@ -4,16 +4,11 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
-import { hexToU8a, u8aToHex } from '@polkadot/util';
 import type { HexString } from '@polkadot/util/types';
-import { TypeRegistry } from '@polkadot/types';
-import { decodeAddress, blake2AsU8a } from '@polkadot/util-crypto';
-import Keyring from '@polkadot/keyring';
 import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
 import { Chain, ChainProvider, TaskRegister } from './chainProvider';
-import { sendExtrinsic } from '../util';
+import { getDeriveAccountV3, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
-
 
 // AstarChain implements Chain, TaskRegister interface
 export class AstarChain extends Chain implements TaskRegister {
@@ -73,27 +68,8 @@ export class AstarChain extends Chain implements TaskRegister {
     // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
-  // transfer(api: polkadotApi, destination, asset: Asset, assetAmount: BN): hash {
-  //   // TODO
-  // }
-
-  public getDeriveAccount(accountId: HexString, paraId: number, options: any): string {
-    const accountType = hexToU8a(accountId).length == 20 ? 'AccountKey20' : 'AccountId32';
-    const decodedAddress = hexToU8a(accountId);
-
-    // Calculate Hash Component
-    const registry = new TypeRegistry();
-    const toHash = new Uint8Array([
-        ...new TextEncoder().encode('SiblingChain'),
-        ...registry.createType('Compact<u32>', paraId).toU8a(),
-        ...registry.createType('Compact<u32>', accountType.length + hexToU8a(accountId).length).toU8a(),
-        ...new TextEncoder().encode(accountType),
-        ...decodedAddress,
-    ]);
-
-    const deriveAccountId = u8aToHex(blake2AsU8a(toHash).slice(0, 32));
-    const keyring = new Keyring({ type: 'sr25519', ss58Format: 51 });
-    return keyring.encodeAddress(deriveAccountId);
+  public getDeriveAccount(accountId: HexString, paraId: number): HexString {
+    return getDeriveAccountV3(accountId, paraId);
   }
 
   async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<SendExtrinsicResult> {

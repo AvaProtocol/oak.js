@@ -73,7 +73,7 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
   const scheduleFee = { V3: scheduleFeeLocation }
   const executionFeeAmout = await destinationChainProvider.chain.weightToFee(overallWeight, executionFeeLocation);
   const executionFee = { assetLocation: { V3: executionFeeLocation }, amount: executionFeeAmout };
-  const deriveAccountId = oakChain.getDeriveAccount(u8aToHex(keyPair.addressRaw), paraId, {});
+  const deriveAccountId = oakChain.getDeriveAccount(u8aToHex(keyPair.addressRaw), paraId);
   
   const extrinsic = oakApi.tx.automationTime.scheduleXcmpTaskThroughProxy(
     schedule,

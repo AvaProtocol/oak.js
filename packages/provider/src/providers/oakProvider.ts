@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { u8aToHex, hexToU8a } from '@polkadot/util';
 import type { HexString } from '@polkadot/util/types';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { u32, Option } from '@polkadot/types';
@@ -9,7 +8,7 @@ import type { WeightV2 } from '@polkadot/types/interfaces';
 import { rpc, types, runtime } from '@oak-network/types';
 import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
 import { Chain, ChainProvider } from './chainProvider';
-import { sendExtrinsic } from '../util';
+import { getDeriveAccount, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 
 // OakChain implements Chain
@@ -95,25 +94,9 @@ export class OakChain extends Chain {
     return result;
   }
 
-  getDeriveAccount(accountId: HexString, paraId: number, options: any): string {
+  getDeriveAccount(accountId: HexString, paraId: number): HexString {
     const api = this.getApi();
-    const network = 'Any'
-    const account = hexToU8a(accountId).length == 20
-      ? { AccountKey20: { network, key: accountId } }
-      : { AccountId32: { network, id: accountId } };
-
-    const location = {
-      parents: 1,
-      interior: { X2: [{ Parachain: paraId },  account] },
-    };
-    const multilocation = api.createType('XcmV2MultiLocation', location);
-    const toHash = new Uint8Array([
-      ...new Uint8Array([32]),
-      ...new TextEncoder().encode('multiloc'),
-      ...multilocation.toU8a(),
-    ]);
-
-    return u8aToHex(api.registry.hash(toHash).slice(0, 32));
+    return getDeriveAccount(api, accountId, paraId);
   };
 }
 

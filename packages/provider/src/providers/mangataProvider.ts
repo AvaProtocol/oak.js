@@ -4,8 +4,10 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { u32, u64, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
+import type { HexString } from '@polkadot/util/types';
 import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
 import { Chain, ChainProvider } from './chainProvider';
+import { getDeriveAccount } from '../util';
 
 // MangataChain implements Chain
 export class MangataChain extends Chain {
@@ -72,8 +74,9 @@ export class MangataChain extends Chain {
     throw new Error('Method not implemented.');
   }
 
-  public getDeriveAccount(address: string, paraId: number, options: any): string {
-    throw new Error('Method not implemented.');
+  public getDeriveAccount(accountId: HexString, paraId: number): HexString {
+    const api = this.getApi();
+    return getDeriveAccount(api, accountId, paraId);
   }
 }
 

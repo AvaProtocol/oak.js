@@ -7,7 +7,7 @@ import type { u64, u128, Option } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
 import { Asset, ChainAsset, Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
 import { Chain, ChainProvider, TaskRegister } from './chainProvider';
-import { sendExtrinsic } from '../util';
+import { getDeriveAccountV3, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 
 // MoonbeamChain implements Chain, TaskRegister interface
@@ -128,8 +128,8 @@ export class MoonbeamChain extends Chain implements TaskRegister {
     return result;
   }
 
-  public getDeriveAccount(accountId: string, paraId: number, options: any): string {
-    throw new Error('Method not implemented.');
+  public getDeriveAccount(accountId: string, paraId: number): HexString {
+    return getDeriveAccountV3(accountId, paraId, 'AccountKey20');
   }
 }
 

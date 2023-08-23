@@ -55,7 +55,7 @@ export abstract class Chain {
   public abstract destroy(): Promise<void>;
   public abstract getApi(): ApiPromise;
   
-  public abstract getDeriveAccount(accountId: HexString, paraId: number, options: any): string;
+  public abstract getDeriveAccount(accountId: HexString, paraId: number): HexString;
   public abstract getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
   public abstract transfer(destination: Chain, assetLocation: any, assetAmount: BN): void;

@@ -158,3 +158,34 @@ test('Test PayThroughRemoteDerivativeAccount XCMP task', async () => {
 	await oakChain.destroy();
 	await moonbeamProvider.destroy();
 }, 1000000);
+
+test('Test Astar XCMP task', async () => {
+	// Create a keyring instance
+	const keyring = new Keyring({ type: 'sr25519' });
+	const json = await readMnemonicFromFile();
+	const keyPair = keyring.addFromJson(json);
+	keyPair.unlock(process.env.PASS_PHRASE);
+
+	// Initialize providers
+	const oakChain = new OakChain(chains.turingStaging);
+	await oakChain.initialize();
+	const astarProvider = new AstarProvider(chains.rocstar);
+	await astarProvider.initialize();
+
+	// Make task payload extrinsic
+	const moonbeamApi = astarProvider.chain.getApi();
+	const taskPayloadExtrinsic = moonbeamApi.tx.system.remarkWithEvent('hello!');
+
+	// Schedule task with sdk
+	const executionTimes = [getHourlyTimestamp(1)/1000];
+	await Sdk().scheduleXcmpTask(oakChain, astarProvider, {
+		instructionSequnce: 'PayThroughRemoteDerivativeAccount',
+		taskPayloadExtrinsic,
+		schedule: { Fixed: { executionTimes } },
+		keyPair,
+	});
+
+	// Destroy providers
+	await oakChain.destroy();
+	await astarProvider.destroy();
+}, 1000000);

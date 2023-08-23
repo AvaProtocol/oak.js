@@ -2,11 +2,10 @@ import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import { Asset, ChainAsset, Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
-import { Chain, ChainProvider, TaskRegister } from './chainProvider';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { u64, u128, Option } from '@polkadot/types';
-import type { HexString } from '@polkadot/util/types';
+import { Asset, ChainAsset, Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
+import { Chain, ChainProvider, TaskRegister } from './chainProvider';
 import { sendExtrinsic } from '../util';
 
 // MoonbeamChain implements Chain, TaskRegister interface
@@ -105,7 +104,7 @@ export class MoonbeamChain extends Chain implements TaskRegister {
     // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
-  async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyPair: any): Promise<void> {
+  async scheduleTaskThroughXcm(destination: any, encodedCall: `0x${string}`, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<void> {
     const api = this.getApi();
     const transactExtrinsic = this.getApi().tx.xcmTransactor.transactThroughSigned(
       {

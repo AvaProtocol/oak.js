@@ -1,5 +1,12 @@
 # @oak-network/types
 
+## 2.0.9
+
+### Patch Changes
+
+- 6f67f4e: Patch to test
+- eb7216a: Patch to test
+
 ## 2.0.8
 
 ### Patch Changes

@@ -35,3 +35,30 @@ jobs:
       - name: 🚀 Publish types package
         working-directory: ./packages/types
         run: npm publish --tag dev
+
+      - name: Get dev version
+        id: get-version
+        run: |
+          dev_version=$(npm show @oak-network/api-augment@dev version)
+          echo "Dev version: $dev_version"
+          echo "dev_version=$dev_version" >> $GITHUB_OUTPUT
+
+      # - name: Create Github Tag
+      #   run: |
+      #     # Create a new tag with the published dev version
+      #     echo "Pushing tag ${{ steps.get-version.outputs.dev_version }} to Github."
+      #     git tag ${{ steps.get-version.outputs.dev_version }}
+      #     git push origin ${{ steps.get-version.outputs.dev_version }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get-version.outputs.dev_version }}
+          release_name: ${{ steps.get-version.outputs.dev_version }}
+          body_path: notes.md
+          draft: true

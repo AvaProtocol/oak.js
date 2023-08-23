@@ -16,7 +16,7 @@ jobs:
       - name: Set name of packages
         id: set_package_names
         run: |
-          packages='@oak-network/api-augment @oak-network/types'
+          packages='api-augment types'
           echo "::set-output name=packages::$packages"
 
       - name: Setup Node.js environment

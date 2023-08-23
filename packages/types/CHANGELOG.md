@@ -1,5 +1,11 @@
 # @oak-network/types
 
+## 2.0.4
+
+### Patch Changes
+
+- a820ca6: Bump patch version
+
 ## 2.0.3
 
 ### Patch Changes

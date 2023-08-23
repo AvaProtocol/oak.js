@@ -14,7 +14,7 @@ jobs:
     name: Tag on Pull Request merge
     runs-on: ubuntu-latest
     # This 'if' condition is important for ensuring the workflow only runs for merged PRs
-    #  (avoid running when a PR is discarded - closed without merging)
+    # (avoid running when a PR is discarded - closed without merging)
     if: |
       contains(github.event.pull_request.title, 'Version Bump') &&
       ${{ steps.check_version.outputs.validVersion == 'true' }} && 
@@ -29,10 +29,10 @@ jobs:
           version=$(echo "$GITHUB_EVENT_PULL_REQUEST_TITLE" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+')
           if [[ -n "$version" ]]; then
             echo "::set-output name=validVersion::true"
+            echo "::set-output name=version::$version"
           else
             echo "::set-output name=validVersion::false"
-          fi    
-    
+        
       - name: Tag Version
         if: ${{ steps.check_version.outputs.validVersion == 'true' }}
         run: |
@@ -41,8 +41,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Print fetched tag
-        run: echo "${{ steps.tag-on-pr-merge.outputs.tag }}"
-        # Pull Request body must contain a line equal to: Tags {NewTag} (example: Tags 1.25.3). The tag format can be validated using a regex (see Action inputs below). The Tags word can be singular (Tag), and also be lowercase. The merge commit on the base branch will be tagged with the tag specified on the body.
-        # This action supports defining just a single tag per PR (the first detected tag on the PR body will be used).
-        # Tags cannot be repeated (if a tag already exists, the action will fail).
+      - name: Print fetched version
+        run: echo "${{ steps.check_version.outputs.version }}"

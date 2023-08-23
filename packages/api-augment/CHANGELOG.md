@@ -1,5 +1,11 @@
 # @oak-network/api-augment
 
+## 2.0.5
+
+### Patch Changes
+
+- 803af27: Patch again
+
 ## 2.0.4
 
 ### Patch Changes

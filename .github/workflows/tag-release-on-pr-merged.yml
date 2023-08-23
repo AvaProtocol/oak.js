@@ -16,16 +16,47 @@ jobs:
     # This 'if' condition is important for ensuring the workflow only runs for merged PRs
     # (avoid running when a PR is discarded - closed without merging)
     if: |
-      contains(github.event.pull_request.title, 'Version Bump') &&
+      contains(github.event.pull_request.title, 'Changeset Version Bump') &&
       github.event.pull_request.merged == true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      
+
+      - name: Set array of items
+        id: set_array
+        run: echo '["@oak-network/api-augment", "@oak-network/types"]' > packages.json
+
+      - name: Loop through array
+        id: loop
+        run: |
+          package=($(cat packages.json))
+          for item in "${package[@]}"; do
+            echo "Processing item: $item"
+            
+            packageVersion=$(echo "${{ github.event.pull_request.body }}" | grep -o -E '$item@[0-9]+\.[0-9]+\.[0-9]+')
+            version=$(echo "$packageVersion" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+')
+
+            if [[ -n "$api_augment" && -n "$version" ]]; then
+              echo "Extracted API Augment: $api_augment"
+              echo "Extracted Version: $version"
+              
+              # Add your steps using $api_augment and $version here
+              
+              echo "Steps completed for item: $item"
+            else
+              echo "Invalid item format: $item"
+            fi
+            
+          done
+
+      - name: Use loop outputs
+        run: |
+          echo "Loop completed."
+
       - name: Check Version
         id: check_version
         run: |
-          version=$(echo "${{ github.event.pull_request.title }}" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+')
+          version=$(echo "${{ github.event.pull_request.body }}" | grep -o -E '@oak-network/api-augment@[0-9]+\.[0-9]+\.[0-9]+')
           if [[ -n "$version" ]]; then
             echo "::set-output name=validVersion::true"
             echo "::set-output name=version::$version"

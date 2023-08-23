@@ -30,6 +30,7 @@ jobs:
         with:
           title: Changeset Version Bump
           commit: Update the version of packages with .changeset md files
+          publish: npm run changeset:tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       

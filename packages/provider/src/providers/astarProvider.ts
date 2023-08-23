@@ -5,12 +5,14 @@ import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import { hexToU8a, u8aToHex } from '@polkadot/util';
+import type { HexString } from '@polkadot/util/types';
 import { TypeRegistry } from '@polkadot/types';
 import { decodeAddress, blake2AsU8a } from '@polkadot/util-crypto';
 import Keyring from '@polkadot/keyring';
 import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
 import { Chain, ChainProvider, TaskRegister } from './chainProvider';
 import { sendExtrinsic } from '../util';
+import { SendExtrinsicResult } from '../types';
 
 
 // AstarChain implements Chain, TaskRegister interface
@@ -19,10 +21,10 @@ export class AstarChain extends Chain implements TaskRegister {
 
   async initialize() {
     const api = await ApiPromise.create({
-			provider: new WsProvider(this.chainData.endpoint),
-		});
+      provider: new WsProvider(this.chainData.endpoint),
+    });
 
-		this.api = api;
+    this.api = api;
     await this.updateChainData();
   }
 
@@ -38,7 +40,7 @@ export class AstarChain extends Chain implements TaskRegister {
 
   async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {
     const { refTime, proofSize } = (await extrinsic.paymentInfo(sender)).weight as unknown as WeightV2;
-		return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
+    return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
   async getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
@@ -53,21 +55,21 @@ export class AstarChain extends Chain implements TaskRegister {
     const { defaultAsset } = this.chainData;
     if (!defaultAsset) throw new Error("chainData.defaultAsset not set");
 
-		const api = this.getApi();
-		if (_.isEqual(defaultAsset.location, assetLocation)) {
+    const api = this.getApi();
+    if (_.isEqual(defaultAsset.location, assetLocation)) {
       const fee = await api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
-			return fee;
+      return fee;
     } else {
-			const AssetLocationUnitsPerSecond = await api.query.xcAssetConfig.assetLocationUnitsPerSecond(assetLocation);
-			const metadataItem = AssetLocationUnitsPerSecond as unknown as Option<u128>;
-			if (metadataItem.isNone) throw new Error("MetadatAssetLocationUnitsPerSeconda not initialized");
-			const unitsPerSecond = metadataItem.unwrap();
-			return weight.refTime.mul(unitsPerSecond).div(new BN(10 ** 12));
+      const AssetLocationUnitsPerSecond = await api.query.xcAssetConfig.assetLocationUnitsPerSecond(assetLocation);
+      const metadataItem = AssetLocationUnitsPerSecond as unknown as Option<u128>;
+      if (metadataItem.isNone) throw new Error("MetadatAssetLocationUnitsPerSeconda not initialized");
+      const unitsPerSecond = metadataItem.unwrap();
+      return weight.refTime.mul(unitsPerSecond).div(new BN(10 ** 12));
     }
   }
 
   async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
-		// TODO
+    // TODO
     // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
@@ -75,16 +77,16 @@ export class AstarChain extends Chain implements TaskRegister {
   //   // TODO
   // }
 
-  public getDeriveAccount(address: string, paraId: number, options: any): string {
-    const { accountType } = options;
-    const decodedAddress = accountType === 'AccountKey20' ? hexToU8a(address) : decodeAddress(address);
+  public getDeriveAccount(accountId: HexString, paraId: number, options: any): string {
+    const accountType = hexToU8a(accountId).length == 20 ? 'AccountKey20' : 'AccountId32';
+    const decodedAddress = hexToU8a(accountId);
 
     // Calculate Hash Component
     const registry = new TypeRegistry();
     const toHash = new Uint8Array([
         ...new TextEncoder().encode('SiblingChain'),
         ...registry.createType('Compact<u32>', paraId).toU8a(),
-        ...registry.createType('Compact<u32>', accountType.length + (accountType === 'AccountKey20' ? 20 : 32)).toU8a(),
+        ...registry.createType('Compact<u32>', accountType.length + hexToU8a(accountId).length).toU8a(),
         ...new TextEncoder().encode(accountType),
         ...decodedAddress,
     ]);
@@ -94,11 +96,11 @@ export class AstarChain extends Chain implements TaskRegister {
     return keyring.encodeAddress(deriveAccountId);
   }
 
-  async scheduleTaskThroughXcm(destination: any, encodedCall: `0x${string}`, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<void> {
-    const { paraId } = this.chainData;
-    if (!paraId) throw new Error('paraId not implemented.');
-
+  async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<SendExtrinsicResult> {
     const api = this.getApi();
+    const { key } = this.chainData;
+    if (!key) throw new Error('chainData.key not set.');
+
     const extrinsic = api.tx.polkadotXcm.send(
       { V3: destination },
       {
@@ -108,10 +110,7 @@ export class AstarChain extends Chain implements TaskRegister {
               {
                 fun: { Fungible: feeAmount },
                 id: {
-                  Concrete: {
-                    interior: { X1: { Parachain: paraId } },
-                    parents: 1,
-                  },
+                  Concrete: feeLocation,
                 },
               },
             ],
@@ -121,10 +120,7 @@ export class AstarChain extends Chain implements TaskRegister {
               fees: {
                 fun: { Fungible: feeAmount },
                 id: {
-                  Concrete: {
-                      interior: { X1: { Parachain: paraId } },
-                      parents: 1,
-                  },
+                  Concrete: feeLocation,
                 },
               },
               weightLimit: { Limited: overallWeight },
@@ -152,8 +148,9 @@ export class AstarChain extends Chain implements TaskRegister {
       },
     );
 
-    console.log('extrinsic: ', extrinsic.method.toHex());
-    await sendExtrinsic(api, extrinsic, keyPair);
+    console.log(`Send extrinsic to ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
+    const result = await sendExtrinsic(api, extrinsic, keyPair);
+    return result;
   }
 }
 

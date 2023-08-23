@@ -4,9 +4,11 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { u64, u128, Option } from '@polkadot/types';
+import type { HexString } from '@polkadot/util/types';
 import { Asset, ChainAsset, Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
 import { Chain, ChainProvider, TaskRegister } from './chainProvider';
 import { sendExtrinsic } from '../util';
+import { SendExtrinsicResult } from '../types';
 
 // MoonbeamChain implements Chain, TaskRegister interface
 export class MoonbeamChain extends Chain implements TaskRegister {
@@ -14,10 +16,10 @@ export class MoonbeamChain extends Chain implements TaskRegister {
 
   async initialize() {
     const api = await ApiPromise.create({
-			provider: new WsProvider(this.chainData.endpoint),
-		});
+      provider: new WsProvider(this.chainData.endpoint),
+    });
 
-		this.api = api;
+    this.api = api;
     await this.updateChainData();
     await this.updateAssets();
   }
@@ -71,8 +73,8 @@ export class MoonbeamChain extends Chain implements TaskRegister {
   }
 
   async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {
-		const { refTime, proofSize } = (await extrinsic.paymentInfo(sender)).weight as unknown as WeightV2;
-		return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
+    const { refTime, proofSize } = (await extrinsic.paymentInfo(sender)).weight as unknown as WeightV2;
+    return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
   async getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
@@ -89,7 +91,7 @@ export class MoonbeamChain extends Chain implements TaskRegister {
     const api = this.getApi();
     if (_.isEqual(defaultAsset.location, assetLocation)) {
       const fee = await api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
-			return fee;
+      return fee;
     } else {
       const storageValue = await api.query.assetManager.assetTypeUnitsPerSecond({ Xcm: assetLocation });
       const item = storageValue as unknown as Option<any>;
@@ -104,29 +106,29 @@ export class MoonbeamChain extends Chain implements TaskRegister {
     // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
-  async scheduleTaskThroughXcm(destination: any, encodedCall: `0x${string}`, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<void> {
+  async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<SendExtrinsicResult> {
     const api = this.getApi();
-    const transactExtrinsic = this.getApi().tx.xcmTransactor.transactThroughSigned(
-      {
-          V3: destination,
-      },
-      {
-          currency: { AsCurrencyId: 'SelfReserve' },
-          feeAmount,
-      },
+    const { key } = this.chainData;
+    if (!key) throw new Error('chainData.key not set');
+
+    const { defaultAsset } = this.chainData;
+    if (!defaultAsset) throw new Error("chainData.defaultAsset not set");
+    const currency = _.isEqual(feeLocation, defaultAsset.location)
+      ? { AsCurrencyId: 'SelfReserve' }
+      : { AsMultiLocation: { V3: feeLocation } };
+    const extrinsic = this.getApi().tx.xcmTransactor.transactThroughSigned(
+      { V3: destination },
+      { currency, feeAmount },
       encodedCall,
-      {
-          transactRequiredWeightAtMost: encodedCallWeight,
-          overallWeight,
-      },
+      { transactRequiredWeightAtMost: encodedCallWeight, overallWeight },
     );
 
-    console.log('transactExtrinsic: ', transactExtrinsic.method.toHex());
-
-    await sendExtrinsic(api, transactExtrinsic, keyPair);
+    console.log(`Send extrinsic to ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
+    const result = await sendExtrinsic(api, extrinsic, keyPair);
+    return result;
   }
 
-  public getDeriveAccount(address: string, paraId: number, options: any): string {
+  public getDeriveAccount(accountId: string, paraId: number, options: any): string {
     throw new Error('Method not implemented.');
   }
 }

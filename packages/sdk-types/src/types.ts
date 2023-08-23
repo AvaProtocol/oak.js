@@ -26,10 +26,3 @@ export class Weight {
     return `Weight { refTime: ${refTime.toString()}, proofSize: ${proofSize.toString()} }`;
   }
 }
-
-export interface TransactInfo {
-  encodedCall: Extrinsic,
-  encodedCallWeight: Weight,
-  overallWeight: Weight,
-  fee: BN,
-}

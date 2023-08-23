@@ -1,43 +1,26 @@
 import BN from 'bn.js';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import Keyring from '@polkadot/keyring';
-import { ChainProvider, OakChain } from '@oak-network/provider';
+import { u8aToHex } from '@polkadot/util';
+import type { HexString } from '@polkadot/util/types';
+import { ChainProvider, OakChain, SendExtrinsicResult } from '@oak-network/provider';
 import { Asset } from '@oak-network/sdk-types';
 
-export const sendExtrinsic = async (api: any, extrinsic: any, keyPair: any, { isSudo = false } = {}) => new Promise((resolve) => {
-  const newExtrinsic = isSudo ? api.tx.sudo.sudo(extrinsic) : extrinsic;
-  newExtrinsic.signAndSend(keyPair, { nonce: -1 }, ({ status, events } : { status: any, events: any }) => {
-    console.log('status.type', status.type);
-    if (status.isInBlock || status.isFinalized) {
-      events
-      // find/filter for failed events
-          .filter(({ event }: { event: any}) => api.events.system.ExtrinsicFailed.is(event))
-      // we know that data for system.ExtrinsicFailed is
-      // (DispatchError, DispatchInfo)
-          .forEach(({ event: { data: [error] } } : {event: any}) => {
-              if (error.isModule) {
-                  // for module errors, we have the section indexed, lookup
-                  const decoded = api.registry.findMetaError(error.asModule);
-                  const { docs, method, section } = decoded;
-                  console.log(`${section}.${method}: ${docs.join(' ')}`);
-              } else {
-                  // Other, CannotLookup, BadOrigin, no extra info
-                  console.log(error.toString());
-              }
-          });
-
-      if (status.isFinalized) {
-          resolve({ events, blockHash: status.asFinalized.toString() });
-      }
-    }
-  });
-});
-
-interface scheduleXcmpTaskWithPayThroughSoverignAccountFlowParams {
+interface ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams {
   oakChain: OakChain;
   destinationChainProvider: ChainProvider;
   taskPayloadExtrinsic: SubmittableExtrinsic<'promise'>;
   schedule: any;
+  keyPair: any;
+}
+
+interface ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams {
+  oakChain: OakChain;
+  destinationChainProvider: ChainProvider;
+  taskPayloadExtrinsic: SubmittableExtrinsic<'promise'>;
+  scheduleFeeLocation: any,
+  executionFeeLocation: any,
+  schedule: any;
+  scheduleAs: HexString;
   keyPair: any;
 }
 
@@ -47,8 +30,7 @@ async function scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
   taskPayloadExtrinsic,
   schedule,
   keyPair,
-}: scheduleXcmpTaskWithPayThroughSoverignAccountFlowParams) {
-  const oakApi = oakChain.getApi();
+}: ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams) : Promise<SendExtrinsicResult> {
   const { defaultAsset } = oakChain.getChainData();
   if (!defaultAsset) throw new Error("defaultAsset not set");
   const destination = { V3: destinationChainProvider.chain.getLocation() };
@@ -58,7 +40,7 @@ async function scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
   const xcmpFee = await destinationChainProvider.chain.weightToFee(overallWeight, defaultAsset.location);
   const executionFee = { assetLocation: { V3: defaultAsset.location }, amount: xcmpFee };
 
-  const extrinsic = oakApi.tx.automationTime.scheduleXcmpTask(
+  const sendExtrinsicResult = oakChain.scheduleXcmpTask(
     schedule,
     destination,
     scheduleFee,
@@ -66,29 +48,32 @@ async function scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
     encodedCall,
     encodedCallWeight,
     overallWeight,
-  );
+    keyPair,
+  )
 
-  await sendExtrinsic(oakApi, extrinsic, keyPair);
+  return sendExtrinsicResult;
 }
 
 async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
   oakChain,
   destinationChainProvider,
   taskPayloadExtrinsic,
+  scheduleFeeLocation,
+  executionFeeLocation,
   schedule,
+  scheduleAs,
   keyPair,
-}: scheduleXcmpTaskWithPayThroughSoverignAccountFlowParams) {
+}: ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams): Promise<SendExtrinsicResult> {
   const oakApi = oakChain.getApi();
-  const { defaultAsset: destinationAsset, paraId } = destinationChainProvider.chain.getChainData();
-  if(!destinationAsset) throw new Error("destinationAsset not set");
+  const { paraId } = destinationChainProvider.chain.getChainData();
   if (!paraId) throw new Error("paraId not set");
   const destination = { V3: destinationChainProvider.chain.getLocation() };
   const encodedCall = taskPayloadExtrinsic.method.toHex();
   const { encodedCallWeight, overallWeight } = await destinationChainProvider.chain.getXcmWeight(keyPair.address, taskPayloadExtrinsic);
-  const scheduleFee = { V3: destinationAsset.location }
-  const xcmpFee = await destinationChainProvider.chain.weightToFee(overallWeight, destinationAsset.location);
-  const executionFee = { assetLocation: { V3: destinationAsset.location }, amount: xcmpFee };
-  const deriveAccountId = oakChain.getDeriveAccount(keyPair.address, paraId, {});
+  const scheduleFee = { V3: scheduleFeeLocation }
+  const executionFeeAmout = await destinationChainProvider.chain.weightToFee(overallWeight, executionFeeLocation);
+  const executionFee = { assetLocation: { V3: executionFeeLocation }, amount: executionFeeAmout };
+  const deriveAccountId = oakChain.getDeriveAccount(u8aToHex(keyPair.addressRaw), paraId, {});
   
   const extrinsic = oakApi.tx.automationTime.scheduleXcmpTaskThroughProxy(
     schedule,
@@ -98,37 +83,27 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
     encodedCall,
     encodedCallWeight,
     overallWeight,
-    '67RKQFDRWRFnY7RrkvR7N1kNpZiXa9P2qdLtwxYZFDjs4dAr',
+    scheduleAs,
   );
   
   const taskEncodedCall = extrinsic.method.toHex();
   const { encodedCallWeight: taskEncodedCallWeight, overallWeight: taskOverallWeight } = await oakChain.getXcmWeight(deriveAccountId, extrinsic);
-  const taskExecutionFee = await oakChain.weightToFee(taskOverallWeight, destinationAsset.location);
+  const taskExecutionFee = await oakChain.weightToFee(taskOverallWeight, executionFeeLocation);
   if(!destinationChainProvider.taskRegister) throw new Error("destinationChainProvider.taskRegister not set");
   const oakLocation = oakChain.getLocation();
-  await destinationChainProvider.taskRegister.scheduleTaskThroughXcm(oakLocation, taskEncodedCall, taskExecutionFee, taskEncodedCallWeight, taskOverallWeight, deriveAccountId, keyPair);
+  const sendExtrinsicResult = await destinationChainProvider.taskRegister.scheduleTaskThroughXcm(oakLocation, taskEncodedCall, executionFeeLocation, taskExecutionFee, taskEncodedCallWeight, taskOverallWeight, deriveAccountId, keyPair);
+  return sendExtrinsicResult;
 }
 
 export function Sdk() {
   return {
-    scheduleXcmpTask: async (oakChain: OakChain, destinationChainProvider: ChainProvider, { instructionSequnce, taskPayloadExtrinsic, schedule, keyPair }: { instructionSequnce: string, taskPayloadExtrinsic: SubmittableExtrinsic<'promise'>, schedule: any, keyPair: any }): Promise<void> => {
-      if (instructionSequnce == 'PayThroughSoverignAccount') {
-        await scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
-          oakChain,
-          destinationChainProvider,
-          taskPayloadExtrinsic,
-          schedule,
-          keyPair,
-        });
-      } else {
-        await scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
-          oakChain,
-          destinationChainProvider,
-          taskPayloadExtrinsic,
-          schedule,
-          keyPair,
-        });
-      }
+    scheduleXcmpTaskWithPayThroughSoverignAccountFlow: async (params: ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams): Promise<SendExtrinsicResult> => {
+      const result = await scheduleXcmpTaskWithPayThroughSoverignAccountFlow(params);
+      return result;
+    },
+    scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow: async (params: ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams): Promise<SendExtrinsicResult> => {
+      const result = await scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow(params);
+      return result;
     },
     transfer: ( sourceChain: ChainProvider, destinationChain: ChainProvider, { asset, assetAmount } : { asset: Asset, assetAmount: BN }): void => {
       // TODO

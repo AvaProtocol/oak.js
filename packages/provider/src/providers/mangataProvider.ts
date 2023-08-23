@@ -2,10 +2,9 @@ import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { HexString } from '@polkadot/util/types';
 import type { u32, u64, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
-import { Chain as ChainConfig, TransactInfo, Weight } from '@oak-network/sdk-types';
+import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
 import { Chain, ChainProvider } from './chainProvider';
 
 // MangataChain implements Chain
@@ -14,10 +13,10 @@ export class MangataChain extends Chain {
 
   async initialize() {
     const api = await ApiPromise.create({
-			provider: new WsProvider(this.chainData.endpoint),
-		});
+      provider: new WsProvider(this.chainData.endpoint),
+    });
 
-		this.api = api;
+    this.api = api;
     await this.updateChainData();
   }
 
@@ -33,7 +32,7 @@ export class MangataChain extends Chain {
 
   async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {
     const { refTime, proofSize } = (await extrinsic.paymentInfo(sender)).weight as unknown as WeightV2;
-		return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
+    return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
   async getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
@@ -49,23 +48,23 @@ export class MangataChain extends Chain {
     if (!defaultAsset) throw new Error("chainData.defaultAsset not set");
 
     const api = this.getApi();
-		if (_.isEqual(defaultAsset.location, assetLocation)) {
+    if (_.isEqual(defaultAsset.location, assetLocation)) {
       const fee = await api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
-			return fee;
+      return fee;
     } else {
       const storageValue = await api.query.assetRegistry.locationToAssetId(assetLocation);
-			const item = storageValue as unknown as Option<u32>;
-			if (item.isNone) throw new Error("AssetTypeUnitsPerSecond not initialized");
+      const item = storageValue as unknown as Option<u32>;
+      if (item.isNone) throw new Error("AssetTypeUnitsPerSecond not initialized");
 
-			const assetId = item.unwrap();
-			const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
-			const metadataItem = metadataStorageValue as unknown as Option<any>;
-			if (metadataItem.isNone) throw new Error("Metadata not initialized");
+      const assetId = item.unwrap();
+      const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
+      const metadataItem = metadataStorageValue as unknown as Option<any>;
+      if (metadataItem.isNone) throw new Error("Metadata not initialized");
 
-			const { additional } = metadataItem.unwrap().toJSON() as any;
-			const { xcm: { feePerSecond } } = additional;
-			
-			return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 ** 12));
+      const { additional } = metadataItem.unwrap().toJSON() as any;
+      const { xcm: { feePerSecond } } = additional;
+      
+      return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 ** 12));
     }
   }
 

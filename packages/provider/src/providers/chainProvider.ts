@@ -3,18 +3,20 @@ import BN from 'bn.js';
 import { ApiPromise } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { u32 } from '@polkadot/types';
+import type { HexString } from '@polkadot/util/types';
 import { ChainAsset, Weight, Chain as ChainConfig } from '@oak-network/sdk-types';
+import { SendExtrinsicResult } from '../types';
 
 export class ChainData {
-	key: string | undefined;
+  key: string | undefined;
   assets: ChainAsset [] = [];
-	defaultAsset: ChainAsset | undefined;
-	endpoint: string | undefined;
-	relayChain: string | undefined;
-	paraId: number | undefined;
-	ss58: number | undefined;
-	name: string | undefined;
-	instructionWeight: Weight  | undefined;
+  defaultAsset: ChainAsset | undefined;
+  endpoint: string | undefined;
+  relayChain: string | undefined;
+  paraId: number | undefined;
+  ss58: number | undefined;
+  name: string | undefined;
+  instructionWeight: Weight  | undefined;
 }
 
 // Every chain implements ChainProvider
@@ -42,6 +44,7 @@ export abstract class Chain {
 
   constructor(config: ChainConfig) {
     this.chainData = new ChainData();
+    this.chainData.key = config.key;
     this.chainData.assets = config.assets;
     this.chainData.defaultAsset = config.defaultAsset;
     this.chainData.instructionWeight = config.instructionWeight;
@@ -52,7 +55,7 @@ export abstract class Chain {
   public abstract destroy(): Promise<void>;
   public abstract getApi(): ApiPromise;
   
-  public abstract getDeriveAccount(address: string, paraId: number, options: any): string;
+  public abstract getDeriveAccount(accountId: HexString, paraId: number, options: any): string;
   public abstract getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
   public abstract transfer(destination: Chain, assetLocation: any, assetAmount: BN): void;
@@ -75,5 +78,5 @@ export abstract class Chain {
 }
 
 export interface TaskRegister {
-  scheduleTaskThroughXcm(destination: any, encodedCall: `0x${string}`, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<void>;
+  scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<SendExtrinsicResult>;
 }

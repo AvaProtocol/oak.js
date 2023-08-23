@@ -4,28 +4,28 @@ const tur = new Asset({
   key: 'tur',
   symbol: 'TUR',
   decimals: 10,
-	location: { parents: 1, interior: { X1: { Parachain: 2114 } } }
+  location: { parents: 1, interior: { X1: { Parachain: 2114 } } }
 });
 
 const moonbaseLocal = new Asset({
   key: 'moonbase-local',
   symbol: 'UNIT',
   decimals: 18,
-	location: { parents: 1, interior: { X2: [{ Parachain: 1000 }, { PalletInstance: 3 }] } }
+  location: { parents: 1, interior: { X2: [{ Parachain: 1000 }, { PalletInstance: 3 }] } }
 });
 
 const moonbaseAlpha = new Asset({
   key: 'moonbase-alpha',
   symbol: 'DEV',
   decimals: 18,
-	location: { parents: 1, interior: { X2: [{ Parachain: 1000 }, { PalletInstance: 3 }] } }
+  location: { parents: 1, interior: { X2: [{ Parachain: 1000 }, { PalletInstance: 3 }] } }
 });
 
 const glmr = new Asset({
   key: 'glmr',
   symbol: 'GLMR',
   decimals: 18,
-	location: { parents: 1, interior: { X2: [{ Parachain: 2023 }, { PalletInstance: 10 }] } }
+  location: { parents: 1, interior: { X2: [{ Parachain: 2023 }, { PalletInstance: 10 }] } }
 });
 
 const sby = new Asset({

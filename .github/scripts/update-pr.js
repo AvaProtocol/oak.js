@@ -1,3 +1,5 @@
+const { context, GitHub } = require('@actions/github');
+
 async function updatePullRequest() {
     const githubToken = process.env.GITHUB_TOKEN;
     const octokit = new GitHub(githubToken);
@@ -7,6 +9,8 @@ async function updatePullRequest() {
     const prRepo = context.payload.repository.name;
     const prBody = context.payload.pull_request.body;
   
+    console.log(prNumber, prOwner, prRepo, prBody);
+    
     const changesetUpdates = `${prBody}\nUpdate changeset information here`;
   
     await octokit.pulls.update({

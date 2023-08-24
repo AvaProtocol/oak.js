@@ -5,7 +5,7 @@ module.exports = {
     "<rootDir>/packages/types",
     "<rootDir>/packages/sdk-types",
     "<rootDir>/packages/config",
-    "<rootDir>/packages/provider",
+    "<rootDir>/packages/adapter",
     "<rootDir>/packages/sdk"
   ],
   moduleNameMapper: {

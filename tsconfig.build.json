@@ -5,7 +5,7 @@
     { "path": "packages/api-augment" },
     { "path": "packages/sdk-types" },
     { "path": "packages/config" },
-    { "path": "packages/provider" },
+    { "path": "packages/adapter" },
     { "path": "packages/sdk" }
   ]
 }

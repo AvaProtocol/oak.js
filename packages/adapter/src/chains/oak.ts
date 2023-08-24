@@ -6,13 +6,13 @@ import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { u32, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import { rpc, types, runtime } from '@oak-network/types';
-import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
-import { Chain, ChainProvider } from './chainProvider';
+import { Weight } from '@oak-network/sdk-types';
+import { ChainAdapter } from './chainAdapter';
 import { getDeriveAccount, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 
-// OakChain implements Chain
-export class OakChain extends Chain {
+// OakAdapter implements ChainAdapter
+export class OakAdapter extends ChainAdapter {
   api: ApiPromise | undefined;
 
   async initialize() {
@@ -69,9 +69,8 @@ export class OakChain extends Chain {
     return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 ** 12));
   }
 
-  async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
-    // TODO
-    // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
+  async transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN) {
+    throw new Error('Method not implemented.');
   }
 
   async scheduleXcmpTask(schedule: any, destination: any, scheduleFee: any, executionFee: any, encodedCall: HexString, encodedCallWeight: Weight, overallWeight: Weight, keyPair: any) : Promise<SendExtrinsicResult> {
@@ -100,9 +99,3 @@ export class OakChain extends Chain {
   };
 }
 
-export class OakProvider extends ChainProvider {
-  constructor(config: ChainConfig) {
-    const chain = new OakChain(config);
-    super(chain, undefined);
-  }
-}

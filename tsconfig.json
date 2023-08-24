@@ -19,8 +19,8 @@
       "@oak-network/sdk-types/*": ["./packages/sdk-types/src/*"],
       "@oak-network/config": ["./packages/config/src"],
       "@oak-network/config/*": ["./packages/config/src/*"],
-      "@oak-network/provider": ["./packages/provider/src"],
-      "@oak-network/provider/*": ["./packages/provider/src/*"],
+      "@oak-network/adapter": ["./packages/adapter/src"],
+      "@oak-network/adapter/*": ["./packages/adapter/src/*"],
       "@oak-network/sdk": ["./packages/sdk/src"],
       "@oak-network/sdk/*": ["./packages/sdk/src/*"]
     }

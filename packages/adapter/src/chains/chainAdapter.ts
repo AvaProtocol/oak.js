@@ -19,27 +19,7 @@ export class ChainData {
   instructionWeight: Weight  | undefined;
 }
 
-// Every chain implements ChainProvider
-// If you want to use PayThroughRemoteDerivativeAccount instructionSequence to schedule task, implements TaskRegister
-// For example, MoonbeamChain implements TaskRegister, Mangata does not implement TaskRegister
-export class ChainProvider {
-  readonly chain: Chain;
-  readonly taskScheduler: TaskScheduler | undefined;
-  constructor(chain: Chain, taskScheduler: TaskScheduler | undefined) {
-    this.chain = chain;
-    this.taskScheduler = taskScheduler;
-  }
-
-  async initialize() {
-    await this.chain.initialize();
-  }
-
-  async destroy() {
-    await this.chain.destroy();
-  }
-}
-
-export abstract class Chain {
+export abstract class ChainAdapter {
   protected chainData: ChainData;
 
   constructor(config: ChainConfig) {
@@ -58,7 +38,7 @@ export abstract class Chain {
   public abstract getDeriveAccount(accountId: HexString, paraId: number): HexString;
   public abstract getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
-  public abstract transfer(destination: Chain, assetLocation: any, assetAmount: BN): void;
+  public abstract transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN): void;
 
   public async updateChainData(): Promise<void> {
     const api = this.getApi();

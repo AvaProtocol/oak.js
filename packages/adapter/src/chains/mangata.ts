@@ -5,12 +5,12 @@ import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { u32, u64, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { HexString } from '@polkadot/util/types';
-import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
-import { Chain, ChainProvider } from './chainProvider';
+import { Weight } from '@oak-network/sdk-types';
+import { ChainAdapter } from './chainAdapter';
 import { getDeriveAccount } from '../util';
 
-// MangataChain implements Chain
-export class MangataChain extends Chain {
+// MangataAdapter implements ChainAdapter
+export class MangataAdapter extends ChainAdapter {
   api: ApiPromise | undefined;
 
   async initialize() {
@@ -70,19 +70,12 @@ export class MangataChain extends Chain {
     }
   }
 
-  public transfer(destination: Chain, assetLocation: any, assetAmount: BN): void {
-    throw new Error('Method not implemented.');
-  }
-
   public getDeriveAccount(accountId: HexString, paraId: number): HexString {
     const api = this.getApi();
     return getDeriveAccount(api, accountId, paraId);
   }
-}
 
-export class MangataProvider extends ChainProvider {
-  constructor(config: ChainConfig) {
-    const chain = new MangataChain(config);
-    super(chain, undefined);
+  public transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN): void {
+    throw new Error('Method not implemented.');
   }
 }

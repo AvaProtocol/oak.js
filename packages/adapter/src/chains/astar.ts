@@ -5,13 +5,13 @@ import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { HexString } from '@polkadot/util/types';
-import { Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
-import { Chain, ChainProvider, TaskScheduler } from './chainProvider';
+import { Weight } from '@oak-network/sdk-types';
+import { ChainAdapter, TaskScheduler } from './chainAdapter';
 import { getDeriveAccountV3, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 
-// AstarChain implements Chain, TaskScheduler interface
-export class AstarChain extends Chain implements TaskScheduler {
+// AstarAdapter implements ChainAdapter, TaskScheduler interface
+export class AstarAdapter extends ChainAdapter implements TaskScheduler {
   api: ApiPromise | undefined;
 
   async initialize() {
@@ -61,11 +61,6 @@ export class AstarChain extends Chain implements TaskScheduler {
       const unitsPerSecond = metadataItem.unwrap();
       return weight.refTime.mul(unitsPerSecond).div(new BN(10 ** 12));
     }
-  }
-
-  async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
-    // TODO
-    // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
   }
 
   public getDeriveAccount(accountId: HexString, paraId: number): HexString {
@@ -128,11 +123,8 @@ export class AstarChain extends Chain implements TaskScheduler {
     const result = await sendExtrinsic(api, extrinsic, keyPair);
     return result;
   }
-}
 
-export class AstarProvider extends ChainProvider {
-  constructor(config: ChainConfig) {
-    const chain = new AstarChain(config);
-    super(chain, chain);
+  async transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN) {
+    throw new Error('Method not implemented.');
   }
 }

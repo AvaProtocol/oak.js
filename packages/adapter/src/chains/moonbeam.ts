@@ -5,13 +5,13 @@ import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
-import { Asset, ChainAsset, Chain as ChainConfig, Weight } from '@oak-network/sdk-types';
-import { Chain, ChainProvider, TaskScheduler } from './chainProvider';
+import { Asset, ChainAsset, Weight } from '@oak-network/sdk-types';
+import { ChainAdapter, TaskScheduler } from './chainAdapter';
 import { getDeriveAccountV3, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 
-// MoonbeamChain implements Chain, TaskScheduler interface
-export class MoonbeamChain extends Chain implements TaskScheduler {
+// MoonbeamAdapter implements ChainAdapter, TaskScheduler interface
+export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
   api: ApiPromise | undefined;
 
   async initialize() {
@@ -101,11 +101,6 @@ export class MoonbeamChain extends Chain implements TaskScheduler {
     }
   }
 
-  async transfer(destination: Chain, assetLocation: any, assetAmount: BN) {
-    // TODO
-    // this.api.tx.xtokens.transfer(destination, assetLocation, assetAmount);
-  }
-
   async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<SendExtrinsicResult> {
     const api = this.getApi();
     const { key } = this.chainData;
@@ -131,11 +126,9 @@ export class MoonbeamChain extends Chain implements TaskScheduler {
   public getDeriveAccount(accountId: string, paraId: number): HexString {
     return getDeriveAccountV3(accountId, paraId, 'AccountKey20');
   }
-}
 
-export class MoonbeamProvider extends ChainProvider {
-  constructor(config: ChainConfig) {
-    const chain = new MoonbeamChain(config);
-    super(chain, chain);
+  async transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN) {
+    throw new Error('Method not implemented.');
   }
 }
+

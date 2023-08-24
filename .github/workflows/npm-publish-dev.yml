@@ -9,6 +9,13 @@ on:
 jobs:
   publish-dev-version:
     runs-on: ubuntu-latest
+      strategy:
+        matrix:
+            package:
+                # list your packages here
+                - api-augment
+                - types
+
     steps:
       - name: 🤘 checkout
         uses: actions/checkout@v3
@@ -34,14 +41,6 @@ jobs:
       - name: 🔐 Authenticate with NPM
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
-      - name: Loop through Package Names
-        id: loop-package-names
-        run: |
-          for package in ${{ steps.set_package_names.outputs.packages }}; do
-            echo "Processing package: $package"
-            npm publish --tag dev "packages/$package"
-          done
-
-      - name: Use loop outputs
-        run: |
-          echo "Loop completed."
+      - name: 🚀 Publish ${{ matrix.package }} package
+        working-directory: ./packages/${{ matrix.package }}
+        run: npm publish --tag dev

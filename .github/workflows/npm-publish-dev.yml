@@ -9,12 +9,12 @@ on:
 jobs:
   publish-dev-version:
     runs-on: ubuntu-latest
-      strategy:
-        matrix:
-            package:
-                # list your packages here
-                - api-augment
-                - types
+    strategy:
+      matrix:
+        package:
+          # list your packages here
+          - api-augment
+          - types
 
     steps:
       - name: 🤘 checkout

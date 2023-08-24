@@ -10,11 +10,11 @@ jobs:
   update-tags:
     runs-on: ubuntu-latest
     strategy:
-          matrix:
-            package:
-              # List the packages to run here. The matrix will run one job for each package parallelly. 
-              - api-augment
-              - types
+      matrix:
+        package:
+          # List the packages to run here. The matrix will run one job for each package parallelly. 
+          - api-augment
+          - types
 
     steps:
       - name: Checkout repository
@@ -28,9 +28,9 @@ jobs:
         run: |
           dev_version=$(npm show @oak-network/${{ matrix.package }}@dev version)
           echo "Dev version: $dev_version"
-          echo "dev_version=$dev_version" >> $GITHUB_OUTPUT
+          echo "dev_version=$dev_version" >> $GITHUB_ENV
       
-      - name: Point latest tag to ${{ steps.get-version.outputs.dev_version }
+      - name: Point latest tag to ${{ steps.get-version.outputs.dev_version }}
         run: |
           npm dist-tag add @oak-network/${{ matrix.package }}@${{ steps.get-version.outputs.dev_version }} latest --registry=https://registry.npmjs.org/
           echo "Latest tag set to ${{ steps.get-version.outputs.dev_version }}"

@@ -28,7 +28,7 @@ jobs:
         run: |
           dev_version=$(npm show @oak-network/${{ matrix.package }}@dev version)
           echo "Dev version: $dev_version"
-          echo "dev_version=$dev_version" >> $GITHUB_ENV
+          echo "::set-output name=dev_version::$dev_version"
       
       - name: Point latest tag to ${{ steps.get-version.outputs.dev_version }}
         run: |

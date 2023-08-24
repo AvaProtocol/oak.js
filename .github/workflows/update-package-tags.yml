@@ -9,6 +9,12 @@ on:
 jobs:
   update-tags:
     runs-on: ubuntu-latest
+    strategy:
+          matrix:
+            package:
+              # List the packages to run here. The matrix will run one job for each package parallelly. 
+              - api-augment
+              - types
 
     steps:
       - name: Checkout repository
@@ -17,36 +23,16 @@ jobs:
       - name: 🔐 Authenticate with NPM
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
-      - name: Set package names
-        id: set_package_names
+      - name: Get dev version of ${{ matrix.package }}
+        id: get-version
         run: |
-          echo '["@oak-network/api-augment", "@oak-network/types"]' > packages.json
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3.0.0
-        with:
-          node-version: 18.x
-          cache: 'npm'
-
-      - name: Loop through Package Names
-        id: loop-package-names
+          dev_version=$(npm show @oak-network/${{ matrix.package }}@dev version)
+          echo "Dev version: $dev_version"
+          echo "dev_version=$dev_version" >> $GITHUB_OUTPUT
+      
+      - name: Point latest tag to ${{ steps.get-version.outputs.dev_version }
         run: |
-          packages=$(cat packages.json)
-          for package in $packages; do
-            echo "Processing package: $package"
-
-            # Get dev version
-            dev_version=$(npm show $package@dev version)
-            echo "Dev version: $dev_version"
-
-            # Set latest tag
-            npm dist-tag add $package@$dev_version latest --registry=https://registry.npmjs.org/
-            echo "Latest tag set to $dev_version"
-
-          done
+          npm dist-tag add @oak-network/${{ matrix.package }}@${{ steps.get-version.outputs.dev_version }} latest --registry=https://registry.npmjs.org/
+          echo "Latest tag set to ${{ steps.get-version.outputs.dev_version }}"
         env:
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}
-          
-      - name: Use loop outputs
-        run: |
-          echo "Loop completed."

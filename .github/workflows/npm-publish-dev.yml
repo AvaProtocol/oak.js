@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         package:
-          # list your packages here
+          # List the packages to run here. The matrix will run one job for each package parallelly. 
           - api-augment
           - types
 

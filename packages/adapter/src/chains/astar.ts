@@ -63,7 +63,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     } else {
       const AssetLocationUnitsPerSecond = await api.query.xcAssetConfig.assetLocationUnitsPerSecond(assetLocation);
       const metadataItem = AssetLocationUnitsPerSecond as unknown as Option<u128>;
-      if (metadataItem.isNone) throw new Error("MetadatAssetLocationUnitsPerSeconda not initialized");
+      if (metadataItem.isNone) throw new Error("MetadatAssetLocationUnitsPerSecond is null");
       const unitsPerSecond = metadataItem.unwrap();
       return weight.refTime.mul(unitsPerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
     }
@@ -122,8 +122,11 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     );
 
     console.log(`Send extrinsic to ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
-    const result = await sendExtrinsic(api, extrinsic, keyPair);
-    return result;
+
+    return null as unknown as SendExtrinsicResult;
+
+    // const result = await sendExtrinsic(api, extrinsic, keyPair);
+    // return result;
   }
 
   async transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN) {

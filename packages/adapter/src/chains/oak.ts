@@ -3,7 +3,7 @@ import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { HexString } from '@polkadot/util/types';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { u32, Option } from '@polkadot/types';
+import type { u32, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import { rpc, types, runtime } from '@oak-network/types';
 import { Weight } from '@oak-network/sdk-types';
@@ -64,10 +64,11 @@ export class OakAdapter extends ChainAdapter {
     const metadataItem = metadataStorageValue as unknown as Option<any>;
     if (metadataItem.isNone) throw new Error("Metadata not set");
 
-    const { additional } = metadataItem.unwrap().toHuman() as any;
-    const feePerSecond = additional.feePerSecond.replace(/,/g, '');
+    const { additional } = metadataItem.unwrap();
+    const feePerSecond = additional.feePerSecond as unknown as Option<u128>;
+    if (feePerSecond.isNone) throw new Error("feePerSecond is null");
 
-    return weight.refTime.mul(new BN(feePerSecond)).div(WEIGHT_REF_TIME_PER_SECOND);
+    return weight.refTime.mul(feePerSecond.unwrap()).div(WEIGHT_REF_TIME_PER_SECOND);
   }
 
   async transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN) {

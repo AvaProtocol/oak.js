@@ -95,9 +95,9 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
       return fee;
     } else {
       const storageValue = await api.query.assetManager.assetTypeUnitsPerSecond({ Xcm: assetLocation });
-      const item = storageValue as unknown as Option<any>;
-      if (item.isNone) throw new Error("AssetTypeUnitsPerSecond not initialized");
-      const unitsPerSecond = item.unwrap() as u128;
+      const item = storageValue as unknown as Option<u128>;
+      if (item.isNone) throw new Error("AssetTypeUnitsPerSecond is null");
+      const unitsPerSecond = item.unwrap();
       return weight.refTime.mul(unitsPerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
     }
   }

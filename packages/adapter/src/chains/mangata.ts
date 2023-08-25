@@ -2,7 +2,7 @@ import _ from 'lodash';
 import BN from 'bn.js';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { u32, u64, Option } from '@polkadot/types';
+import type { u32, u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { HexString } from '@polkadot/util/types';
 import { Weight } from '@oak-network/sdk-types';
@@ -57,17 +57,18 @@ export class MangataAdapter extends ChainAdapter {
     } else {
       const storageValue = await api.query.assetRegistry.locationToAssetId(assetLocation);
       const item = storageValue as unknown as Option<u32>;
-      if (item.isNone) throw new Error("AssetTypeUnitsPerSecond not initialized");
+      if (item.isNone) throw new Error("AssetTypeUnitsPerSecond is null");
 
       const assetId = item.unwrap();
       const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
       const metadataItem = metadataStorageValue as unknown as Option<any>;
-      if (metadataItem.isNone) throw new Error("Metadata not initialized");
+      if (metadataItem.isNone) throw new Error("Metadata is null");
 
-      const { additional } = metadataItem.unwrap().toJSON() as any;
-      const { xcm: { feePerSecond } } = additional;
+      const { additional: { xcm } } = metadataItem.unwrap().toJSON() as { additional: { xcm: Option<any> } };
+      if (!xcm) throw new Error("Metadata additional.xcm is null");
+      const feePerSecond = xcm.unwrap().feePerSecond as u128;
       
-      return weight.refTime.mul(new BN(feePerSecond)).div(WEIGHT_REF_TIME_PER_SECOND);
+      return weight.refTime.mul(feePerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
     }
   }
 

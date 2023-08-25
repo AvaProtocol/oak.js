@@ -9,6 +9,7 @@ import { Asset, ChainAsset, Weight } from '@oak-network/sdk-types';
 import { ChainAdapter, TaskScheduler } from './chainAdapter';
 import { getDeriveAccountV3, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
+import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
 // MoonbeamAdapter implements ChainAdapter, TaskScheduler interface
 export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
@@ -97,7 +98,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
       const item = storageValue as unknown as Option<any>;
       if (item.isNone) throw new Error("AssetTypeUnitsPerSecond not initialized");
       const unitsPerSecond = item.unwrap() as u128;
-      return weight.refTime.mul(unitsPerSecond).div(new BN(10 ** 12));
+      return weight.refTime.mul(unitsPerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
     }
   }
 
@@ -123,12 +124,12 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     return result;
   }
 
-  public getDeriveAccount(accountId: string, paraId: number): HexString {
+  getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString {
     return getDeriveAccountV3(accountId, paraId, 'AccountKey20');
   }
 
-  async transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN) {
-    throw new Error('Method not implemented.');
+  transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN) {
+    throw new Error("'Method not implemented.");
   }
 }
 

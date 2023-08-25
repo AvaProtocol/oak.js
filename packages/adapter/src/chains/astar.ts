@@ -9,6 +9,7 @@ import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter, TaskScheduler } from './chainAdapter';
 import { getDeriveAccountV3, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
+import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
 // AstarAdapter implements ChainAdapter, TaskScheduler interface
 export class AstarAdapter extends ChainAdapter implements TaskScheduler {
@@ -21,6 +22,11 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
 
     this.api = api;
     await this.updateChainData();
+  }
+
+  public async updateChainData(): Promise<void> {
+    await super.updateChainData();
+    this.chainData.xcmInstructionNetworkType = 'concrete';
   }
 
   public getApi(): ApiPromise {
@@ -59,11 +65,11 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
       const metadataItem = AssetLocationUnitsPerSecond as unknown as Option<u128>;
       if (metadataItem.isNone) throw new Error("MetadatAssetLocationUnitsPerSeconda not initialized");
       const unitsPerSecond = metadataItem.unwrap();
-      return weight.refTime.mul(unitsPerSecond).div(new BN(10 ** 12));
+      return weight.refTime.mul(unitsPerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
     }
   }
 
-  public getDeriveAccount(accountId: HexString, paraId: number): HexString {
+  getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString {
     return getDeriveAccountV3(accountId, paraId);
   }
 
@@ -80,9 +86,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
             WithdrawAsset: [
               {
                 fun: { Fungible: feeAmount },
-                id: {
-                  Concrete: feeLocation,
-                },
+                id: { Concrete: feeLocation },
               },
             ],
           },
@@ -90,9 +94,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
             BuyExecution: {
               fees: {
                 fun: { Fungible: feeAmount },
-                id: {
-                  Concrete: feeLocation,
-                },
+                id: { Concrete: feeLocation },
               },
               weightLimit: { Limited: overallWeight },
             },

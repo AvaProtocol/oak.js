@@ -10,6 +10,7 @@ import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter } from './chainAdapter';
 import { getDeriveAccount, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
+import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
 // OakAdapter implements ChainAdapter
 export class OakAdapter extends ChainAdapter {
@@ -66,7 +67,7 @@ export class OakAdapter extends ChainAdapter {
     const { additional } = metadataItem.unwrap().toHuman() as any;
     const feePerSecond = additional.feePerSecond.replace(/,/g, '');
 
-    return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 ** 12));
+    return weight.refTime.mul(new BN(feePerSecond)).div(WEIGHT_REF_TIME_PER_SECOND);
   }
 
   async transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN) {
@@ -93,9 +94,9 @@ export class OakAdapter extends ChainAdapter {
     return result;
   }
 
-  getDeriveAccount(accountId: HexString, paraId: number): HexString {
+  getDeriveAccount(accountId: HexString, paraId: number, options: any): HexString {
     const api = this.getApi();
-    return getDeriveAccount(api, accountId, paraId);
+    return getDeriveAccount(api, accountId, paraId, options);
   };
 }
 

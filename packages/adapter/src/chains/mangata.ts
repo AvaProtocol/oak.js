@@ -8,6 +8,7 @@ import type { HexString } from '@polkadot/util/types';
 import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter } from './chainAdapter';
 import { getDeriveAccount } from '../util';
+import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
 // MangataAdapter implements ChainAdapter
 export class MangataAdapter extends ChainAdapter {
@@ -66,11 +67,11 @@ export class MangataAdapter extends ChainAdapter {
       const { additional } = metadataItem.unwrap().toJSON() as any;
       const { xcm: { feePerSecond } } = additional;
       
-      return weight.refTime.mul(new BN(feePerSecond)).div(new BN(10 ** 12));
+      return weight.refTime.mul(new BN(feePerSecond)).div(WEIGHT_REF_TIME_PER_SECOND);
     }
   }
 
-  public getDeriveAccount(accountId: HexString, paraId: number): HexString {
+  getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString {
     const api = this.getApi();
     return getDeriveAccount(api, accountId, paraId);
   }

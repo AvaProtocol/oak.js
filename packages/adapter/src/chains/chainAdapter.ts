@@ -14,9 +14,10 @@ export class ChainData {
   endpoint: string | undefined;
   relayChain: string | undefined;
   paraId: number | undefined;
-  ss58: number | undefined;
+  ss58Prefix: number | undefined;
   name: string | undefined;
   instructionWeight: Weight  | undefined;
+  xcmInstructionNetworkType: 'null' | 'concrete' = 'null'; 
 }
 
 export abstract class ChainAdapter {
@@ -29,19 +30,21 @@ export abstract class ChainAdapter {
     this.chainData.defaultAsset = config.defaultAsset;
     this.chainData.instructionWeight = config.instructionWeight;
     this.chainData.endpoint = config.endpoint;
+    this.chainData.relayChain = config.relayChain;
   }
   
   public abstract initialize(): Promise<void>;
   public abstract destroy(): Promise<void>;
   public abstract getApi(): ApiPromise;
   
-  public abstract getDeriveAccount(accountId: HexString, paraId: number): HexString;
+  public abstract getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString;
   public abstract getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
   public abstract transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN): void;
 
   public async updateChainData(): Promise<void> {
     const api = this.getApi();
+    this.chainData.ss58Prefix = (api.consts.system.ss58Prefix as unknown as u32).toNumber();
     const storageValue = await api.query.parachainInfo.parachainId();
     this.chainData.paraId = (storageValue as unknown as u32).toNumber();
   }

@@ -48,8 +48,7 @@ export const sendExtrinsic = async (
   });
 };
 
-export const getDeriveAccount = (api: ApiPromise, accountId: HexString, paraId: number): HexString => {
-  const network = 'Any'
+export const getDeriveAccount = (api: ApiPromise, accountId: HexString, paraId: number, { locationType = 'XcmV2MultiLocation', network = 'Any' } = {}): HexString => {
   const account = hexToU8a(accountId).length == 20
     ? { AccountKey20: { network, key: accountId } }
     : { AccountId32: { network, id: accountId } };
@@ -58,7 +57,7 @@ export const getDeriveAccount = (api: ApiPromise, accountId: HexString, paraId: 
     parents: 1,
     interior: { X2: [{ Parachain: paraId },  account] },
   };
-  const multilocation = api.createType('XcmV2MultiLocation', location);
+  const multilocation = api.createType(locationType, location);
   const toHash = new Uint8Array([
     ...new Uint8Array([32]),
     ...new TextEncoder().encode('multiloc'),

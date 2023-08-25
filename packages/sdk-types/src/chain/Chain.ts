@@ -17,7 +17,7 @@ export class Chain {
   readonly endpoint: string;
   readonly relayChain: string;
   paraId: number | undefined;
-  ss58: number | undefined;
+  ss58Prefix: number | undefined;
   name: string | undefined;
   instructionWeight: Weight;
 

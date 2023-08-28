@@ -201,3 +201,140 @@ test('Test Astar XCMP task', async () => {
   await oakAdapter.destroy();
   await astarProvider.destroy();
 }, 1000000);
+
+test('Test Moonbeam transfer', async () => {
+  // Create a keyring instance
+  const keyring = new Keyring({ type: 'sr25519' });
+  const json = await readMnemonicFromFile();
+  const keyPair = keyring.addFromJson(json);
+  keyPair.unlock(process.env.PASS_PHRASE);
+
+  // Create a keyring instance
+  const jsonEth = await readEthMnemonicFromFile();
+  const ethKeyring = new Keyring({ type: 'ethereum' });
+  const ethKeyPair = ethKeyring.addFromJson(jsonEth);
+  ethKeyPair.unlock(process.env.PASS_PHRASE_ETH);
+
+  // Initialize adapters
+  const oakAdapter = new OakAdapter(chains.turingMoonbase);
+  await oakAdapter.initialize();
+  const moonbeamAdapter = new MoonbeamAdapter(chains.moonbaseAlpha);
+  await moonbeamAdapter.initialize();
+
+  // Calculate Moonbase derive account on Turing
+  const { defaultAsset, paraId } = moonbeamAdapter.getChainData();
+  if (!defaultAsset) throw new Error("defaultAsset not set");
+  if (!paraId) throw new Error("paraId not set");
+  
+  const deriveAccountOnTuring = oakAdapter.getDeriveAccount(u8aToHex(ethKeyPair.addressRaw), paraId);
+  console.log('deriveAccountOnTuring; ', deriveAccountOnTuring);
+
+  // Transfer
+  await moonbeamAdapter.crossChainTransfer(
+    oakAdapter.getLocation(),
+    deriveAccountOnTuring,
+    defaultAsset.location,
+    new BN('200000000000000000'),
+    ethKeyPair,
+  );
+
+  // Destroy adapters
+  await oakAdapter.destroy();
+  await moonbeamAdapter.destroy();
+}, 1000000);
+
+test('Test Astar transfer', async () => {
+  // Create a keyring instance
+  const keyring = new Keyring({ type: 'sr25519' });
+  const json = await readMnemonicFromFile();
+  const keyPair = keyring.addFromJson(json);
+  keyPair.unlock(process.env.PASS_PHRASE);
+
+  // Initialize adapters
+  const oakAdapter = new OakAdapter(chains.turingStaging);
+  await oakAdapter.initialize();
+  const astarAdapter = new AstarAdapter(chains.rocstar);
+  await astarAdapter.initialize();
+
+  // Calculate Astar derive account on Turing
+  const { defaultAsset, paraId } = astarAdapter.getChainData();
+  if (!defaultAsset) throw new Error("defaultAsset not set");
+  if (!paraId) throw new Error("paraId not set");
+  
+  const deriveAccountOnTuring = oakAdapter.getDeriveAccount(u8aToHex(keyPair.addressRaw), paraId);
+  console.log('deriveAccountOnTuring; ', deriveAccountOnTuring);
+
+  // Transfer
+  await astarAdapter.crossChainTransfer(
+    oakAdapter.getLocation(),
+    deriveAccountOnTuring,
+    defaultAsset.location,
+    new BN('200000000000000000'),
+    keyPair,
+  );
+
+  // Destroy adapters
+  await oakAdapter.destroy();
+  await astarAdapter.destroy();
+}, 1000000);
+
+test('Test OakAdapter transfer', async () => {
+  // Create a keyring instance
+  const keyring = new Keyring({ type: 'sr25519' });
+  const json = await readMnemonicFromFile();
+  const keyPair = keyring.addFromJson(json);
+  keyPair.unlock(process.env.PASS_PHRASE);
+
+  // Initialize adapters
+  const oakAdapter = new OakAdapter(chains.turingStaging);
+  await oakAdapter.initialize();
+  const mangataAdapter = new MangataAdapter(chains.mangataRococo);
+  await mangataAdapter.initialize();
+
+  const { defaultAsset: oakAsset } = oakAdapter.getChainData();
+  if (!oakAsset) throw new Error("defaultAsset not set");
+
+  // Transfer
+  await oakAdapter.crossChainTransfer(
+    mangataAdapter.getLocation(),
+    u8aToHex(keyPair.addressRaw),
+    oakAsset.location,
+    new BN('50000000000'),
+    keyPair,
+  );
+
+  // Destroy adapters
+  await oakAdapter.destroy();
+  await mangataAdapter.destroy();
+}, 1000000);
+
+
+test('Test MangatAdapter transfer', async () => {
+  // Create a keyring instance
+  const keyring = new Keyring({ type: 'sr25519' });
+  const json = await readMnemonicFromFile();
+  const keyPair = keyring.addFromJson(json);
+  keyPair.unlock(process.env.PASS_PHRASE);
+
+  // Initialize adapters
+  const oakAdapter = new OakAdapter(chains.turingStaging);
+  await oakAdapter.initialize();
+  const mangataAdapter = new MangataAdapter(chains.mangataRococo);
+  await mangataAdapter.initialize();
+
+  const { defaultAsset: oakAsset } = oakAdapter.getChainData();
+  if (!oakAsset) throw new Error("defaultAsset not set");
+
+  // Transfer
+  await mangataAdapter.crossChainTransfer(
+    oakAdapter.getLocation(),
+    u8aToHex(keyPair.addressRaw),
+    oakAsset.location,
+    new BN('100000000000000'),
+    keyPair,
+  );
+
+  // Destroy adapters
+  await oakAdapter.destroy();
+  await mangataAdapter.destroy();
+}, 1000000);

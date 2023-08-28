@@ -6,20 +6,23 @@ import type { u32, u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { HexString } from '@polkadot/util/types';
 import { Weight } from '@oak-network/sdk-types';
+import { Mangata } from '@mangata-finance/sdk';
 import { ChainAdapter } from './chainAdapter';
-import { getDeriveAccount } from '../util';
+import { convertAbsoluteLocationToRelative, getDeriveAccount, sendExtrinsic } from '../util';
 import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
+import { SendExtrinsicResult } from '../types';
 
 // MangataAdapter implements ChainAdapter
 export class MangataAdapter extends ChainAdapter {
   api: ApiPromise | undefined;
 
   async initialize() {
-    const api = await ApiPromise.create({
-      provider: new WsProvider(this.chainData.endpoint),
-    });
+    const { endpoint } = this.getChainData();
+    if(!endpoint) throw new Error("chainData.endpoint not set");
 
-    this.api = api;
+    const mangata = Mangata.getInstance([endpoint]);
+    this.api = await mangata.getApi();
+
     await this.updateChainData();
   }
 
@@ -77,7 +80,45 @@ export class MangataAdapter extends ChainAdapter {
     return getDeriveAccount(api, accountId, paraId);
   }
 
-  public transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN): void {
-    throw new Error('Method not implemented.');
+  isNativeAsset(assetLocation: any): boolean {
+    const { defaultAsset, assets } = this.chainData;
+    if (!defaultAsset) throw new Error('chainData.defaultAsset not set');
+    const foundAsset = _.find(assets, ({ location: assetLocation }));
+    return !!foundAsset && foundAsset.isNative;
+  }
+
+  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyPair: any): Promise<SendExtrinsicResult> {
+    const { key } = this.chainData;
+    if (!key) throw new Error('chainData.key not set');
+    
+    const transferAssetLocation = this.isNativeAsset(assetLocation)
+      ? convertAbsoluteLocationToRelative(assetLocation)
+      : assetLocation;
+
+    const api = this.getApi();
+    const extrinsic = api.tx.xTokens.transferMultiasset(
+      {
+        V3: {
+          id: { Concrete: transferAssetLocation },
+          fun: { Fungible: assetAmount },
+        },
+      },
+      {
+        V3: {
+          parents: 1,
+          interior: {
+            X2: [
+              destination.interior.X1,
+              { AccountId32: { network: null, id: accountId } },
+            ],
+          },
+        }
+      },
+      'Unlimited',
+    );
+
+    console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());
+    const result = await sendExtrinsic(api, extrinsic, keyPair);
+    return result;
   }
 }

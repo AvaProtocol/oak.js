@@ -40,7 +40,7 @@ export abstract class ChainAdapter {
   public abstract getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString;
   public abstract getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
-  public abstract transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN): void;
+  public abstract crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyPair: any): Promise<SendExtrinsicResult>;
 
   public async updateChainData(): Promise<void> {
     const api = this.getApi();

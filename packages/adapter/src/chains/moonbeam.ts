@@ -7,7 +7,7 @@ import type { u64, u128, Option } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
 import { Asset, ChainAsset, Weight } from '@oak-network/sdk-types';
 import { ChainAdapter, TaskScheduler } from './chainAdapter';
-import { getDeriveAccountV3, sendExtrinsic } from '../util';
+import { convertAbsoluteLocationToRelative, getDeriveAccountV3, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
@@ -119,7 +119,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
       { transactRequiredWeightAtMost: encodedCallWeight, overallWeight },
     );
 
-    console.log(`Send extrinsic to ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
+    console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
     const result = await sendExtrinsic(api, extrinsic, keyPair);
     return result;
   }
@@ -128,8 +128,46 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     return getDeriveAccountV3(accountId, paraId, 'AccountKey20');
   }
 
-  transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN) {
-    throw new Error("'Method not implemented.");
+  isNativeAsset(assetLocation: any): boolean {
+    const { defaultAsset, assets } = this.chainData;
+    if (!defaultAsset) throw new Error('chainData.defaultAsset not set');
+    const foundAsset = _.find(assets, ({ location: assetLocation }));
+    return !!foundAsset && foundAsset.isNative;
+  }
+
+  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyPair: any): Promise<SendExtrinsicResult> {
+    const { key } = this.chainData;
+    if (!key) throw new Error('chainData.key not set');
+    
+    const transferAssetLocation = this.isNativeAsset(assetLocation)
+      ? convertAbsoluteLocationToRelative(assetLocation)
+      : assetLocation;
+
+    const api = this.getApi();
+    const extrinsic = api.tx.xTokens.transferMultiasset(
+      {
+        V3: {
+          id: { Concrete: transferAssetLocation },
+          fun: { Fungible: assetAmount },
+        },
+      },
+      {
+        V3: {
+          parents: 1,
+          interior: {
+            X2: [
+              destination.interior.X1,
+              { AccountId32: { network: null, id: accountId } },
+            ],
+          },
+        }
+      },
+      'Unlimited',
+    );
+
+    console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());
+    const result = await sendExtrinsic(api, extrinsic, keyPair);
+    return result;
   }
 }
 

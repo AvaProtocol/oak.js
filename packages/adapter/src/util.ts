@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { u8aToHex, hexToU8a } from '@polkadot/util';
 import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
@@ -83,4 +84,21 @@ export const getDeriveAccountV3 = (accountId: string, paraId: number, deriveAcco
   ]);
 
   return u8aToHex(blake2AsU8a(toHash).slice(0, deriveAccountType === 'AccountKey20' ? 20 : 32));
+}
+
+export function convertAbsoluteLocationToRelative(absoluteLocation: any): any {
+  const { interior } = absoluteLocation;
+  const key = _.keys(interior)[0] as string;
+  const sectionCount = parseInt(key.substring(1));
+  if (sectionCount === 1) {
+    return { parents: 0, interior: 'Here' };
+  } else {
+    const newInterior: Record<string, any> = {};
+    const newArray = interior[key].filter((item: any) => !item.hasOwnProperty('Parachain'));
+    if (newArray.length > 0) {
+      const newXKey = 'X' + newArray.length;
+      newInterior[newXKey] = newArray.length === 1 ? newArray[0] : newArray;
+    }
+    return { parents: 0, interior: newInterior };
+  }
 }

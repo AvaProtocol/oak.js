@@ -71,8 +71,35 @@ export class OakAdapter extends ChainAdapter {
     return weight.refTime.mul(feePerSecond.unwrap()).div(WEIGHT_REF_TIME_PER_SECOND);
   }
 
-  async transfer(destination: ChainAdapter, assetLocation: any, assetAmount: BN) {
-    throw new Error('Method not implemented.');
+  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyPair: any): Promise<SendExtrinsicResult> {
+    const { key } = this.chainData;
+    if (!key) throw new Error('chainData.key not set');
+    const api = this.getApi();
+    
+    const extrinsic = api.tx.xTokens.transferMultiasset(
+      {
+        V3: {
+          id: { Concrete: assetLocation },
+          fun: { Fungible: assetAmount },
+        },
+      },
+      {
+        V3: {
+          parents: 1,
+          interior: {
+            X2: [
+              destination.interior.X1,
+              { AccountId32: { network: null, id: accountId } },
+            ],
+          },
+        }
+      },
+      'Unlimited',
+    );
+
+    console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());
+    const result = await sendExtrinsic(api, extrinsic, keyPair);
+    return result;
   }
 
   async scheduleXcmpTask(schedule: any, destination: any, scheduleFee: any, executionFee: any, encodedCall: HexString, encodedCallWeight: Weight, overallWeight: Weight, keyPair: any) : Promise<SendExtrinsicResult> {
@@ -90,12 +117,12 @@ export class OakAdapter extends ChainAdapter {
       overallWeight,
     );
   
-    console.log(`Send extrinsic to ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
+    console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
     const result = await sendExtrinsic(api, extrinsic, keyPair);
     return result;
   }
 
-  getDeriveAccount(accountId: HexString, paraId: number, options: any): HexString {
+  getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString {
     const api = this.getApi();
     return getDeriveAccount(api, accountId, paraId, options);
   };

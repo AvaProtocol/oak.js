@@ -15,25 +15,32 @@ import { SendExtrinsicResult } from '../types';
 // MangataAdapter implements ChainAdapter
 export class MangataAdapter extends ChainAdapter {
   api: ApiPromise | undefined;
+  mangata: Mangata | undefined;
 
   async initialize() {
     const { endpoint } = this.getChainData();
     if(!endpoint) throw new Error("chainData.endpoint not set");
 
-    const mangata = Mangata.getInstance([endpoint]);
-    this.api = await mangata.getApi();
+    this.mangata = Mangata.getInstance([endpoint]);
+    this.api = await this.mangata.getApi();
 
     await this.updateChainData();
   }
 
   async destroy() {
-    await this.getApi().disconnect();
+    await this.mangata?.disconnect();
     this.api = undefined;
+    this.mangata = undefined;
   }
 
   public getApi(): ApiPromise {
     if (!this.api) throw new Error("Api not initialized");
     return this.api;
+  }
+
+  public getMangataSdk(): Mangata {
+    if (!this.mangata) throw new Error("Mangata sdk not initialized");
+    return this.mangata;
   }
 
   async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {

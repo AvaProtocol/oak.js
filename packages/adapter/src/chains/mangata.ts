@@ -67,7 +67,7 @@ export class MangataAdapter extends ChainAdapter {
       const metadataItem = metadataStorageValue as unknown as Option<any>;
       if (metadataItem.isNone) throw new Error("Metadata is null");
 
-      const { additional: { xcm } } = metadataItem.unwrap().toJSON() as { additional: { xcm: Option<any> } };
+      const { additional: { xcm } } = metadataItem.unwrap() as { additional: { xcm: Option<any> } };
       if (!xcm) throw new Error("Metadata additional.xcm is null");
       const feePerSecond = xcm.unwrap().feePerSecond as u128;
       

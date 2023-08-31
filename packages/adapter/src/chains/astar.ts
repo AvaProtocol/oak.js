@@ -4,6 +4,7 @@ import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { HexString } from '@polkadot/util/types';
+import { u8aToHex, hexToU8a } from '@polkadot/util';
 import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter, TaskScheduler } from './chainAdapter';
 import { convertAbsoluteLocationToRelative, getDeriveAccountV3, sendExtrinsic } from '../util';
@@ -60,7 +61,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
 
   getTransactXcmInstructionCount() { return TRANSACT_XCM_INSTRUCTION_COUNT; }
 
-  async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<SendExtrinsicResult> {
+  async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyPair: any): Promise<SendExtrinsicResult> {
     const api = this.getApi();
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set.');
@@ -96,11 +97,11 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
           { RefundSurplus: '' },
           {
             DepositAsset: {
-              assets: { Wild: 'All' },
+              assets: { Wild: { AllCounted: 1 } },
               maxAssets: 1,
               beneficiary: {
                 parents: 1,
-                interior: { X1: { AccountId32: { network: null, id: deriveAccount } } },
+                interior: { X1: { AccountId32: { network: null, id: u8aToHex(keyPair) } } },
               },
             },
           },

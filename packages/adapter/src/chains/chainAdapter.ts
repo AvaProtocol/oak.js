@@ -66,5 +66,5 @@ export abstract class ChainAdapter {
 
 export interface TaskScheduler {
   getTransactXcmInstructionCount(): number;
-  scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<SendExtrinsicResult>;
+  scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyPair: any): Promise<SendExtrinsicResult>;
 }

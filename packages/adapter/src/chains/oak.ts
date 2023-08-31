@@ -6,7 +6,7 @@ import type { u32, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter } from './chainAdapter';
-import { getDeriveAccount, sendExtrinsic } from '../util';
+import { getDeriveAccountV2, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
@@ -109,7 +109,7 @@ export class OakAdapter extends ChainAdapter {
 
   getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString {
     const api = this.getApi();
-    return getDeriveAccount(api, accountId, paraId, options);
+    return getDeriveAccountV2(api, accountId, paraId, options);
   };
 }
 

@@ -6,7 +6,7 @@ import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { HexString } from '@polkadot/util/types';
 import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter } from './chainAdapter';
-import { convertAbsoluteLocationToRelative, getDeriveAccount, sendExtrinsic } from '../util';
+import { convertAbsoluteLocationToRelative, getDeriveAccountV2, sendExtrinsic } from '../util';
 import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 import { SendExtrinsicResult } from '../types';
 
@@ -57,7 +57,7 @@ export class MangataAdapter extends ChainAdapter {
 
   getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString {
     const api = this.getApi();
-    return getDeriveAccount(api, accountId, paraId);
+    return getDeriveAccountV2(api, accountId, paraId);
   }
 
   isNativeAsset(assetLocation: any): boolean {

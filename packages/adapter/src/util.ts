@@ -7,6 +7,7 @@ import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { HexString } from '@polkadot/util/types';
 import { TypeRegistry } from '@polkadot/types';
 import { blake2AsU8a } from '@polkadot/util-crypto';
+import { AccountType } from './types';
 
 export interface SendExtrinsicResult {
   events: EventRecord[];
@@ -49,7 +50,7 @@ export const sendExtrinsic = async (
   });
 };
 
-export const getDeriveAccount = (api: ApiPromise, accountId: HexString, paraId: number, { locationType = 'XcmV2MultiLocation', network = 'Any' } = {}): HexString => {
+export const getDeriveAccountV2 = (api: ApiPromise, accountId: HexString, paraId: number, { locationType = 'XcmV2MultiLocation', network = 'Any' } = {}): HexString => {
   const account = hexToU8a(accountId).length == 20
     ? { AccountKey20: { network, key: accountId } }
     : { AccountId32: { network, id: accountId } };
@@ -68,8 +69,7 @@ export const getDeriveAccount = (api: ApiPromise, accountId: HexString, paraId: 
   return u8aToHex(api.registry.hash(toHash).slice(0, 32));
 };
 
-type AccountType = 'AccountKey20' | 'AccountId32';
-export const getDeriveAccountV3 = (accountId: string, paraId: number, deriveAccountType: AccountType = 'AccountId32'): HexString => {
+export const getDeriveAccountV3 = (accountId: string, paraId: number, deriveAccountType: AccountType = AccountType.AccountId32): HexString => {
   const accountType = hexToU8a(accountId).length == 20 ? 'AccountKey20' : 'AccountId32';
   const decodedAddress = hexToU8a(accountId);
 
@@ -83,7 +83,7 @@ export const getDeriveAccountV3 = (accountId: string, paraId: number, deriveAcco
       ...decodedAddress,
   ]);
 
-  return u8aToHex(blake2AsU8a(toHash).slice(0, deriveAccountType === 'AccountKey20' ? 20 : 32));
+  return u8aToHex(blake2AsU8a(toHash).slice(0, deriveAccountType === AccountType.AccountKey20 ? 20 : 32));
 }
 
 export function convertAbsoluteLocationToRelative(absoluteLocation: any): any {

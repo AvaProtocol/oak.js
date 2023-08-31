@@ -6,3 +6,8 @@ export interface SendExtrinsicResult {
 }
 
 export type TaskSchedulerChainAdapter = ChainAdapter & TaskScheduler;
+
+export enum AccountType {
+  AccountKey20 = 'AccountKey20',
+  AccountId32 = 'AccountId32',
+};

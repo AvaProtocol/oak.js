@@ -7,7 +7,7 @@ import type { HexString } from '@polkadot/util/types';
 import { Asset, ChainAsset, Weight } from '@oak-network/sdk-types';
 import { ChainAdapter, TaskScheduler } from './chainAdapter';
 import { convertAbsoluteLocationToRelative, getDeriveAccountV3, sendExtrinsic } from '../util';
-import { SendExtrinsicResult } from '../types';
+import { AccountType, SendExtrinsicResult } from '../types';
 import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
 const TRANSACT_XCM_INSTRUCTION_COUNT = 4;
@@ -111,7 +111,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
   }
 
   getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString {
-    return getDeriveAccountV3(accountId, paraId, 'AccountKey20');
+    return getDeriveAccountV3(accountId, paraId, AccountType.AccountKey20);
   }
 
   isNativeAsset(assetLocation: any): boolean {

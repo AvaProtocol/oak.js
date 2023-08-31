@@ -26,3 +26,13 @@ export const moonbaseAlpha = new Chain({
   endpoint: 'wss://wss.api.moonbase.moonbeam.network',
   instructionWeight: new Weight(new BN('250000000'), new BN('10000')),
 });
+
+// moonriver
+export const moonriver = new Chain({
+  key: 'moonriver',
+  assets: moonbaseAssets,
+  defaultAsset: moonbaseAlphaAsset,
+  relayChain: 'kusama',
+  endpoint: 'wss://wss.api.moonriver.moonbeam.network',
+  instructionWeight: new Weight(new BN('200000000'), new BN('10000')),
+});

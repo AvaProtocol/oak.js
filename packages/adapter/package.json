@@ -4,7 +4,6 @@
   "license": "Apache-2.0",
   "main": "./build/index.js",
   "dependencies": {
-    "@mangata-finance/sdk": "^1.21.9",
     "@polkadot/api": "^10.9.1"
   }
 }

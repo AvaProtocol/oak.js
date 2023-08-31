@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 // import '@polkadot/api-augment';
 import { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
+import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { u32 } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
 import { ChainAsset, Weight, Chain as ChainConfig } from '@oak-network/sdk-types';
@@ -21,9 +21,11 @@ export class ChainData {
 }
 
 export abstract class ChainAdapter {
+  api: ApiPromise | undefined;
   protected chainData: ChainData;
 
-  constructor(config: ChainConfig) {
+  constructor(api: ApiPromise, config: ChainConfig) {
+    this.api = api;
     this.chainData = new ChainData();
     this.chainData.key = config.key;
     this.chainData.assets = config.assets;
@@ -34,13 +36,15 @@ export abstract class ChainAdapter {
   }
   
   public abstract initialize(): Promise<void>;
-  public abstract destroy(): Promise<void>;
-  public abstract getApi(): ApiPromise;
-  
   public abstract getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString;
-  public abstract getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }>;
+  public abstract getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
   public abstract crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyPair: any): Promise<SendExtrinsicResult>;
+
+  public getApi(): ApiPromise {
+    if (!this.api) throw new Error("Api not initialized");
+    return this.api;
+  }
 
   public async updateChainData(): Promise<void> {
     const api = this.getApi();
@@ -61,5 +65,6 @@ export abstract class ChainAdapter {
 }
 
 export interface TaskScheduler {
+  getTransactXcmInstructionCount(): number;
   scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<SendExtrinsicResult>;
 }

@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import BN from 'bn.js';
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
+import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
@@ -11,28 +10,13 @@ import { convertAbsoluteLocationToRelative, getDeriveAccountV3, sendExtrinsic } 
 import { SendExtrinsicResult } from '../types';
 import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
+const TRANSACT_XCM_INSTRUCTION_COUNT = 4;
+
 // MoonbeamAdapter implements ChainAdapter, TaskScheduler interface
 export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
-  api: ApiPromise | undefined;
-
   async initialize() {
-    const api = await ApiPromise.create({
-      provider: new WsProvider(this.chainData.endpoint),
-    });
-
-    this.api = api;
     await this.updateChainData();
     await this.updateAssets();
-  }
-  
-  async destroy() {
-    await this.getApi().disconnect();
-    this.api = undefined;
-  }
-
-  public getApi(): ApiPromise {
-    if (!this.api) throw new Error("Api not initialized");
-    return this.api;
   }
 
   async getAssetManagerItems(): Promise<any[]> {
@@ -73,16 +57,16 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     })
   }
 
-  async getExtrinsicWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<Weight> {
-    const { refTime, proofSize } = (await extrinsic.paymentInfo(sender)).weight as unknown as WeightV2;
+  async getExtrinsicWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair): Promise<Weight> {
+    const { refTime, proofSize } = (await extrinsic.paymentInfo(account)).weight as unknown as WeightV2;
     return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
-  async getXcmWeight(sender: string, extrinsic: SubmittableExtrinsic<'promise'>): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
+  async getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
     const { instructionWeight } = this.chainData;
     if (!instructionWeight) throw new Error("chainData.instructionWeight not set");
-    const encodedCallWeight = await this.getExtrinsicWeight(sender, extrinsic);
-    const overallWeight = encodedCallWeight.add(instructionWeight.muln(4));
+    const encodedCallWeight = await this.getExtrinsicWeight(extrinsic, account);
+    const overallWeight = encodedCallWeight.add(instructionWeight.muln(instructionCount));
     return { encodedCallWeight, overallWeight };
   }
 
@@ -101,6 +85,8 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
       return weight.refTime.mul(unitsPerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
     }
   }
+
+  getTransactXcmInstructionCount() { return TRANSACT_XCM_INSTRUCTION_COUNT; }
 
   async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, deriveAccount: string, keyPair: any): Promise<SendExtrinsicResult> {
     const api = this.getApi();

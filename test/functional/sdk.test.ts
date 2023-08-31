@@ -4,10 +4,13 @@ import BN from 'bn.js';
 import moment from 'moment';
 import Keyring from '@polkadot/keyring';
 import { u8aToHex } from '@polkadot/util';
+import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Chain, ChainAsset, Weight }  from '@oak-network/sdk-types';
 import { assets, chains } from '@oak-network/config';
 import { MoonbeamAdapter, MangataAdapter, AstarAdapter, OakAdapter } from '@oak-network/adapter';
 import { Sdk } from '@oak-network/sdk';
+import { rpc, types, runtime } from '@oak-network/types';
+import { Mangata } from '@mangata-finance/sdk';
 
 export const getHourlyTimestamp = (hour: number) => (moment().add(hour, 'hour').startOf('hour')).valueOf();
 
@@ -35,59 +38,59 @@ test('Test config', async () => {
 });
 
 test('Test MoonbaseAdapter', async () => {
-  const moonbeamAdapter = new MoonbeamAdapter(chains.moonbaseAlpha);
+  const moonbaseApi = await ApiPromise.create({ provider: new WsProvider(chains.moonbaseAlpha.endpoint) });
+  const moonbeamAdapter = new MoonbeamAdapter(moonbaseApi, chains.moonbaseAlpha);
   await moonbeamAdapter.initialize();
-  const moonbaseApi = moonbeamAdapter.getApi();
   const extrinsic = moonbaseApi.tx.system.remarkWithEvent('hello!');
-  const { encodedCallWeight, overallWeight } = await moonbeamAdapter.getXcmWeight('0x31C5aA398Ae12B0dc423f47D47549095aA8c93A5', extrinsic);
+  const { encodedCallWeight, overallWeight } = await moonbeamAdapter.getXcmWeight(extrinsic, '0x31C5aA398Ae12B0dc423f47D47549095aA8c93A5', 6);
   console.log('encodedCallWeight: ', encodedCallWeight);
   console.log('overallWeight: ', overallWeight);
   const { defaultAsset } = moonbeamAdapter.getChainData();
   const executionFee = await moonbeamAdapter.weightToFee(overallWeight, defaultAsset?.location);
   console.log('executionFee: ', executionFee.toString());
-  moonbeamAdapter.destroy();
+  await moonbaseApi.disconnect();
 }, 1000000);
 
-
 test('Test TuringAdapter', async () => {
-  const turingAdapter = new OakAdapter(chains.turingStaging);
+  const turingApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
+  const turingAdapter = new OakAdapter(turingApi, chains.turingStaging);
   await turingAdapter.initialize();
-  const turingApi = turingAdapter.getApi();
   const extrinsic = turingApi.tx.system.remarkWithEvent('hello!');
-  const { encodedCallWeight, overallWeight } = await turingAdapter.getXcmWeight('68TwNoCpyz1X3ygMi9WtUAaCb8Q6jWAMvAHfAByRZqMFEtJG', extrinsic);
+  const { encodedCallWeight, overallWeight } = await turingAdapter.getXcmWeight(extrinsic, '68TwNoCpyz1X3ygMi9WtUAaCb8Q6jWAMvAHfAByRZqMFEtJG', 6);
   console.log('encodedCallWeight: ', encodedCallWeight);
   console.log('overallWeight: ', overallWeight);
   const { defaultAsset } = turingAdapter.getChainData();
   const executionFee = await turingAdapter.weightToFee(overallWeight, defaultAsset?.location);
   console.log('executionFee: ', executionFee.toString());
-  await turingAdapter.destroy();
+  await turingApi.disconnect();
 }, 1000000);
 
 test('Test MangataAdapter', async () => {
-  const mangataAdapter = new MangataAdapter(chains.mangataRococo);
+  const mangataSdk = Mangata.getInstance([chains.mangataRococo.endpoint]);
+  const mangataApi = await mangataSdk.getApi();
+  const mangataAdapter = new MangataAdapter(mangataApi, chains.mangataRococo);
   await mangataAdapter.initialize();
-  const mangataApi = mangataAdapter.getApi();
   const extrinsic = mangataApi.tx.system.remarkWithEvent('hello!');
-  const { encodedCallWeight, overallWeight } = await mangataAdapter.getXcmWeight('68TwNoCpyz1X3ygMi9WtUAaCb8Q6jWAMvAHfAByRZqMFEtJG', extrinsic);
+  const { encodedCallWeight, overallWeight } = await mangataAdapter.getXcmWeight(extrinsic, '68TwNoCpyz1X3ygMi9WtUAaCb8Q6jWAMvAHfAByRZqMFEtJG', 6);
   console.log('encodedCallWeight: ', encodedCallWeight);
   console.log('overallWeight: ', overallWeight);
   const executionFee = await mangataAdapter.weightToFee(overallWeight, assets.tur.location);
   console.log('executionFee: ', executionFee.toString());
-  await mangataAdapter.destroy();
+  mangataSdk.disconnect();
 }, 1000000);
 
 test('Test AstarAdapter', async () => {
-  const astarAdapter = new AstarAdapter(chains.rocstar);
+  const astarApi = await ApiPromise.create({ provider: new WsProvider(chains.rocstar.endpoint) });
+  const astarAdapter = new AstarAdapter(astarApi, chains.rocstar);
   await astarAdapter.initialize();
-  const astarApi = astarAdapter.getApi();
   const extrinsic = astarApi.tx.system.remarkWithEvent('hello!');
-  const { encodedCallWeight, overallWeight } = await astarAdapter.getXcmWeight('68TwNoCpyz1X3ygMi9WtUAaCb8Q6jWAMvAHfAByRZqMFEtJG', extrinsic);
+  const { encodedCallWeight, overallWeight } = await astarAdapter.getXcmWeight(extrinsic, '68TwNoCpyz1X3ygMi9WtUAaCb8Q6jWAMvAHfAByRZqMFEtJG', 6);
   console.log('encodedCallWeight: ', encodedCallWeight);
   console.log('overallWeight: ', overallWeight);
   const { defaultAsset } = astarAdapter.getChainData();
   const executionFee = await astarAdapter.weightToFee(overallWeight, defaultAsset?.location);
   console.log('executionFee: ', executionFee.toString());
-  await astarAdapter.destroy();
+  await astarApi.disconnect();
 }, 1000000);
 
 test('Test Mangata XCMP task', async () => {
@@ -98,13 +101,15 @@ test('Test Mangata XCMP task', async () => {
   keyPair.unlock(process.env.PASS_PHRASE);
 
   // Initialize adapters
-  const oakAdapter = new OakAdapter(chains.turingStaging);
+  const turingApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
+  const oakAdapter = new OakAdapter(turingApi, chains.turingStaging);
   await oakAdapter.initialize();
-  const mangataAdapter = new MangataAdapter(chains.mangataRococo);
+  const mangataSdk = Mangata.getInstance([chains.mangataRococo.endpoint]);
+  const mangataApi = await mangataSdk.getApi();
+  const mangataAdapter = new MangataAdapter(mangataApi, chains.mangataRococo);
   await mangataAdapter.initialize();
 
   // Make task payload extrinsic
-  const mangataApi = mangataAdapter.getApi();
   const taskPayloadExtrinsic = mangataApi.tx.system.remarkWithEvent('hello!');
 
   // Schedule task with sdk
@@ -117,9 +122,8 @@ test('Test Mangata XCMP task', async () => {
     keyPair,
   });
 
-  // Destroy adapters
-  await oakAdapter.destroy();
-  await mangataAdapter.destroy();
+  await turingApi.disconnect();
+  await mangataApi.disconnect();
 }, 1000000);
 
 test('Test Moonbase XCMP task', async () => {
@@ -136,13 +140,14 @@ test('Test Moonbase XCMP task', async () => {
   ethKeyPair.unlock(process.env.PASS_PHRASE_ETH);
 
   // Initialize adapters
-  const oakAdapter = new OakAdapter(chains.turingMoonbase);
+  const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
+  const oakAdapter = new OakAdapter(oakApi, chains.turingMoonbase);
   await oakAdapter.initialize();
-  const moonbeamAdapter = new MoonbeamAdapter(chains.moonbaseAlpha);
+  const moonbeamApi = await ApiPromise.create({ provider: new WsProvider(chains.moonbaseAlpha.endpoint) });
+  const moonbeamAdapter = new MoonbeamAdapter(moonbeamApi, chains.moonbaseAlpha);
   await moonbeamAdapter.initialize();
 
   // Make task payload extrinsic
-  const moonbeamApi = moonbeamAdapter.getApi();
   const taskPayloadExtrinsic = moonbeamApi.tx.system.remarkWithEvent('hello!');
 
   // Schedule task with sdk
@@ -160,9 +165,8 @@ test('Test Moonbase XCMP task', async () => {
     keyPair: ethKeyPair,
   });
 
-  // Destroy adapters
-  await oakAdapter.destroy();
-  await moonbeamAdapter.destroy();
+  await oakApi.disconnect();
+  await moonbeamApi.disconnect();
 }, 1000000);
 
 test('Test Astar XCMP task', async () => {
@@ -173,9 +177,11 @@ test('Test Astar XCMP task', async () => {
   keyPair.unlock(process.env.PASS_PHRASE);
 
   // Initialize adapters
-  const oakAdapter = new OakAdapter(chains.turingStaging);
+  const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
+  const oakAdapter = new OakAdapter(oakApi, chains.turingStaging);
   await oakAdapter.initialize();
-  const astarProvider = new AstarAdapter(chains.rocstar);
+  const astarApi = await ApiPromise.create({ provider: new WsProvider(chains.rocstar.endpoint) });
+  const astarProvider = new AstarAdapter(astarApi, chains.rocstar);
   await astarProvider.initialize();
 
   // Make task payload extrinsic
@@ -197,9 +203,8 @@ test('Test Astar XCMP task', async () => {
     keyPair,
   });
 
-  // Destroy adapters
-  await oakAdapter.destroy();
-  await astarProvider.destroy();
+  await oakApi.disconnect();
+  await astarApi.disconnect();
 }, 1000000);
 
 test('Test Moonbeam transfer', async () => {
@@ -216,9 +221,11 @@ test('Test Moonbeam transfer', async () => {
   ethKeyPair.unlock(process.env.PASS_PHRASE_ETH);
 
   // Initialize adapters
-  const oakAdapter = new OakAdapter(chains.turingMoonbase);
+  const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
+  const oakAdapter = new OakAdapter(oakApi, chains.turingMoonbase);
   await oakAdapter.initialize();
-  const moonbeamAdapter = new MoonbeamAdapter(chains.moonbaseAlpha);
+  const moonbeamApi = await ApiPromise.create({ provider: new WsProvider(chains.moonbaseAlpha.endpoint) });
+  const moonbeamAdapter = new MoonbeamAdapter(moonbeamApi, chains.moonbaseAlpha);
   await moonbeamAdapter.initialize();
 
   // Calculate Moonbase derive account on Turing
@@ -238,9 +245,8 @@ test('Test Moonbeam transfer', async () => {
     ethKeyPair,
   );
 
-  // Destroy adapters
-  await oakAdapter.destroy();
-  await moonbeamAdapter.destroy();
+  await oakApi.disconnect();
+  await moonbeamApi.disconnect();
 }, 1000000);
 
 test('Test Astar transfer', async () => {
@@ -251,9 +257,11 @@ test('Test Astar transfer', async () => {
   keyPair.unlock(process.env.PASS_PHRASE);
 
   // Initialize adapters
-  const oakAdapter = new OakAdapter(chains.turingStaging);
+  const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
+  const oakAdapter = new OakAdapter(oakApi, chains.turingStaging);
   await oakAdapter.initialize();
-  const astarAdapter = new AstarAdapter(chains.rocstar);
+  const astarApi = await ApiPromise.create({ provider: new WsProvider(chains.rocstar.endpoint) });
+  const astarAdapter = new AstarAdapter(astarApi, chains.rocstar);
   await astarAdapter.initialize();
 
   // Calculate Astar derive account on Turing
@@ -273,9 +281,9 @@ test('Test Astar transfer', async () => {
     keyPair,
   );
 
-  // Destroy adapters
-  await oakAdapter.destroy();
-  await astarAdapter.destroy();
+  // Disconnect
+  await oakApi.disconnect();
+  await astarApi.disconnect();
 }, 1000000);
 
 test('Test OakAdapter transfer', async () => {
@@ -286,9 +294,12 @@ test('Test OakAdapter transfer', async () => {
   keyPair.unlock(process.env.PASS_PHRASE);
 
   // Initialize adapters
-  const oakAdapter = new OakAdapter(chains.turingStaging);
+  const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
+  const oakAdapter = new OakAdapter(oakApi, chains.turingStaging);
   await oakAdapter.initialize();
-  const mangataAdapter = new MangataAdapter(chains.mangataRococo);
+  const mangataSdk = Mangata.getInstance([chains.mangataRococo.endpoint]);
+  const mangataApi = await mangataSdk.getApi();
+  const mangataAdapter = new MangataAdapter(mangataApi, chains.mangataRococo);
   await mangataAdapter.initialize();
 
   const { defaultAsset: oakAsset } = oakAdapter.getChainData();
@@ -303,9 +314,9 @@ test('Test OakAdapter transfer', async () => {
     keyPair,
   );
 
-  // Destroy adapters
-  await oakAdapter.destroy();
-  await mangataAdapter.destroy();
+   // Disconnect
+   await oakApi.disconnect();
+   await mangataSdk.disconnect();
 }, 1000000);
 
 
@@ -317,9 +328,12 @@ test('Test MangatAdapter transfer', async () => {
   keyPair.unlock(process.env.PASS_PHRASE);
 
   // Initialize adapters
-  const oakAdapter = new OakAdapter(chains.turingStaging);
+  const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
+  const oakAdapter = new OakAdapter(oakApi, chains.turingStaging);
   await oakAdapter.initialize();
-  const mangataAdapter = new MangataAdapter(chains.mangataRococo);
+  const mangataSdk = Mangata.getInstance([chains.mangataRococo.endpoint]);
+  const mangataApi = await mangataSdk.getApi();
+  const mangataAdapter = new MangataAdapter(mangataApi, chains.mangataRococo);
   await mangataAdapter.initialize();
 
   const { defaultAsset: oakAsset } = oakAdapter.getChainData();
@@ -334,7 +348,7 @@ test('Test MangatAdapter transfer', async () => {
     keyPair,
   );
 
-  // Destroy adapters
-  await oakAdapter.destroy();
-  await mangataAdapter.destroy();
+  // Disconnect
+  await oakApi.disconnect();
+  await mangataSdk.disconnect();
 }, 1000000);

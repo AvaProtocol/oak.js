@@ -37,7 +37,8 @@ async function scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
   // Caluculate weight and fee for task
   const destination = { V3: destinationChainAdapter.getLocation() };
   const encodedCall = taskPayloadExtrinsic.method.toHex();
-  const { encodedCallWeight, overallWeight } = await destinationChainAdapter.getXcmWeight(keyPair.address, taskPayloadExtrinsic);
+  const oakTransactXcmInstructionCount = oakAdapter.getTransactXcmInstructionCount();
+  const { encodedCallWeight, overallWeight } = await destinationChainAdapter.getXcmWeight(taskPayloadExtrinsic, keyPair.address, oakTransactXcmInstructionCount);
   const scheduleFee = { V3: defaultAsset.location }
   const xcmpFee = await destinationChainAdapter.weightToFee(overallWeight, defaultAsset.location);
   const executionFee = { assetLocation: { V3: defaultAsset.location }, amount: xcmpFee };
@@ -76,7 +77,8 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
   // Caluculate weight and fee for task
   const destination = { V3: destinationChainAdapter.getLocation() };
   const encodedCall = taskPayloadExtrinsic.method.toHex();
-  const { encodedCallWeight, overallWeight } = await destinationChainAdapter.getXcmWeight(keyPair.address, taskPayloadExtrinsic);
+  const oakTransactXcmInstructionCount = oakAdapter.getTransactXcmInstructionCount();
+  const { encodedCallWeight, overallWeight } = await destinationChainAdapter.getXcmWeight(taskPayloadExtrinsic, keyPair.address, oakTransactXcmInstructionCount);
   const scheduleFee = { V3: scheduleFeeLocation }
   const executionFeeAmout = await destinationChainAdapter.weightToFee(overallWeight, executionFeeLocation);
   const executionFee = { assetLocation: { V3: executionFeeLocation }, amount: executionFeeAmout };
@@ -99,7 +101,8 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
   
   // Schedule task through XCM
   const taskEncodedCall = taskExtrinsic.method.toHex();
-  const { encodedCallWeight: taskEncodedCallWeight, overallWeight: taskOverallWeight } = await oakAdapter.getXcmWeight(deriveAccountId, taskExtrinsic);
+  const destinationTransactXcmInstructionCount = destinationChainAdapter.getTransactXcmInstructionCount();
+  const { encodedCallWeight: taskEncodedCallWeight, overallWeight: taskOverallWeight } = await oakAdapter.getXcmWeight(taskExtrinsic, deriveAccountId, destinationTransactXcmInstructionCount);
   const taskExecutionFee = await oakAdapter.weightToFee(taskOverallWeight, executionFeeLocation);
   const oakLocation = oakAdapter.getLocation(); 
   const sendExtrinsicResult = await destinationChainAdapter.scheduleTaskThroughXcm(oakLocation, taskEncodedCall, executionFeeLocation, taskExecutionFee, taskEncodedCallWeight, taskOverallWeight, deriveAccountId, keyPair);

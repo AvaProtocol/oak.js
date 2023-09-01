@@ -52,7 +52,7 @@ export const sendExtrinsic = async (
   });
 };
 
-export const getDeriveAccountV2 = (api: ApiPromise, accountId: HexString, paraId: number, { locationType = 'XcmV2MultiLocation', network = 'Any' } = {}): HexString => {
+export const getDerivativeAccountV2 = (api: ApiPromise, accountId: HexString, paraId: number, { locationType = 'XcmV2MultiLocation', network = 'Any' } = {}): HexString => {
   const account = hexToU8a(accountId).length == 20
     ? { AccountKey20: { network, key: accountId } }
     : { AccountId32: { network, id: accountId } };
@@ -71,7 +71,7 @@ export const getDeriveAccountV2 = (api: ApiPromise, accountId: HexString, paraId
   return u8aToHex(api.registry.hash(toHash).slice(0, 32));
 };
 
-export const getDeriveAccountV3 = (accountId: string, paraId: number, deriveAccountType: AccountType = AccountType.AccountId32): HexString => {
+export const getDerivativeAccountV3 = (accountId: HexString, paraId: number, deriveAccountType: AccountType = AccountType.AccountId32): HexString => {
   const accountType = hexToU8a(accountId).length == 20 ? 'AccountKey20' : 'AccountId32';
   const decodedAddress = hexToU8a(accountId);
 

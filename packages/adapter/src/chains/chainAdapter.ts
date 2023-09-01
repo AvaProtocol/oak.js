@@ -37,10 +37,10 @@ export abstract class ChainAdapter {
   }
   
   public abstract initialize(): Promise<void>;
-  public abstract getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString;
+  public abstract getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString;
   public abstract getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
-  public abstract crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult>;
+  public abstract crossChainTransfer(destination: any, recipient: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult>;
 
   public getApi(): ApiPromise {
     if (!this.api) throw new Error("Api not initialized");

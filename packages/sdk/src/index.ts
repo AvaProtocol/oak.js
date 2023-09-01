@@ -84,7 +84,7 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
 
   // Calculate derive account on Turing/OAK
   const options = xcmInstructionNetworkType === 'concrete' ? { locationType: 'XcmV3MultiLocation', network: relayChain } : undefined;
-  const deriveAccountId = oakAdapter.getDeriveAccount(u8aToHex(keyringPair.addressRaw), paraId, options);
+  const deriveAccountId = oakAdapter.getDerivativeAccount(u8aToHex(keyringPair.addressRaw), paraId, options);
   
   // Schedule task through proxy
   const taskExtrinsic = oakApi.tx.automationTime.scheduleXcmpTaskThroughProxy(

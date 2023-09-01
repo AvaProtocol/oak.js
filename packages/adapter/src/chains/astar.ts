@@ -8,7 +8,7 @@ import { u8aToHex } from '@polkadot/util';
 import type { KeyringPair } from '@polkadot/keyring/types';
 import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter, TaskScheduler } from './chainAdapter';
-import { convertAbsoluteLocationToRelative, getDeriveAccountV3, sendExtrinsic } from '../util';
+import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
@@ -56,8 +56,8 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     }
   }
 
-  getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString {
-    return getDeriveAccountV3(accountId, paraId);
+  getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString {
+    return getDerivativeAccountV3(accountId, paraId);
   }
 
   getTransactXcmInstructionCount() { return TRANSACT_XCM_INSTRUCTION_COUNT; }
@@ -123,7 +123,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     return !!foundAsset && foundAsset.isNative;
   }
 
-  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
+  async crossChainTransfer(destination: any, recipient: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');
     const api = this.getApi();
@@ -145,7 +145,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
           interior: {
             X2: [
               destination.interior.X1,
-              { AccountId32: { network: null, id: accountId } },
+              { AccountId32: { network: null, id: recipient } },
             ],
           },
         }

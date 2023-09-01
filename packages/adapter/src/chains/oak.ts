@@ -7,7 +7,7 @@ import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { KeyringPair } from '@polkadot/keyring/types';
 import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter } from './chainAdapter';
-import { getDeriveAccountV2, sendExtrinsic } from '../util';
+import { getDerivativeAccountV2, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
@@ -55,7 +55,7 @@ export class OakAdapter extends ChainAdapter {
     return weight.refTime.mul(feePerSecond.unwrap()).div(WEIGHT_REF_TIME_PER_SECOND);
   }
 
-  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
+  async crossChainTransfer(destination: any, recipient: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');
     const api = this.getApi();
@@ -73,7 +73,7 @@ export class OakAdapter extends ChainAdapter {
           interior: {
             X2: [
               destination.interior.X1,
-              { AccountId32: { network: null, id: accountId } },
+              { AccountId32: { network: null, id: recipient } },
             ],
           },
         }
@@ -108,9 +108,9 @@ export class OakAdapter extends ChainAdapter {
     return result;
   }
 
-  getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString {
+  getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString {
     const api = this.getApi();
-    return getDeriveAccountV2(api, accountId, paraId, options);
+    return getDerivativeAccountV2(api, accountId, paraId, options);
   };
 }
 

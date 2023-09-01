@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 // import '@polkadot/api-augment';
-import { ApiPromise } from '@polkadot/api';
+import type { ApiPromise } from '@polkadot/api';
 import type { KeyringPair } from '@polkadot/keyring/types';
 import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { u32 } from '@polkadot/types';

@@ -4,6 +4,7 @@ import type { HexString } from '@polkadot/util/types';
 import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { u32, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
+import type { KeyringPair } from '@polkadot/keyring/types';
 import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter } from './chainAdapter';
 import { getDeriveAccountV2, sendExtrinsic } from '../util';
@@ -54,7 +55,7 @@ export class OakAdapter extends ChainAdapter {
     return weight.refTime.mul(feePerSecond.unwrap()).div(WEIGHT_REF_TIME_PER_SECOND);
   }
 
-  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyPair: any): Promise<SendExtrinsicResult> {
+  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');
     const api = this.getApi();
@@ -81,13 +82,13 @@ export class OakAdapter extends ChainAdapter {
     );
 
     console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());
-    const result = await sendExtrinsic(api, extrinsic, keyPair);
+    const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
   }
 
   getTransactXcmInstructionCount() { return TRANSACT_XCM_INSTRUCTION_COUNT; }
 
-  async scheduleXcmpTask(schedule: any, destination: any, scheduleFee: any, executionFee: any, encodedCall: HexString, encodedCallWeight: Weight, overallWeight: Weight, keyPair: any) : Promise<SendExtrinsicResult> {
+  async scheduleXcmpTask(schedule: any, destination: any, scheduleFee: any, executionFee: any, encodedCall: HexString, encodedCallWeight: Weight, overallWeight: Weight, keyringPair: KeyringPair) : Promise<SendExtrinsicResult> {
     const api = this.getApi();
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');
@@ -103,7 +104,7 @@ export class OakAdapter extends ChainAdapter {
     );
   
     console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
-    const result = await sendExtrinsic(api, extrinsic, keyPair);
+    const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
   }
 

@@ -97,8 +97,8 @@ test('Test Mangata XCMP task', async () => {
   // Create a keyring instance
   const keyring = new Keyring({ type: 'sr25519' });
   const json = await readMnemonicFromFile();
-  const keyPair = keyring.addFromJson(json);
-  keyPair.unlock(process.env.PASS_PHRASE);
+  const keyringPair = keyring.addFromJson(json);
+  keyringPair.unlock(process.env.PASS_PHRASE);
 
   // Initialize adapters
   const turingApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
@@ -119,7 +119,7 @@ test('Test Mangata XCMP task', async () => {
     destinationChainAdapter: mangataAdapter,
     taskPayloadExtrinsic,
     schedule: { Fixed: { executionTimes } },
-    keyPair,
+    keyringPair,
   });
 
   await turingApi.disconnect();
@@ -130,14 +130,14 @@ test('Test Moonbase XCMP task', async () => {
   // Create a keyring instance
   const keyring = new Keyring({ type: 'sr25519' });
   const json = await readMnemonicFromFile();
-  const keyPair = keyring.addFromJson(json);
-  keyPair.unlock(process.env.PASS_PHRASE);
+  const keyringPair = keyring.addFromJson(json);
+  keyringPair.unlock(process.env.PASS_PHRASE);
 
   // Create a keyring instance
   const jsonEth = await readEthMnemonicFromFile();
   const ethKeyring = new Keyring({ type: 'ethereum' });
-  const ethKeyPair = ethKeyring.addFromJson(jsonEth);
-  ethKeyPair.unlock(process.env.PASS_PHRASE_ETH);
+  const ethKeyringPair = ethKeyring.addFromJson(jsonEth);
+  ethKeyringPair.unlock(process.env.PASS_PHRASE_ETH);
 
   // Initialize adapters
   const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
@@ -161,8 +161,8 @@ test('Test Moonbase XCMP task', async () => {
     scheduleFeeLocation: defaultAsset.location,
     executionFeeLocation: defaultAsset.location,
     schedule: { Fixed: { executionTimes } },
-    scheduleAs: u8aToHex(keyPair.addressRaw),
-    keyPair: ethKeyPair,
+    scheduleAs: u8aToHex(keyringPair.addressRaw),
+    keyringPair: ethKeyringPair,
   });
 
   await oakApi.disconnect();
@@ -173,8 +173,8 @@ test('Test Astar XCMP task', async () => {
   // Create a keyring instance
   const keyring = new Keyring({ type: 'sr25519' });
   const json = await readMnemonicFromFile();
-  const keyPair = keyring.addFromJson(json);
-  keyPair.unlock(process.env.PASS_PHRASE);
+  const keyringPair = keyring.addFromJson(json);
+  keyringPair.unlock(process.env.PASS_PHRASE);
 
   // Initialize adapters
   const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
@@ -199,8 +199,8 @@ test('Test Astar XCMP task', async () => {
     scheduleFeeLocation: defaultAsset.location,
     executionFeeLocation: defaultAsset.location,
     schedule: { Fixed: { executionTimes } },
-    scheduleAs: u8aToHex(keyPair.addressRaw),
-    keyPair,
+    scheduleAs: u8aToHex(keyringPair.addressRaw),
+    keyringPair,
   });
 
   await oakApi.disconnect();
@@ -211,14 +211,14 @@ test('Test Moonbeam transfer', async () => {
   // Create a keyring instance
   const keyring = new Keyring({ type: 'sr25519' });
   const json = await readMnemonicFromFile();
-  const keyPair = keyring.addFromJson(json);
-  keyPair.unlock(process.env.PASS_PHRASE);
+  const keyringPair = keyring.addFromJson(json);
+  keyringPair.unlock(process.env.PASS_PHRASE);
 
   // Create a keyring instance
   const jsonEth = await readEthMnemonicFromFile();
   const ethKeyring = new Keyring({ type: 'ethereum' });
-  const ethKeyPair = ethKeyring.addFromJson(jsonEth);
-  ethKeyPair.unlock(process.env.PASS_PHRASE_ETH);
+  const ethKeyringPair = ethKeyring.addFromJson(jsonEth);
+  ethKeyringPair.unlock(process.env.PASS_PHRASE_ETH);
 
   // Initialize adapters
   const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
@@ -233,7 +233,7 @@ test('Test Moonbeam transfer', async () => {
   if (!defaultAsset) throw new Error("defaultAsset not set");
   if (!paraId) throw new Error("paraId not set");
   
-  const deriveAccountOnTuring = oakAdapter.getDeriveAccount(u8aToHex(ethKeyPair.addressRaw), paraId);
+  const deriveAccountOnTuring = oakAdapter.getDeriveAccount(u8aToHex(ethKeyringPair.addressRaw), paraId);
   console.log('deriveAccountOnTuring; ', deriveAccountOnTuring);
 
   // Transfer
@@ -242,7 +242,7 @@ test('Test Moonbeam transfer', async () => {
     deriveAccountOnTuring,
     defaultAsset.location,
     new BN('200000000000000000'),
-    ethKeyPair,
+    ethKeyringPair,
   );
 
   await oakApi.disconnect();
@@ -253,8 +253,8 @@ test('Test Astar transfer', async () => {
   // Create a keyring instance
   const keyring = new Keyring({ type: 'sr25519' });
   const json = await readMnemonicFromFile();
-  const keyPair = keyring.addFromJson(json);
-  keyPair.unlock(process.env.PASS_PHRASE);
+  const keyringPair = keyring.addFromJson(json);
+  keyringPair.unlock(process.env.PASS_PHRASE);
 
   // Initialize adapters
   const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
@@ -269,7 +269,7 @@ test('Test Astar transfer', async () => {
   if (!defaultAsset) throw new Error("defaultAsset not set");
   if (!paraId) throw new Error("paraId not set");
   
-  const deriveAccountOnTuring = oakAdapter.getDeriveAccount(u8aToHex(keyPair.addressRaw), paraId);
+  const deriveAccountOnTuring = oakAdapter.getDeriveAccount(u8aToHex(keyringPair.addressRaw), paraId);
   console.log('deriveAccountOnTuring; ', deriveAccountOnTuring);
 
   // Transfer
@@ -278,7 +278,7 @@ test('Test Astar transfer', async () => {
     deriveAccountOnTuring,
     defaultAsset.location,
     new BN('200000000000000000'),
-    keyPair,
+    keyringPair,
   );
 
   // Disconnect
@@ -290,8 +290,8 @@ test('Test OakAdapter transfer', async () => {
   // Create a keyring instance
   const keyring = new Keyring({ type: 'sr25519' });
   const json = await readMnemonicFromFile();
-  const keyPair = keyring.addFromJson(json);
-  keyPair.unlock(process.env.PASS_PHRASE);
+  const keyringPair = keyring.addFromJson(json);
+  keyringPair.unlock(process.env.PASS_PHRASE);
 
   // Initialize adapters
   const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
@@ -308,10 +308,10 @@ test('Test OakAdapter transfer', async () => {
   // Transfer
   await oakAdapter.crossChainTransfer(
     mangataAdapter.getLocation(),
-    u8aToHex(keyPair.addressRaw),
+    u8aToHex(keyringPair.addressRaw),
     oakAsset.location,
     new BN('50000000000'),
-    keyPair,
+    keyringPair,
   );
 
    // Disconnect
@@ -324,8 +324,8 @@ test('Test MangatAdapter transfer', async () => {
   // Create a keyring instance
   const keyring = new Keyring({ type: 'sr25519' });
   const json = await readMnemonicFromFile();
-  const keyPair = keyring.addFromJson(json);
-  keyPair.unlock(process.env.PASS_PHRASE);
+  const keyringPair = keyring.addFromJson(json);
+  keyringPair.unlock(process.env.PASS_PHRASE);
 
   // Initialize adapters
   const oakApi = await ApiPromise.create({ provider: new WsProvider(chains.turingStaging.endpoint), rpc, types, runtime });
@@ -342,10 +342,10 @@ test('Test MangatAdapter transfer', async () => {
   // Transfer
   await mangataAdapter.crossChainTransfer(
     oakAdapter.getLocation(),
-    u8aToHex(keyPair.addressRaw),
+    u8aToHex(keyringPair.addressRaw),
     oakAsset.location,
     new BN('100000000000000'),
-    keyPair,
+    keyringPair,
   );
 
   // Disconnect

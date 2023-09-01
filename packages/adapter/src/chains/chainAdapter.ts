@@ -1,6 +1,7 @@
 import BN from 'bn.js';
 // import '@polkadot/api-augment';
 import { ApiPromise } from '@polkadot/api';
+import type { KeyringPair } from '@polkadot/keyring/types';
 import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { u32 } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
@@ -39,7 +40,7 @@ export abstract class ChainAdapter {
   public abstract getDeriveAccount(accountId: HexString, paraId: number, options?: any): HexString;
   public abstract getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }>;
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
-  public abstract crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyPair: any): Promise<SendExtrinsicResult>;
+  public abstract crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult>;
 
   public getApi(): ApiPromise {
     if (!this.api) throw new Error("Api not initialized");
@@ -66,5 +67,5 @@ export abstract class ChainAdapter {
 
 export interface TaskScheduler {
   getTransactXcmInstructionCount(): number;
-  scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyPair: any): Promise<SendExtrinsicResult>;
+  scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyringPair: KeyringPair): Promise<SendExtrinsicResult>;
 }

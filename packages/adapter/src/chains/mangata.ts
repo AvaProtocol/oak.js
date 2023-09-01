@@ -4,6 +4,7 @@ import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { u32, u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { HexString } from '@polkadot/util/types';
+import type { KeyringPair } from '@polkadot/keyring/types';
 import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter } from './chainAdapter';
 import { convertAbsoluteLocationToRelative, getDeriveAccountV2, sendExtrinsic } from '../util';
@@ -67,7 +68,7 @@ export class MangataAdapter extends ChainAdapter {
     return !!foundAsset && foundAsset.isNative;
   }
 
-  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyPair: any): Promise<SendExtrinsicResult> {
+  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');
     
@@ -98,7 +99,7 @@ export class MangataAdapter extends ChainAdapter {
     );
 
     console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());
-    const result = await sendExtrinsic(api, extrinsic, keyPair);
+    const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
   }
 }

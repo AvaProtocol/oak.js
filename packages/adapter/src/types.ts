@@ -1,7 +1,8 @@
 import { ChainAdapter, TaskScheduler } from "./chains";
+import { EventRecord } from '@polkadot/types/interfaces';
 
 export interface SendExtrinsicResult {
-  events: any[];
+  events: EventRecord[];
   blockHash: any;
 }
 

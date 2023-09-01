@@ -2,27 +2,29 @@ import _ from 'lodash';
 import { u8aToHex, hexToU8a } from '@polkadot/util';
 import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { EventRecord } from '@polkadot/types/interfaces';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { HexString } from '@polkadot/util/types';
 import { TypeRegistry } from '@polkadot/types';
 import { blake2AsU8a } from '@polkadot/util-crypto';
-import { AccountType } from './types';
+import { AccountType, SendExtrinsicResult } from './types';
 
-export interface SendExtrinsicResult {
-  events: EventRecord[];
-  blockHash: string;
-}
-
+/**
+ * Send extrinsic
+ * @param api 
+ * @param extrinsic 
+ * @param keyringPair 
+ * @param options 
+ * @returns operation result
+ */
 export const sendExtrinsic = async (
   api: ApiPromise,
   extrinsic: SubmittableExtrinsic<'promise'>,
-  keyPair: KeyringPair,
+  keyringPair: KeyringPair,
   { isSudo = false } = {}
 ): Promise<SendExtrinsicResult> => {
   return new Promise<SendExtrinsicResult>((resolve) => {
     const newExtrinsic = isSudo ? api.tx.sudo.sudo(extrinsic) : extrinsic;
-    newExtrinsic.signAndSend(keyPair, { nonce: -1 }, ({ status, events } : any) => {
+    newExtrinsic.signAndSend(keyringPair, { nonce: -1 }, ({ status, events } : any) => {
       console.log('status.type', status.type);
       if (status.isInBlock || status.isFinalized) {
         events

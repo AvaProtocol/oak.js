@@ -4,7 +4,8 @@ import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { HexString } from '@polkadot/util/types';
-import { u8aToHex, hexToU8a } from '@polkadot/util';
+import { u8aToHex } from '@polkadot/util';
+import type { KeyringPair } from '@polkadot/keyring/types';
 import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter, TaskScheduler } from './chainAdapter';
 import { convertAbsoluteLocationToRelative, getDeriveAccountV3, sendExtrinsic } from '../util';
@@ -61,7 +62,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
 
   getTransactXcmInstructionCount() { return TRANSACT_XCM_INSTRUCTION_COUNT; }
 
-  async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyPair: any): Promise<SendExtrinsicResult> {
+  async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const api = this.getApi();
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set.');
@@ -101,7 +102,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
               maxAssets: 1,
               beneficiary: {
                 parents: 1,
-                interior: { X1: { AccountId32: { network: null, id: u8aToHex(keyPair) } } },
+                interior: { X1: { AccountId32: { network: null, id: u8aToHex(keyringPair.addressRaw) } } },
               },
             },
           },
@@ -111,7 +112,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
 
     console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
 
-    const result = await sendExtrinsic(api, extrinsic, keyPair);
+    const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
   }
 
@@ -122,7 +123,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     return !!foundAsset && foundAsset.isNative;
   }
 
-  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyPair: any): Promise<SendExtrinsicResult> {
+  async crossChainTransfer(destination: any, accountId: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');
     const api = this.getApi();
@@ -153,7 +154,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     );
 
     console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());
-    const result = await sendExtrinsic(api, extrinsic, keyPair);
+    const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
   }
 }

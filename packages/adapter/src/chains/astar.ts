@@ -9,7 +9,7 @@ import type { KeyringPair } from '@polkadot/keyring/types';
 import { Weight } from '@oak-network/sdk-types';
 import { ChainAdapter, TaskScheduler } from './chainAdapter';
 import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic } from '../util';
-import { SendExtrinsicResult } from '../types';
+import { SendExtrinsicResult, XcmInstructionNetworkType } from '../types';
 import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
 const TRANSACT_XCM_INSTRUCTION_COUNT = 6;
@@ -23,7 +23,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
 
   public async updateChainData(): Promise<void> {
     await super.updateChainData();
-    this.chainData.xcmInstructionNetworkType = 'concrete';
+    this.chainData.xcmInstructionNetworkType = XcmInstructionNetworkType.Concrete;
   }
 
   async getExtrinsicWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair): Promise<Weight> {

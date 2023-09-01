@@ -2,7 +2,7 @@ import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import { u8aToHex } from '@polkadot/util';
 import type { HexString } from '@polkadot/util/types';
 import type { KeyringPair } from '@polkadot/keyring/types';
-import { ChainAdapter, OakAdapter, TaskSchedulerChainAdapter, SendExtrinsicResult } from '@oak-network/adapter';
+import { ChainAdapter, OakAdapter, TaskSchedulerChainAdapter, SendExtrinsicResult, XcmInstructionNetworkType } from '@oak-network/adapter';
 
 interface ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams {
   oakAdapter: OakAdapter;
@@ -83,7 +83,7 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
   const executionFee = { assetLocation: { V3: executionFeeLocation }, amount: executionFeeAmout };
 
   // Calculate derive account on Turing/OAK
-  const options = xcmInstructionNetworkType === 'concrete' ? { locationType: 'XcmV3MultiLocation', network: relayChain } : undefined;
+  const options = xcmInstructionNetworkType === XcmInstructionNetworkType.Concrete ? { locationType: 'XcmV3MultiLocation', network: relayChain } : undefined;
   const deriveAccountId = oakAdapter.getDerivativeAccount(u8aToHex(keyringPair.addressRaw), paraId, options);
   
   // Schedule task through proxy

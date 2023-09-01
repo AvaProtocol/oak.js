@@ -6,7 +6,7 @@ import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { u32 } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
 import { ChainAsset, Weight, Chain as ChainConfig } from '@oak-network/sdk-types';
-import { SendExtrinsicResult } from '../types';
+import { SendExtrinsicResult, XcmInstructionNetworkType } from '../types';
 
 export class ChainData {
   key: string | undefined;
@@ -18,7 +18,7 @@ export class ChainData {
   ss58Prefix: number | undefined;
   name: string | undefined;
   instructionWeight: Weight  | undefined;
-  xcmInstructionNetworkType: 'null' | 'concrete' = 'null'; 
+  xcmInstructionNetworkType: XcmInstructionNetworkType = XcmInstructionNetworkType.Null; 
 }
 
 export abstract class ChainAdapter {

@@ -14,6 +14,6 @@ export enum AccountType {
 };
 
 export enum XcmInstructionNetworkType {
-  Null,
+  Null = 1,
   Concrete,
 };

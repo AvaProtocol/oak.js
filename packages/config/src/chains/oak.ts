@@ -13,6 +13,7 @@ export const turingLocal = new Chain({
   assets: turingRococoAssets,
   defaultAsset: turAsset,
   endpoint: 'ws://127.0.0.1:9946',
+  network: 'rococo',
   relayChain: 'local',
   instructionWeight: new Weight(new BN('1000000000'), new BN(0)),
 });
@@ -22,8 +23,9 @@ export const turingStaging = new Chain({
   key: 'turing-staging',
   assets: turingRococoAssets,
   defaultAsset: turAsset,
-  relayChain: 'rococo',
   endpoint: 'wss://rpc.turing-staging.oak.tech',
+  network: 'rococo',
+  relayChain: 'rococo',
   instructionWeight: new Weight(new BN('1000000000'), new BN('0')),
 });
 
@@ -32,8 +34,9 @@ export const turingMoonbase = new Chain({
   key: 'turing-moonbase',
   assets: turingRococoAssets,
   defaultAsset: turAsset,
-  relayChain: 'moonbase-alpha-relay',
   endpoint: 'ws://167.99.226.24:8846',
+  network: 'rococo',
+  relayChain: 'moonbase-alpha-relay',
   instructionWeight: new Weight(new BN('1000000000'), new BN('0')),
 });
 
@@ -44,6 +47,7 @@ export const turing = new Chain({
   assets: turingKusamaAssets,
   defaultAsset: turAsset,
   endpoint: 'wss://rpc.turing.oak.tech',
-  relayChain: 'local',
+  network: 'kusama',
+  relayChain: 'kusama',
   instructionWeight: new Weight(new BN('1000000000'), new BN('0')),
 });

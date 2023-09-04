@@ -233,7 +233,7 @@ test('Test Moonbeam transfer', async () => {
   if (!defaultAsset) throw new Error("defaultAsset not set");
   if (!paraId) throw new Error("paraId not set");
   
-  const deriveAccountOnTuring = oakAdapter.getDeriveAccount(u8aToHex(ethKeyringPair.addressRaw), paraId);
+  const deriveAccountOnTuring = oakAdapter.getDerivativeAccount(u8aToHex(ethKeyringPair.addressRaw), paraId);
   console.log('deriveAccountOnTuring; ', deriveAccountOnTuring);
 
   // Transfer
@@ -269,7 +269,7 @@ test('Test Astar transfer', async () => {
   if (!defaultAsset) throw new Error("defaultAsset not set");
   if (!paraId) throw new Error("paraId not set");
   
-  const deriveAccountOnTuring = oakAdapter.getDeriveAccount(u8aToHex(keyringPair.addressRaw), paraId);
+  const deriveAccountOnTuring = oakAdapter.getDerivativeAccount(u8aToHex(keyringPair.addressRaw), paraId);
   console.log('deriveAccountOnTuring; ', deriveAccountOnTuring);
 
   // Transfer

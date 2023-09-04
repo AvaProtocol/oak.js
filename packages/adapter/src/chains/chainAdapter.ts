@@ -14,6 +14,7 @@ export class ChainData {
   defaultAsset: ChainAsset | undefined;
   endpoint: string | undefined;
   relayChain: string | undefined;
+  network: string | undefined;
   paraId: number | undefined;
   ss58Prefix: number | undefined;
   name: string | undefined;
@@ -33,6 +34,7 @@ export abstract class ChainAdapter {
     this.chainData.defaultAsset = config.defaultAsset;
     this.chainData.instructionWeight = config.instructionWeight;
     this.chainData.endpoint = config.endpoint;
+    this.chainData.network = config.network;
     this.chainData.relayChain = config.relayChain;
   }
   

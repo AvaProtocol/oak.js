@@ -12,6 +12,7 @@ export const shibuya = new Chain({
   assets: shibuyaAssets,
   defaultAsset: sbyAsset,
   endpoint: 'ws://127.0.0.1:9948',
+  network: 'rococo',
   relayChain: 'local',
   instructionWeight: new Weight(new BN('1000000000'), new BN(64 * 1024)),
 });
@@ -24,6 +25,7 @@ export const rocstar = new Chain({
   assets: rocstarAssets,
   defaultAsset: rstrAsset,
   endpoint: 'wss://rocstar.astar.network',
+  network: 'rococo',
   relayChain: 'rococo',
   instructionWeight: new Weight(new BN('1000000000'), new BN(64 * 1024)),
 });
@@ -35,6 +37,7 @@ export const shiden = new Chain({
   key: 'shiden',
   assets: shidenAssets,
   defaultAsset: sdnAsset,
+  network: 'kusama',
   endpoint: 'wss://shiden-rpc.dwellir.com',
   relayChain: 'kusama',
   instructionWeight: new Weight(new BN('1000000000'), new BN(64 * 1024)),

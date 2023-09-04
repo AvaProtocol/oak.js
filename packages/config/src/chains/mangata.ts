@@ -12,6 +12,7 @@ export const mangataLocal = new Chain({
   assets: mangataRococoAssets,
   defaultAsset: mgrAsset,
   endpoint: 'ws://127.0.0.1:9947',
+  network: 'rococo',
   relayChain: 'local',
   instructionWeight: new Weight(new BN('150000000'), new BN('0')),
 });
@@ -22,6 +23,7 @@ export const mangataRococo = new Chain({
   assets: mangataRococoAssets,
   defaultAsset: mgrAsset,
   endpoint: 'wss://collator-01-ws-rococo.mangata.online',
+  network: 'rococo',
   relayChain: 'rococo',
   instructionWeight: new Weight(new BN('150000000'), new BN('0')),
 });
@@ -34,6 +36,7 @@ export const mangataKusama = new Chain({
   assets: mangataKusamaAssets,
   defaultAsset: mgxAsset,
   endpoint: 'wss://kusama-rpc.mangata.online',
+  network: 'kusama',
   relayChain: 'rococo',
   instructionWeight: new Weight(new BN('150000000'), new BN('0')),
 });

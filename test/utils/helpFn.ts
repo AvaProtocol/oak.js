@@ -1,6 +1,7 @@
 
 import _ from 'lodash';
 import { WsProvider, ApiPromise, Keyring } from '@polkadot/api';
+import { hexToU8a } from '@polkadot/util';
 import type { HexString } from '@polkadot/util/types';
 import type { Extrinsic } from '@polkadot/types/interfaces/extrinsics';
 import type { KeyringPair } from '@polkadot/keyring/types';
@@ -21,6 +22,11 @@ export const MIN_RUNNING_TEST_BALANCE = 20000000000;
 export const TRANSFER_AMOUNT = 1000000000;
 export const RECEIVER_ADDRESS = '66fhJwYLiK87UDXYDQP9TfYdHpeEyMvQ3MK8Z6GgWAdyyCL3';
 const RECURRING_FREQUENCY = 3600;
+const ALITH_PRIVATE_KEY = '0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133';
+
+const getEnv = () => {
+  return process.env.ENV || 'Turing Dev';
+}
 
 export const createPolkadotApi = async (endpoint: string) => {
   const wsProvider = new WsProvider(endpoint);
@@ -99,10 +105,10 @@ export const getContext = async (polkadotApi: ApiPromise) => {
  };
 
 /**
- * getKeyringPair: Get keyring pair for testing
+ * Get keyring pair for testing
  * @returns keyring pair
  */
-export const getKeyringPair = async () => {
+export const getKeyringPair = async (): Promise<KeyringPair> => {
   const { mnemonic } = config;
   if (_.isEmpty(mnemonic)) {
     throw new Error('The MNEMONIC environment variable is not set.')
@@ -114,6 +120,31 @@ export const getKeyringPair = async () => {
   const keyring = new Keyring({ type: 'sr25519', ss58Format: SS58_PREFIX });
   const keyringPair = _.startsWith(mnemonic, '//') ? keyring.addFromUri(mnemonic) : keyring.addFromMnemonic(mnemonic);
   return keyringPair;
+}
+
+/**
+ * Get keyring pair for moonbeam testing
+ * @returns keyring pair
+ */
+export const getMoonbeamKeyringPair = async (): Promise<KeyringPair> => {
+  await waitReady();
+  const keyringECDSA = new Keyring({ type: 'ethereum' });
+  let moonbeamKeyringPair = null;
+  if (getEnv() === 'Turing Dev' && _.isEmpty(process.env.MNEMONIC)) {
+    moonbeamKeyringPair = keyringECDSA.addFromSeed(hexToU8a(ALITH_PRIVATE_KEY), undefined, 'ethereum');
+  } else {
+    if (_.isEmpty(process.env.MNEMONIC)) {
+      throw new Error('The MNEMONIC environment variable is not set.')
+    }
+    const index = 0;
+    const ethDerPath = "m/44'/60'/0'/0/" + index;
+
+    await waitReady();
+    const keyringECDSA = new Keyring({ type: 'ethereum' });
+    moonbeamKeyringPair = keyringECDSA.addFromUri(`${process.env.MNEMONIC}/${ethDerPath}`);
+    console.log('moonbeamKeyringPair: ', moonbeamKeyringPair.address)
+  }
+  return moonbeamKeyringPair;
 }
 
  /**

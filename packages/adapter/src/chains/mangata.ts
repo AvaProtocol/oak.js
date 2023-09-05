@@ -86,7 +86,7 @@ export class MangataAdapter extends ChainAdapter {
    * @param options Optional operation options: { locationType, network }
    * @returns Derivative account
    */
-  getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString {
+  getDerivativeAccount(accountId: HexString, paraId: number): HexString {
     const api = this.getApi();
     return getDerivativeAccountV2(api, accountId, paraId);
   }

@@ -119,7 +119,7 @@ export function convertAbsoluteLocationToRelative(absoluteLocation: any): any {
     return { parents: 0, interior: 'Here' };
   } else {
     const newInterior: Record<string, any> = {};
-    const newArray = interior[key].filter((item: any) => !item.hasOwnProperty('Parachain'));
+    const newArray = interior[key].filter((item: any) => !_.has(item, 'Parachain'));
     if (newArray.length > 0) {
       const newXKey = 'X' + newArray.length;
       newInterior[newXKey] = newArray.length === 1 ? newArray[0] : newArray;

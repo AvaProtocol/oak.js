@@ -1,6 +1,5 @@
 import util from 'node:util';
 import BN from 'bn.js';
-import type { Extrinsic } from '@polkadot/types/interfaces';
 
 export type relayChainType = 'local' | 'rococo' | 'moonbase-alpha-relay' | 'kusama' | 'polkadot';
 

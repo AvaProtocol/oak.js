@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import BN from 'bn.js';
 import { Chain } from '@oak-network/sdk-types';
 import { assets } from '../assets';

@@ -165,7 +165,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
    * @param options Optional operation options
    * @returns Derivative account
    */
-  getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString {
+  getDerivativeAccount(accountId: HexString, paraId: number): HexString {
     return getDerivativeAccountV3(accountId, paraId, AccountType.AccountKey20);
   }
 

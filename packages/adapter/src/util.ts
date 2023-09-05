@@ -10,11 +10,11 @@ import { AccountType, SendExtrinsicResult } from './types';
 
 /**
  * Send extrinsic
- * @param api 
- * @param extrinsic 
- * @param keyringPair 
- * @param options 
- * @returns operation result
+ * @param api Polkadot API
+ * @param extrinsic The extrinsic that needs to be sent
+ * @param keyringPair Operator's keychain pair
+ * @param options Operation options: { isSudo = false }
+ * @returns Operation result: {events, blockHash}
  */
 export const sendExtrinsic = async (
   api: ApiPromise,
@@ -52,6 +52,14 @@ export const sendExtrinsic = async (
   });
 };
 
+/**
+ * Calculate the derivative account ID of a certain account ID
+ * @param api Polkadot API
+ * @param accountId 
+ * @param paraId The paraId of the XCM message sender
+ * @param options Operation options: { locationType = 'XcmV2MultiLocation', network = 'Any' }
+ * @returns Derivative account
+ */
 export const getDerivativeAccountV2 = (api: ApiPromise, accountId: HexString, paraId: number, { locationType = 'XcmV2MultiLocation', network = 'Any' } = {}): HexString => {
   const account = hexToU8a(accountId).length == 20
     ? { AccountKey20: { network, key: accountId } }
@@ -71,6 +79,13 @@ export const getDerivativeAccountV2 = (api: ApiPromise, accountId: HexString, pa
   return u8aToHex(api.registry.hash(toHash).slice(0, 32));
 };
 
+/**
+ * Calculate the derivative account ID of a certain account ID
+ * @param accountId 
+ * @param paraId The paraId of the XCM message sender
+ * @param deriveAccountType Specify the derive account type returned by the function
+ * @returns Derivative account
+ */
 export const getDerivativeAccountV3 = (accountId: HexString, paraId: number, deriveAccountType: AccountType = AccountType.AccountId32): HexString => {
   const accountType = hexToU8a(accountId).length == 20 ? 'AccountKey20' : 'AccountId32';
   const decodedAddress = hexToU8a(accountId);
@@ -88,6 +103,14 @@ export const getDerivativeAccountV3 = (accountId: HexString, paraId: number, der
   return u8aToHex(blake2AsU8a(toHash).slice(0, deriveAccountType === AccountType.AccountKey20 ? 20 : 32));
 }
 
+/**
+ * Convert absolute location to relative location
+ * For example:
+ * { parents: 1: interior: { X2: [{ Parachain: 2000 }, { PalletInstance: 3}] }} => { parents: 0, interior: { X1: { PalletInstance: 3 } } }
+ * { parents: 1: interior: { X1: { Parachain: 2114 } } => { parents: 0, interior: 'Here' }
+ * @param absoluteLocation 
+ * @returns Relative location
+ */
 export function convertAbsoluteLocationToRelative(absoluteLocation: any): any {
   const { interior } = absoluteLocation;
   const key = _.keys(interior)[0] as string;

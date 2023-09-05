@@ -9,9 +9,22 @@ on:
 jobs:
   publish-dev-version:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          # List the packages to run here. The matrix will run one job for each package parallelly. 
+          - api-augment
+          - types
+
     steps:
       - name: 🤘 checkout
         uses: actions/checkout@v3
+
+      - name: Set name of packages
+        id: set_package_names
+        run: |
+          packages='api-augment types'
+          echo "::set-output name=packages::$packages"
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.0.0
@@ -28,10 +41,6 @@ jobs:
       - name: 🔐 Authenticate with NPM
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
-      - name: 🚀 Publish api-augment package
-        working-directory: ./packages/api-augment
-        run: npm publish --tag dev
-
-      - name: 🚀 Publish types package
-        working-directory: ./packages/types
+      - name: 🚀 Publish ${{ matrix.package }} package
+        working-directory: ./packages/${{ matrix.package }}
         run: npm publish --tag dev

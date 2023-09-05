@@ -1,5 +1,17 @@
 # @oak-network/types
 
+## 2.0.5
+
+### Patch Changes
+
+- 386a6b1: Official 2.0.0 version
+
+## 2.0.4
+
+### Patch Changes
+
+- 0753872: Patch
+
 ## 2.0.3
 
 ### Patch Changes

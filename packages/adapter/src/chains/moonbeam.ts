@@ -15,11 +15,18 @@ const TRANSACT_XCM_INSTRUCTION_COUNT = 4;
 
 // MoonbeamAdapter implements ChainAdapter, TaskScheduler interface
 export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
+  /**
+   * Initialize adapter
+   */
   async initialize() {
     await this.updateChainData();
     await this.updateAssets();
   }
 
+  /**
+   * Get asset data from assetManager storage
+   * @returns asset data items
+   */
   async getAssetManagerItems(): Promise<any[]> {
     const entries = await this.api?.query.assetManager.assetIdType.entries();
     const items: any[] = [];
@@ -34,6 +41,10 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     return items;
   }
 
+  /**
+   * Get assets from chain
+   * @returns assets
+   */
   async getAssets(): Promise<any[]> {
     const entries = await this.api?.query.assets.metadata.entries();
     const items: any[] = [];
@@ -45,6 +56,9 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     return items;
   }
 
+  /**
+   * Update assets from chain
+   */
   async updateAssets() {
     const assets = await this.getAssets();
     const assetManagerItems = await this.getAssetManagerItems();
@@ -58,11 +72,24 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     })
   }
 
+  /**
+   * Get extrinsic weight
+   * @param extrinsic 
+   * @param account 
+   * @returns Extrinsic weight
+   */
   async getExtrinsicWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair): Promise<Weight> {
     const { refTime, proofSize } = (await extrinsic.paymentInfo(account)).weight as unknown as WeightV2;
     return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
+  /**
+   * Calculate encoded call weight and overall weight for transact an extrinsic call through XCM message
+   * @param extrinsic The extrinsic that needs to be transacted
+   * @param account 
+   * @param instructionCount The number of XCM instructions
+   * returns { encodedCallWeight, overallWeight }
+   */
   async getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
     const { instructionWeight } = this.chainData;
     if (!instructionWeight) throw new Error("chainData.instructionWeight not set");
@@ -71,6 +98,12 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     return { encodedCallWeight, overallWeight };
   }
 
+  /**
+   * Calculate XCM execution fee based on weight
+   * @param weight 
+   * @param assetLocation 
+   * @returns XCM execution fee
+   */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
     const { defaultAsset } = this.chainData;
     if (!defaultAsset) throw new Error("chainData.defaultAsset not set");
@@ -87,9 +120,22 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     }
   }
 
+  /**
+   * Get the instruction number of XCM instructions for transact
+   */
   getTransactXcmInstructionCount() { return TRANSACT_XCM_INSTRUCTION_COUNT; }
 
-  async scheduleTaskThroughXcm(destination: any, encodedCall: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
+  /**
+   * Schedule Task through XCM message
+   * @param destination The location of the destination chain
+   * @param encodedTaskExtrinsic encoded task extrinsic
+   * @param feeLocation Fee location
+   * @param feeAmount Fee amount
+   * @param encodedCallWeight The encoded call weight weight of the XCM instructions
+   * @param overallWeight The overall weight of the XCM instructions
+   * @param keyringPair Operator's keyring pair
+   */
+  async scheduleTaskThroughXcm(destination: any, encodedTaskExtrinsic: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const api = this.getApi();
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');
@@ -102,7 +148,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     const extrinsic = this.getApi().tx.xcmTransactor.transactThroughSigned(
       { V3: destination },
       { currency, feeAmount },
-      encodedCall,
+      encodedTaskExtrinsic,
       { transactRequiredWeightAtMost: encodedCallWeight, overallWeight },
     );
 
@@ -111,10 +157,23 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     return result;
   }
 
+  /**
+   * Calculate the derivative account ID of a certain account ID
+   * @param api Polkadot API
+   * @param accountId 
+   * @param paraId The paraId of the XCM message sender
+   * @param options Optional operation options
+   * @returns Derivative account
+   */
   getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString {
     return getDerivativeAccountV3(accountId, paraId, AccountType.AccountKey20);
   }
 
+  /**
+   * Check if it is a native asset
+   * @param assetLocation 
+   * @returns A bool value indicating whether it is a native asset
+   */
   isNativeAsset(assetLocation: any): boolean {
     const { defaultAsset, assets } = this.chainData;
     if (!defaultAsset) throw new Error('chainData.defaultAsset not set');
@@ -122,6 +181,15 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     return !!foundAsset && foundAsset.isNative;
   }
 
+  /**
+   * Execute a cross-chain transfer
+   * @param destination The location of the destination chain
+   * @param recipient recipient account
+   * @param assetLocation Asset location
+   * @param assetAmount Asset amount
+   * @param keyringPair Operator's keyring pair
+   * @returns SendExtrinsicResult
+   */
   async crossChainTransfer(destination: any, recipient: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');

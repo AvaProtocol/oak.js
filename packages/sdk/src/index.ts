@@ -44,8 +44,8 @@ async function scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
 
   // Schedule XCMP task
   const sendExtrinsicResult = oakAdapter.scheduleXcmpTask(
-    schedule,
     destination,
+    schedule,
     scheduleFee,
     executionFee,
     encodedCall,
@@ -71,7 +71,7 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
   const { paraId, xcmInstructionNetworkType, network } = destinationChainAdapter.getChainData();
   if (!paraId) throw new Error("paraId not set");
   if (!xcmInstructionNetworkType) throw new Error("xcmInstructionNetworkType not set");
-  if (!network) throw new Error("relayChain not set");
+  if (!network) throw new Error("network not set");
 
   // Caluculate weight and fee for task
   const destination = { V3: destinationChainAdapter.getLocation() };
@@ -110,10 +110,20 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
 
 export function Sdk() {
   return {
+    /**
+     * Schedule XCMP task with PayThroughSoverignAccount instruction sequances
+     * @param params Operation params
+     * @returns 
+     */
     scheduleXcmpTaskWithPayThroughSoverignAccountFlow: async (params: ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams): Promise<SendExtrinsicResult> => {
       const result = await scheduleXcmpTaskWithPayThroughSoverignAccountFlow(params);
       return result;
     },
+    /**
+     * Schedule XCMP task with PayThroughRemoteDerivativeAccount instruction sequances
+     * @param params Operation params
+     * @returns 
+     */
     scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow: async (params: ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams): Promise<SendExtrinsicResult> => {
       const result = await scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow(params);
       return result;

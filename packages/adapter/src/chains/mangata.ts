@@ -13,15 +13,31 @@ import { SendExtrinsicResult } from '../types';
 
 // MangataAdapter implements ChainAdapter
 export class MangataAdapter extends ChainAdapter {
+  /**
+   * Initialize adapter
+   */
   async initialize() {
     await this.updateChainData();
   }
 
+  /**
+   * Get extrinsic weight
+   * @param extrinsic 
+   * @param account 
+   * @returns Extrinsic weight
+   */
   async getExtrinsicWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair): Promise<Weight> {
     const { refTime, proofSize } = (await extrinsic.paymentInfo(account)).weight as unknown as WeightV2;
     return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
+  /**
+   * Calculate encoded call weight and overall weight for transact an extrinsic call through XCM message
+   * @param extrinsic The extrinsic that needs to be transacted
+   * @param account 
+   * @param instructionCount The number of XCM instructions
+   * returns { encodedCallWeight, overallWeight }
+   */
   async getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
     const { instructionWeight } = this.chainData;
     if (!instructionWeight) throw new Error("chainData.instructionWeight not set");
@@ -30,6 +46,12 @@ export class MangataAdapter extends ChainAdapter {
     return { encodedCallWeight, overallWeight };
   }
 
+  /**
+   * Calculate XCM execution fee based on weight
+   * @param weight 
+   * @param assetLocation 
+   * @returns XCM execution fee
+   */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
     const { defaultAsset } = this.chainData;
     if (!defaultAsset) throw new Error("chainData.defaultAsset not set");
@@ -56,11 +78,24 @@ export class MangataAdapter extends ChainAdapter {
     }
   }
 
+  /**
+   * Calculate the derivative account ID of a certain account ID
+   * @param api Polkadot API
+   * @param accountId 
+   * @param paraId The paraId of the XCM message sender
+   * @param options Optional operation options: { locationType, network }
+   * @returns Derivative account
+   */
   getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString {
     const api = this.getApi();
     return getDerivativeAccountV2(api, accountId, paraId);
   }
 
+  /**
+   * Check if it is a native asset
+   * @param assetLocation 
+   * @returns A bool value indicating whether it is a native asset
+   */
   isNativeAsset(assetLocation: any): boolean {
     const { defaultAsset, assets } = this.chainData;
     if (!defaultAsset) throw new Error('chainData.defaultAsset not set');
@@ -68,6 +103,15 @@ export class MangataAdapter extends ChainAdapter {
     return !!foundAsset && foundAsset.isNative;
   }
 
+  /**
+   * Execute a cross-chain transfer
+   * @param destination The location of the destination chain
+   * @param recipient recipient account
+   * @param assetLocation Asset location
+   * @param assetAmount Asset amount
+   * @param keyringPair Operator's keyring pair
+   * @returns SendExtrinsicResult
+   */
   async crossChainTransfer(destination: any, recipient: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');

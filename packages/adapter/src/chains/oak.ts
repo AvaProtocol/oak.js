@@ -15,15 +15,31 @@ const TRANSACT_XCM_INSTRUCTION_COUNT = 6;
 
 // OakAdapter implements ChainAdapter
 export class OakAdapter extends ChainAdapter {
+  /**
+   * Initialize adapter
+   */
   async initialize() {
     await this.updateChainData();
   }
 
+  /**
+   * Get extrinsic weight
+   * @param extrinsic 
+   * @param account 
+   * @returns Extrinsic weight
+   */
   async getExtrinsicWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair): Promise<Weight> {
     const { refTime, proofSize } = (await extrinsic.paymentInfo(account)).weight as unknown as WeightV2;
     return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
+  /**
+   * Calculate encoded call weight and overall weight for transact an extrinsic call through XCM message
+   * @param extrinsic The extrinsic that needs to be transacted
+   * @param account 
+   * @param instructionCount The number of XCM instructions
+   * returns { encodedCallWeight, overallWeight }
+   */
   async getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
     const { instructionWeight } = this.chainData;
     if (!instructionWeight) throw new Error("chainData.instructionWeight not set");
@@ -32,6 +48,12 @@ export class OakAdapter extends ChainAdapter {
     return { encodedCallWeight, overallWeight };
   }
 
+  /**
+   * Calculate XCM execution fee based on weight
+   * @param weight 
+   * @param assetLocation 
+   * @returns XCM execution fee
+   */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
     const { defaultAsset } = this.chainData;
     if (!defaultAsset) throw new Error("chainData.defaultAsset not set");
@@ -55,6 +77,15 @@ export class OakAdapter extends ChainAdapter {
     return weight.refTime.mul(feePerSecond.unwrap()).div(WEIGHT_REF_TIME_PER_SECOND);
   }
 
+  /**
+   * Execute a cross-chain transfer
+   * @param destination The location of the destination chain
+   * @param recipient recipient account
+   * @param assetLocation Asset location
+   * @param assetAmount Asset amount
+   * @param keyringPair Operator's keyring pair
+   * @returns SendExtrinsicResult
+   */
   async crossChainTransfer(destination: any, recipient: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');
@@ -86,9 +117,24 @@ export class OakAdapter extends ChainAdapter {
     return result;
   }
 
+  /**
+   * Get the instruction number of XCM instructions for transact
+   */
   getTransactXcmInstructionCount() { return TRANSACT_XCM_INSTRUCTION_COUNT; }
 
-  async scheduleXcmpTask(schedule: any, destination: any, scheduleFee: any, executionFee: any, encodedCall: HexString, encodedCallWeight: Weight, overallWeight: Weight, keyringPair: KeyringPair) : Promise<SendExtrinsicResult> {
+  /**
+   * Schedule XCMP task
+   * @param destination The location of the destination chain
+   * @param schedule Schedule setting
+   * @param scheduleFee Schedule fee
+   * @param executionFee Execution fee
+   * @param encodedCall Encoded call
+   * @param encodedCallWeight The encoded call weight weight of the XCM instructions
+   * @param overallWeight The overall weight of the XCM instructions
+   * @param keyringPair Operator's keyring pair
+   * @returns SendExtrinsicResult
+   */
+  async scheduleXcmpTask(destination: any, schedule: any, scheduleFee: any, executionFee: any, encodedCall: HexString, encodedCallWeight: Weight, overallWeight: Weight, keyringPair: KeyringPair) : Promise<SendExtrinsicResult> {
     const api = this.getApi();
     const { key } = this.chainData;
     if (!key) throw new Error('chainData.key not set');
@@ -108,6 +154,14 @@ export class OakAdapter extends ChainAdapter {
     return result;
   }
 
+  /**
+   * Calculate the derivative account ID of a certain account ID
+   * @param api Polkadot API
+   * @param accountId 
+   * @param paraId The paraId of the XCM message sender
+   * @param options Optional operation options: { locationType, network }
+   * @returns Derivative account
+   */
   getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString {
     const api = this.getApi();
     return getDerivativeAccountV2(api, accountId, paraId, options);

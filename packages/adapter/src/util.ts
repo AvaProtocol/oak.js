@@ -12,7 +12,7 @@ import { AccountType, SendExtrinsicResult } from './types';
  * Send extrinsic
  * @param api Polkadot API
  * @param extrinsic The extrinsic that needs to be sent
- * @param keyringPair Operator's keychain pair
+ * @param keyringPair Operator's keyring pair
  * @param options Operation options: { isSudo = false }
  * @returns Operation result: {events, blockHash}
  */
@@ -57,7 +57,7 @@ export const sendExtrinsic = async (
  * @param api Polkadot API
  * @param accountId 
  * @param paraId The paraId of the XCM message sender
- * @param options Operation options: { locationType = 'XcmV2MultiLocation', network = 'Any' }
+ * @param options Optional operation options: { locationType = 'XcmV2MultiLocation', network = 'Any' }
  * @returns Derivative account
  */
 export const getDerivativeAccountV2 = (api: ApiPromise, accountId: HexString, paraId: number, { locationType = 'XcmV2MultiLocation', network = 'Any' } = {}): HexString => {

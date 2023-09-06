@@ -152,6 +152,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
       { currency, feeAmount },
       encodedTaskExtrinsic,
       { transactRequiredWeightAtMost: encodedCallWeight, overallWeight },
+      false,
     );
 
     console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());

@@ -13,9 +13,6 @@
     "test": "npm run build && jest --verbose --runInBand ./test/functional",
     "test:sdk": "npm run build && jest --verbose --runInBand ./test/sdk",
     "changeset": "changeset",
-    "changeset:version": "changeset version && npm i --package-lock-only",
-    "changeset:publish": "npm run build && changeset publish",
-    "changeset:publish-dev": "npm run build && changeset publish --tag dev",
     "lint": "eslint . --ext .ts"
   },
   "devDependencies": {

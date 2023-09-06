@@ -22,6 +22,8 @@ export const MIN_RUNNING_TEST_BALANCE = 20000000000;
 export const TRANSFER_AMOUNT = 1000000000;
 export const RECEIVER_ADDRESS = '66fhJwYLiK87UDXYDQP9TfYdHpeEyMvQ3MK8Z6GgWAdyyCL3';
 const RECURRING_FREQUENCY = 3600;
+// This is a Moonbeam test account private key. Please do not use it for any other purpose.
+// https://github.com/moonbeam-foundation/moonbeam/blob/2ea0db7c18d907ddeda1a5f4d3f68262e10560e7/README.md?plain=1#L65
 const ALITH_PRIVATE_KEY = '0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133';
 
 const getEnv = () => {

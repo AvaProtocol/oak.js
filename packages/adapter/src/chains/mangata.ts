@@ -40,7 +40,7 @@ export class MangataAdapter extends ChainAdapter {
    */
   async getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
     const { instructionWeight } = this.chainData;
-    if (!instructionWeight) throw new Error("chainData.instructionWeight not set");
+    if (_.isUndefined(instructionWeight)) throw new Error("chainData.instructionWeight not set");
     const encodedCallWeight = await this.getExtrinsicWeight(extrinsic, account);
     const overallWeight = encodedCallWeight.add(instructionWeight?.muln(instructionCount));
     return { encodedCallWeight, overallWeight };
@@ -54,7 +54,7 @@ export class MangataAdapter extends ChainAdapter {
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
     const { defaultAsset } = this.chainData;
-    if (!defaultAsset) throw new Error("chainData.defaultAsset not set");
+    if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
 
     const api = this.getApi();
     if (_.isEqual(defaultAsset.location, assetLocation)) {
@@ -71,7 +71,7 @@ export class MangataAdapter extends ChainAdapter {
       if (metadataItem.isNone) throw new Error("Metadata is null");
 
       const { additional: { xcm } } = metadataItem.unwrap() as { additional: { xcm: Option<any> } };
-      if (!xcm) throw new Error("Metadata additional.xcm is null");
+      if (_.isUndefined(xcm)) throw new Error("Metadata additional.xcm is null");
       const feePerSecond = xcm.unwrap().feePerSecond as u128;
       
       return weight.refTime.mul(feePerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
@@ -98,9 +98,9 @@ export class MangataAdapter extends ChainAdapter {
    */
   isNativeAsset(assetLocation: any): boolean {
     const { defaultAsset, assets } = this.chainData;
-    if (!defaultAsset) throw new Error('chainData.defaultAsset not set');
+    if (_.isUndefined(defaultAsset)) throw new Error('chainData.defaultAsset not set');
     const foundAsset = _.find(assets, ({ location: assetLocation }));
-    return !!foundAsset && foundAsset.isNative;
+    return !_.isUndefined(foundAsset) && foundAsset.isNative;
   }
 
   /**
@@ -114,7 +114,7 @@ export class MangataAdapter extends ChainAdapter {
    */
   async crossChainTransfer(destination: any, recipient: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
-    if (!key) throw new Error('chainData.key not set');
+    if (_.isUndefined(key)) throw new Error('chainData.key not set');
     
     const transferAssetLocation = this.isNativeAsset(assetLocation)
       ? convertAbsoluteLocationToRelative(assetLocation)

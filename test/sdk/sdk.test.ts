@@ -78,24 +78,25 @@ describe('test-moonbeam', () => {
   }, 1000000);
 
   test('test-moonbase-adapter', async () => {
-    if (!moonbaseApi || !moonbaseAdapter) throw new Error("Not initialized yet");
+    if (_.isUndefined(moonbaseApi) || _.isUndefined(moonbaseAdapter)) throw new Error("Not initialized yet");
     const extrinsic = moonbaseApi.tx.system.remarkWithEvent('hello!');
     const { encodedCallWeight, overallWeight } = await moonbaseAdapter.getXcmWeight(extrinsic, '0x31C5aA398Ae12B0dc423f47D47549095aA8c93A5', 6);
     console.log('encodedCallWeight: ', encodedCallWeight);
     console.log('overallWeight: ', overallWeight);
     const { defaultAsset } = moonbaseAdapter.getChainData();
-    const executionFee = await moonbaseAdapter.weightToFee(overallWeight, defaultAsset?.location);
+    if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
+    const executionFee = await moonbaseAdapter.weightToFee(overallWeight, defaultAsset.location);
     console.log('executionFee: ', executionFee.toString());
   }, 1000000);
 
   test('test-moonbase-xcmp-task', async () => {
-    if (!turingAdapter || !moonbaseApi || !moonbaseAdapter || !keyringPair || !moonbaseKeyringPair) throw new Error("Not initialized yet");
+    if (_.isUndefined(turingAdapter) || _.isUndefined(moonbaseApi) || _.isUndefined(moonbaseAdapter) || _.isUndefined(keyringPair) || _.isUndefined(moonbaseKeyringPair)) throw new Error("Not initialized yet");
     // Make task payload extrinsic
     const taskPayloadExtrinsic = moonbaseApi.tx.system.remarkWithEvent('hello!');
   
     // Schedule task with sdk
     const { defaultAsset } = moonbaseAdapter.getChainData();
-    if (!defaultAsset) throw new Error("defaultAsset not set");
+    if (_.isUndefined(defaultAsset)) throw new Error('chainData.defaultAsset not set');
     const executionTimes = [getHourlyTimestamp(1)/1000];
     await Sdk().scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
       oakAdapter: turingAdapter,
@@ -110,11 +111,11 @@ describe('test-moonbeam', () => {
   }, 1000000);
   
   test('test-moonbeam-transfer', async () => {
-    if (!turingAdapter || !moonbaseApi || !moonbaseAdapter || !keyringPair || !moonbaseKeyringPair) throw new Error("Not initialized yet");
+    if (_.isUndefined(turingAdapter) || _.isUndefined(moonbaseApi) || _.isUndefined(moonbaseAdapter) || _.isUndefined(keyringPair) || _.isUndefined(moonbaseKeyringPair)) throw new Error("Not initialized yet");
     // Calculate Moonbase derive account on Turing
     const { defaultAsset, paraId } = moonbaseAdapter.getChainData();
-    if (!defaultAsset) throw new Error("defaultAsset not set");
-    if (!paraId) throw new Error("paraId not set");
+    if (_.isUndefined(defaultAsset)) throw new Error("defaultAsset not set");
+    if (_.isUndefined(paraId)) throw new Error("paraId not set");
     
     const deriveAccountOnTuring = turingAdapter.getDerivativeAccount(u8aToHex(moonbaseKeyringPair.addressRaw), paraId);
     console.log('deriveAccountOnTuring; ', deriveAccountOnTuring);
@@ -161,26 +162,27 @@ describe('test-astar', () => {
   }, 1000000);
 
   test('test-astar-adapter', async () => {
-    if (!astarApi || !astarAdapter) throw new Error("Not initialized yet");
+    if (_.isUndefined(astarApi) || _.isUndefined(astarAdapter)) throw new Error("Not initialized yet");
     const extrinsic = astarApi.tx.system.remarkWithEvent('hello!');
     const { encodedCallWeight, overallWeight } = await astarAdapter.getXcmWeight(extrinsic, '68TwNoCpyz1X3ygMi9WtUAaCb8Q6jWAMvAHfAByRZqMFEtJG', 6);
     console.log('encodedCallWeight: ', encodedCallWeight);
     console.log('overallWeight: ', overallWeight);
     const { defaultAsset } = astarAdapter.getChainData();
-    const executionFee = await astarAdapter.weightToFee(overallWeight, defaultAsset?.location);
+    if (_.isUndefined(defaultAsset)) throw new Error('chainData.defaultAsset not set');
+    const executionFee = await astarAdapter.weightToFee(overallWeight, defaultAsset.location);
     console.log('executionFee: ', executionFee.toString());
     await astarApi.disconnect();
   }, 1000000);
 
   test('test-astar-xcmp-task', async () => {
-    if (!astarApi || !turingAdapter || !astarAdapter || !keyringPair) throw new Error("Not initialized yet");
+    if (_.isUndefined(astarApi) || _.isUndefined(turingAdapter) || _.isUndefined(astarAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
     // Make task payload extrinsic
     const moonbeamApi = astarAdapter.getApi();
     const taskPayloadExtrinsic = moonbeamApi.tx.system.remarkWithEvent('hello!');
   
     // Schedule task with sdk
     const { defaultAsset } = astarAdapter.getChainData();
-    if (!defaultAsset) throw new Error("defaultAsset not set");
+    if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
     const executionTimes = [getHourlyTimestamp(1)/1000];
     await Sdk().scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
       oakAdapter: turingAdapter,
@@ -195,11 +197,11 @@ describe('test-astar', () => {
   }, 1000000);
   
   test('test-astar-transfer', async () => {
-    if (!astarApi || !turingAdapter || !astarAdapter || !keyringPair) throw new Error("Not initialized yet");
+    if (_.isUndefined(astarApi) || _.isUndefined(turingAdapter) || _.isUndefined(astarAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
     // Calculate Astar derive account on Turing
     const { defaultAsset, paraId } = astarAdapter.getChainData();
-    if (!defaultAsset) throw new Error("defaultAsset not set");
-    if (!paraId) throw new Error("paraId not set");
+    if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
+    if (_.isUndefined(paraId)) throw new Error("chainData.paraId not set");
     
     const deriveAccountOnTuring = turingAdapter.getDerivativeAccount(u8aToHex(keyringPair.addressRaw), paraId);
     console.log('deriveAccountOnTuring; ', deriveAccountOnTuring);
@@ -248,18 +250,19 @@ describe('test-mangata', () => {
   }, 1000000);
 
   test('test-turing-adapter', async () => {
-    if (!turingApi || !turingAdapter) throw new Error("Not initialized yet");
+    if (_.isUndefined(turingApi) || _.isUndefined(turingAdapter)) throw new Error("Not initialized yet");
     const extrinsic = turingApi.tx.system.remarkWithEvent('hello!');
     const { encodedCallWeight, overallWeight } = await turingAdapter.getXcmWeight(extrinsic, '68TwNoCpyz1X3ygMi9WtUAaCb8Q6jWAMvAHfAByRZqMFEtJG', 6);
     console.log('encodedCallWeight: ', encodedCallWeight);
     console.log('overallWeight: ', overallWeight);
     const { defaultAsset } = turingAdapter.getChainData();
-    const executionFee = await turingAdapter.weightToFee(overallWeight, defaultAsset?.location);
+    if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
+    const executionFee = await turingAdapter.weightToFee(overallWeight, defaultAsset.location);
     console.log('executionFee: ', executionFee.toString());
   }, 1000000);
 
   test('test-mangata-adapter', async () => {
-    if (!mangataApi || !mangataAdapter) throw new Error("Not initialized yet");
+    if (_.isUndefined(mangataApi) || _.isUndefined(mangataAdapter)) throw new Error("Not initialized yet");
     const extrinsic = mangataApi.tx.system.remarkWithEvent('hello!');
     const { encodedCallWeight, overallWeight } = await mangataAdapter.getXcmWeight(extrinsic, '68TwNoCpyz1X3ygMi9WtUAaCb8Q6jWAMvAHfAByRZqMFEtJG', 6);
     console.log('encodedCallWeight: ', encodedCallWeight);
@@ -269,7 +272,7 @@ describe('test-mangata', () => {
   }, 1000000);
 
   test('test-mangata-xcmp-task', async () => {
-    if (!mangataApi || !mangataAdapter || !turingAdapter || !keyringPair) throw new Error("Not initialized yet");
+    if (_.isUndefined(mangataApi) || _.isUndefined(mangataAdapter) || _.isUndefined(turingAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
     // Make task payload extrinsic
     const taskPayloadExtrinsic = mangataApi.tx.system.remarkWithEvent('hello!');
 
@@ -285,9 +288,9 @@ describe('test-mangata', () => {
   }, 1000000);
 
   test('test-oak-adapter-transfer', async () => {
-    if (!mangataApi || !mangataAdapter || !turingAdapter || !keyringPair) throw new Error("Not initialized yet");
+    if (_.isUndefined(mangataApi) || _.isUndefined(mangataAdapter) || _.isUndefined(turingAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
     const { defaultAsset: oakAsset } = turingAdapter.getChainData();
-    if (!oakAsset) throw new Error("defaultAsset not set");
+    if (_.isUndefined(oakAsset)) throw new Error("chainData.defaultAsset not set");
   
     // Transfer
     await turingAdapter.crossChainTransfer(
@@ -300,9 +303,9 @@ describe('test-mangata', () => {
   }, 1000000);
   
   test('test-mangat-adapter-transfer', async () => {
-    if (!mangataApi || !mangataAdapter || !turingAdapter || !keyringPair) throw new Error("Not initialized yet");
+    if (_.isUndefined(mangataApi) || _.isUndefined(mangataAdapter) || _.isUndefined(turingAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
     const { defaultAsset: oakAsset } = turingAdapter.getChainData();
-    if (!oakAsset) throw new Error("defaultAsset not set");
+    if (_.isUndefined(oakAsset)) throw new Error("chainData.defaultAsset not set");
   
     // Transfer
     await mangataAdapter.crossChainTransfer(

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import BN from 'bn.js';
 // import '@polkadot/api-augment';
 import type { ApiPromise } from '@polkadot/api';
@@ -90,7 +91,7 @@ export abstract class ChainAdapter {
    * @returns Polkadot API
    */
   public getApi(): ApiPromise {
-    if (!this.api) throw new Error("Api not initialized");
+    if (_.isUndefined(this.api)) throw new Error("Api not initialized");
     return this.api;
   }
 
@@ -118,7 +119,7 @@ export abstract class ChainAdapter {
    */
   public getLocation(): any {
     const { paraId } = this.chainData;
-    if (!paraId) throw new Error("chainData.paraId not set");
+    if (_.isUndefined(paraId)) throw new Error("chainData.paraId not set");
     return { parents: 1, interior: { X1: { Parachain: paraId } } };
   }
 }

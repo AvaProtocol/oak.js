@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import { u8aToHex } from '@polkadot/util';
 import type { HexString } from '@polkadot/util/types';
@@ -31,7 +32,7 @@ async function scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
   keyringPair,
 }: ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams) : Promise<SendExtrinsicResult> {
   const { defaultAsset } = oakAdapter.getChainData();
-  if (!defaultAsset) throw new Error("defaultAsset not set");
+  if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
 
   // Caluculate weight and fee for task
   const destination = { V3: destinationChainAdapter.getLocation() };
@@ -69,9 +70,9 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
 }: ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams): Promise<SendExtrinsicResult> {
   const oakApi = oakAdapter.getApi();
   const { paraId, xcmInstructionNetworkType, network } = destinationChainAdapter.getChainData();
-  if (!paraId) throw new Error("paraId not set");
-  if (!xcmInstructionNetworkType) throw new Error("xcmInstructionNetworkType not set");
-  if (!network) throw new Error("network not set");
+  if (_.isUndefined(paraId)) throw new Error("chainData.paraId not set");
+  if (_.isUndefined(xcmInstructionNetworkType)) throw new Error("chainData.xcmInstructionNetworkType not set");
+  if (_.isUndefined(network)) throw new Error("chainData.network not set");
 
   // Caluculate weight and fee for task
   const destination = { V3: destinationChainAdapter.getLocation() };

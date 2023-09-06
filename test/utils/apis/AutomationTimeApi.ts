@@ -9,7 +9,6 @@ import {
   LOWEST_TRANSFERRABLE_AMOUNT,
   MIN_IN_HOUR,
   MS_IN_SEC,
-  OakChainSchedulingLimit,
   RECURRING_TASK_LIMIT,
   SEC_IN_MIN,
 } from '../constants'

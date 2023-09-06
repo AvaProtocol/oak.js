@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { ApiPromise } from '@polkadot/api';
 import type { KeyringPair } from '@polkadot/keyring/types';
 

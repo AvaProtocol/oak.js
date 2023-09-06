@@ -55,40 +55,38 @@ export const getContext = async (polkadotApi: ApiPromise) => {
   * @param extrinsicHex 
   * @returns promise
   */
- export const sendExtrinsic = async (polkadotApi: ApiPromise, extrinsicHex: HexString) : Promise<{extrinsicHash: string, blockHash: string, events: any[]}> => {
-   return new Promise(async (resolve, reject) => {
-     try {
-       const txHash = await sendExtrinsicToChain(polkadotApi, extrinsicHex, ({ status, events, dispatchError }) => {
-         if (status?.isFinalized) {
-           if (!_.isNil(dispatchError)) {
-             if (dispatchError.isModule) {
-                 const metaError = polkadotApi.registry.findMetaError(dispatchError.asModule);
-                 const { name, section } = metaError;
-                 reject(new Error(`${section}.${name}`));
-                 return;
-             } else {
-                 reject(new Error(dispatchError.toString()));
-                 return;
-             }
-           }
- 
-           const event = _.find(events, ({ event }) => polkadotApi.events.system.ExtrinsicSuccess.is(event));
-           // We pass the event array out so the caller can access and fetch relevant data in extrinsic such as the task id. Recall that task id is emit from the TaskScheduled { who, taskId } event
-           // if the event is empty that mean the extrinsic failed the test resolve to error
-           if (event) {
-             resolve({ extrinsicHash: txHash, blockHash: status?.asFinalized?.toString(), events });
-           } else {
-             reject(new Error('The event.ExtrinsicSuccess is not found'));
-           }
-         }
-       });
-     } catch (error) {
-       reject(error);
-     }
-   });
+export const sendExtrinsic = async (polkadotApi: ApiPromise, extrinsicHex: HexString) : Promise<{extrinsicHash: string, blockHash: string, events: any[]}> => {
+  return new Promise((resolve, reject) => {
+    const extrinsic = polkadotApi.tx(extrinsicHex);
+    sendExtrinsicToChain(polkadotApi, extrinsicHex, ({ status, events, dispatchError }) => {
+      if (status?.isFinalized) {
+        if (!_.isNil(dispatchError)) {
+          if (dispatchError.isModule) {
+              const metaError = polkadotApi.registry.findMetaError(dispatchError.asModule);
+              const { name, section } = metaError;
+              reject(new Error(`${section}.${name}`));
+              return;
+          } else {
+              reject(new Error(dispatchError.toString()));
+              return;
+          }
+        }
+
+        const event = _.find(events, ({ event }) => polkadotApi.events.system.ExtrinsicSuccess.is(event));
+        // We pass the event array out so the caller can access and fetch relevant data in extrinsic such as the task id. Recall that task id is emit from the TaskScheduled { who, taskId } event
+        // if the event is empty that mean the extrinsic failed the test resolve to error
+        if (event) {
+          resolve({ extrinsicHash: extrinsic.hash.toString(), blockHash: status?.asFinalized?.toString(), events });
+        } else {
+          reject(new Error('The event.ExtrinsicSuccess is not found'));
+        }
+      }
+    })
+    .catch((reason) => reject(reason));
+  });
  }
  
- export const hexToAscii = (hexStr: String, hasPrefix = false) => {
+ export const hexToAscii = (hexStr: string, hasPrefix = false) => {
    const hex = hasPrefix ? hexStr : hexStr.substring(2);
    let str = '';
    for (let i = 0; i < hex.length; i += 2) {
@@ -188,7 +186,7 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
 
   // Make sure the task has been canceled.
   const tasks = await automationTimeApi.getAutomationTimeScheduledTasks(executionTimestamp);
-  expect(_.find(tasks, (task) => !_.isNil(_.find(task, ([_account, scheduledTaskId]) => scheduledTaskId === taskID)))).toBeUndefined();
+  expect(_.find(tasks, (task) => !_.isNil(_.find(task, (task) => task[1] === taskID)))).toBeUndefined();
 }
  
  /**
@@ -238,6 +236,7 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
 
    const taskID = Buffer.from(taskScheduledEvent.event.data.taskId).toString();
    const tasks = await automationTimeApi.getAutomationTimeScheduledTasks(firstExecutionTime);
+   // eslint-disable-next-line @typescript-eslint/no-unused-vars
    expect(_.find(tasks, (task) => !_.isNil(_.find(task, ([_account, scheduledTaskId]) => scheduledTaskId === taskID)))).toBeUndefined();
  
    return taskID;

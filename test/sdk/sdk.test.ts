@@ -10,26 +10,15 @@ import { MoonbeamAdapter, MangataAdapter, AstarAdapter, OakAdapter } from '@oak-
 import { Sdk } from '@oak-network/sdk';
 import { rpc, types, runtime } from '@oak-network/types';
 import { Mangata } from '@mangata-finance/sdk';
-import { getKeyringPair, getMoonbeamKeyringPair } from '../utils/helpFn';
+import { getEnvOrDefault, getKeyringPair, getMoonbeamKeyringPair } from '../utils/helpFn';
+import { ChainPairConfig, chainPairConfigs } from './config';
 
-const getOakConfig = (): Chain => {
-  return process.env.ENV === 'Turing Dev' ? chains.turingLocal : chains.turingLocal;
-}
-
-const getOakConfigWithMoonbase = (): Chain => {
-  return process.env.ENV === 'Turing Dev' ? chains.turingLocal : chains.turingMoonbase;
-}
-
-const getMangataConfig = (): Chain => {
-  return process.env.ENV === 'Turing Dev' ? chains.mangataKusama : chains.mangataRococo;
-}
-
-const getAstarConfig = (): Chain => {
-  return process.env.ENV === 'Turing Dev' ? chains.shibuya : chains.rocstar;
-}
-
-const getMoonbeamConfig = (): Chain => {
-  return process.env.ENV === 'Turing Dev' ? chains.moonbaseLocal : chains.moonbaseAlpha;
+const getChainPairConfig = (env: string, chainFamily: string) : ChainPairConfig => {
+  const envKey = env === 'Turing Staging' ? 'staging' : 'dev';
+  const chainPairKey = `${chainFamily}-${envKey}`;
+  const chainPairConfig = _.find(chainPairConfigs, ({ key: chainPairKey}));
+  if (!chainPairConfig) throw new Error("chainPairConfig is not found");
+  return chainPairConfig;
 }
 
 export const getHourlyTimestamp = (hour: number) => (moment().add(hour, 'hour').startOf('hour')).valueOf();
@@ -64,8 +53,7 @@ describe('test-moonbeam', () => {
     moonbaseKeyringPair = await getMoonbeamKeyringPair();
 
     // Get configs
-    const turingConfig = getOakConfigWithMoonbase();
-    const moonbeamConfig = getMoonbeamConfig();
+    const { oakConfig: turingConfig, peerConfig: moonbeamConfig } = getChainPairConfig(getEnvOrDefault(), 'moonbeam');
 
     // Initialize adapters
     turingApi = await ApiPromise.create({ provider: new WsProvider(turingConfig.endpoint), rpc, types, runtime });
@@ -148,8 +136,7 @@ describe('test-astar', () => {
     keyringPair = await getKeyringPair();
 
     // Get configs
-    const turingConfig = getOakConfig();
-    const astarConfig = getAstarConfig();
+    const { oakConfig: turingConfig, peerConfig: astarConfig } = getChainPairConfig(getEnvOrDefault(), 'astar');
 
     // Initialize adapters
     turingApi = await ApiPromise.create({ provider: new WsProvider(turingConfig.endpoint), rpc, types, runtime });
@@ -235,8 +222,7 @@ describe('test-mangata', () => {
     keyringPair = await getKeyringPair();
 
     // Get configs
-    const turingConfig = getOakConfig();
-    const mangataConfig = getMangataConfig();
+    const { oakConfig: turingConfig, peerConfig: mangataConfig } = getChainPairConfig(getEnvOrDefault(), 'mangata');
 
     // Initialize adapters
     turingApi = await ApiPromise.create({ provider: new WsProvider(turingConfig.endpoint), rpc, types, runtime });

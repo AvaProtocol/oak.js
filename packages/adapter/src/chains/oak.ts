@@ -156,7 +156,6 @@ export class OakAdapter extends ChainAdapter {
 
   /**
    * Calculate the derivative account ID of a certain account ID
-   * @param api Polkadot API
    * @param accountId 
    * @param paraId The paraId of the XCM message sender
    * @param options Optional operation options: { locationType, network }

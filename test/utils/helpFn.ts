@@ -26,7 +26,7 @@ const RECURRING_FREQUENCY = 3600;
 // https://github.com/moonbeam-foundation/moonbeam/blob/2ea0db7c18d907ddeda1a5f4d3f68262e10560e7/README.md?plain=1#L65
 const ALITH_PRIVATE_KEY = '0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133';
 
-const getEnv = () => {
+export const getEnvOrDefault = () => {
   return process.env.ENV || 'Turing Dev';
 }
 
@@ -60,7 +60,7 @@ export const sendExtrinsic = async (polkadotApi: ApiPromise, extrinsicHex: HexSt
     const extrinsic = polkadotApi.tx(extrinsicHex);
     sendExtrinsicToChain(polkadotApi, extrinsicHex, ({ status, events, dispatchError }) => {
       if (status?.isFinalized) {
-        if (!_.isNil(dispatchError)) {
+        if (!_.isUndefined(dispatchError)) {
           if (dispatchError.isModule) {
               const metaError = polkadotApi.registry.findMetaError(dispatchError.asModule);
               const { name, section } = metaError;
@@ -130,7 +130,7 @@ export const getMoonbeamKeyringPair = async (): Promise<KeyringPair> => {
   await waitReady();
   const keyringECDSA = new Keyring({ type: 'ethereum' });
   let moonbeamKeyringPair = null;
-  if (getEnv() === 'Turing Dev' && _.isEmpty(process.env.MNEMONIC)) {
+  if (getEnvOrDefault() === 'Turing Dev' && _.isEmpty(process.env.MNEMONIC)) {
     moonbeamKeyringPair = keyringECDSA.addFromSeed(hexToU8a(ALITH_PRIVATE_KEY), undefined, 'ethereum');
   } else {
     if (_.isEmpty(process.env.MNEMONIC)) {

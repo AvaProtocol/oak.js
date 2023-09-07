@@ -6,7 +6,7 @@ import type { KeyringPair } from '@polkadot/keyring/types';
 import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { u32 } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
-import { ChainAsset, Weight, Chain as ChainConfig } from '@oak-network/sdk-types';
+import { ChainAsset, Weight, Chain as ChainConfig, ChainXcmInfo } from '@oak-network/sdk-types';
 import { SendExtrinsicResult, XcmInstructionNetworkType } from '../types';
 
 export class ChainData {
@@ -19,8 +19,8 @@ export class ChainData {
   paraId: number | undefined;
   ss58Prefix: number | undefined;
   name: string | undefined;
-  instructionWeight: Weight  | undefined;
   xcmInstructionNetworkType: XcmInstructionNetworkType = XcmInstructionNetworkType.Null; 
+  xcm: ChainXcmInfo | undefined;
 }
 
 export abstract class ChainAdapter {
@@ -38,10 +38,9 @@ export abstract class ChainAdapter {
     this.chainData.key = config.key;
     this.chainData.assets = config.assets;
     this.chainData.defaultAsset = config.defaultAsset;
-    this.chainData.instructionWeight = config.instructionWeight;
     this.chainData.endpoint = config.endpoint;
-    this.chainData.network = config.network;
     this.chainData.relayChain = config.relayChain;
+    this.chainData.xcm = config.xcm;
   }
   
   /**

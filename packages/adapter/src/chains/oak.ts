@@ -41,10 +41,10 @@ export class OakAdapter extends ChainAdapter {
    * returns { encodedCallWeight, overallWeight }
    */
   async getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
-    const { instructionWeight } = this.chainData;
-    if (_.isUndefined(instructionWeight)) throw new Error("chainData.instructionWeight not set");
+    const { xcm } = this.chainData;
+    if (_.isUndefined(xcm)) throw new Error("chainData.xcm not set");
     const encodedCallWeight = await this.getExtrinsicWeight(extrinsic, account);
-    const overallWeight = encodedCallWeight.add(instructionWeight.muln(instructionCount));
+    const overallWeight = encodedCallWeight.add(xcm.instructionWeight.muln(instructionCount));
     return { encodedCallWeight, overallWeight };
   }
 

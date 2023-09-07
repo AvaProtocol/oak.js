@@ -12,9 +12,11 @@ export const moonbaseLocal = new Chain({
   assets: moonbaseAssets,
   defaultAsset: moonbaseAlphaAsset,
   endpoint: 'ws://127.0.0.1:9949',
-  network: 'rococo',
   relayChain: 'local',
-  instructionWeight: new Weight(new BN('250000000'), new BN('10000')),
+  xcm: {
+    network: 'rococo',
+    instructionWeight: new Weight(new BN('250000000'), new BN('10000')),
+  }
 });
 
 // moonbase-alpha
@@ -23,9 +25,11 @@ export const moonbaseAlpha = new Chain({
   assets: moonbaseAssets,
   defaultAsset: moonbaseAlphaAsset,
   endpoint: 'wss://wss.api.moonbase.moonbeam.network',
-  network: 'rococo',
   relayChain: 'moonbase-alpha-relay',
-  instructionWeight: new Weight(new BN('250000000'), new BN('10000')),
+  xcm: {
+    network: 'rococo',
+    instructionWeight: new Weight(new BN('250000000'), new BN('10000')),
+  }
 });
 
 // moonriver
@@ -33,8 +37,10 @@ export const moonriver = new Chain({
   key: 'moonriver',
   assets: moonbaseAssets,
   defaultAsset: moonbaseAlphaAsset,
-  network: 'kusama',
-  relayChain: 'kusama',
   endpoint: 'wss://wss.api.moonriver.moonbeam.network',
-  instructionWeight: new Weight(new BN('200000000'), new BN('10000')),
+  relayChain: 'kusama',
+  xcm: {
+    network: 'kusama',
+    instructionWeight: new Weight(new BN('250000000'), new BN('10000')),
+  }
 });

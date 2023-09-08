@@ -19,7 +19,7 @@ export class OakAdapter extends ChainAdapter {
    * Initialize adapter
    */
   async initialize() {
-    await this.updateChainData();
+    await this.fetchAndUpdateConfigs();
   }
 
   /**

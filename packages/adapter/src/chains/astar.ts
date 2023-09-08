@@ -20,14 +20,14 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * Initialize adapter
    */
   async initialize() {
-    await this.updateChainData();
+    await this.fetchAndUpdateConfigs();
   }
 
   /**
-   * Update chain data
+   * Fetch configs from chain and Update chain data
    */
-  public async updateChainData(): Promise<void> {
-    await super.updateChainData();
+  public async fetchAndUpdateConfigs(): Promise<void> {
+    await super.fetchAndUpdateConfigs();
     this.chainData.xcmInstructionNetworkType = XcmInstructionNetworkType.Concrete;
   }
 

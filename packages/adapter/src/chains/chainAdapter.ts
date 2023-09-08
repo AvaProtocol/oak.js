@@ -95,9 +95,9 @@ export abstract class ChainAdapter {
   }
 
   /**
-   * Update chain data
+   * Fetch configs from chain and Update chain data
    */
-  public async updateChainData(): Promise<void> {
+  public async fetchAndUpdateConfigs(): Promise<void> {
     const api = this.getApi();
     this.chainData.ss58Prefix = (api.consts.system.ss58Prefix as unknown as u32).toNumber();
     const storageValue = await api.query.parachainInfo.parachainId();

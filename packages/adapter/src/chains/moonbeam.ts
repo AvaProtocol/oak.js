@@ -19,7 +19,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
    * Initialize adapter
    */
   async initialize() {
-    await this.updateChainData();
+    await this.fetchAndUpdateConfigs();
     await this.updateAssets();
   }
 

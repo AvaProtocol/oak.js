@@ -186,7 +186,7 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
 
   // Make sure the task has been canceled.
   const tasks = await automationTimeApi.getAutomationTimeScheduledTasks(executionTimestamp);
-  expect(_.find(tasks, (task) => !_.isNil(_.find(task, (task) => task[1] === taskID)))).toBeUndefined();
+  expect(_.find(tasks, (task) => !_.isUndefined(_.find(task, (task) => task[1] === taskID)))).toBeUndefined();
 }
  
  /**
@@ -237,7 +237,7 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
    const taskID = Buffer.from(taskScheduledEvent.event.data.taskId).toString();
    const tasks = await automationTimeApi.getAutomationTimeScheduledTasks(firstExecutionTime);
    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-   expect(_.find(tasks, (task) => !_.isNil(_.find(task, ([_account, scheduledTaskId]) => scheduledTaskId === taskID)))).toBeUndefined();
+   expect(_.find(tasks, (task) => !_.isUndefined(_.find(task, ([_account, scheduledTaskId]) => scheduledTaskId === taskID)))).toBeUndefined();
  
    return taskID;
  }
@@ -276,7 +276,7 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
 const defaultErrorHandler = async (polkadotApi: ApiPromise, result: ISubmittableResult): Promise<void> => {
   console.log(`Tx status: ${result.status.type}`)
   if (result.status.isFinalized) {
-    if (!_.isNil(result.dispatchError)) {
+    if (!_.isUndefined(result.dispatchError)) {
       if (result.dispatchError.isModule) {
         const metaError = polkadotApi.registry.findMetaError(result.dispatchError.asModule)
         const { docs, name, section } = metaError
@@ -309,7 +309,7 @@ const sendExtrinsicToChain = async (
   const txObject = polkadotApi.tx(extrinsicHex)
   const unsub = await txObject.send(async (result) => {
     const { status } = result
-    if (_.isNil(handleDispatch)) {
+    if (_.isUndefined(handleDispatch)) {
       await defaultErrorHandler(polkadotApi, result)
     } else {
       await handleDispatch(result)

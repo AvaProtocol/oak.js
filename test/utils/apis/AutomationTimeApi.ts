@@ -165,7 +165,7 @@ export class AutomationTimeApi {
       } 
     }
 
-    if (_.isNil(call)) {
+    if (_.isUndefined(call)) {
       throw new Error("call is null or undefined");
     }
 

@@ -42,5 +42,5 @@ jobs:
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
       - name: 🚀 Publish ${{ matrix.package }} package
-        working-directory: ./packages/${{ matrix.package }}
+        working-directory: ./packages/${{ matrix.package }}/build
         run: npm publish --tag dev

@@ -39,6 +39,23 @@ jobs:
       - name: 🔐 Authenticate with NPM
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
+      - name: Get max published version from npm
+        id: get-max-version
+        run: |
+          all_versions=$(npm show @oak-network/${{ matrix.package }} versions --json)
+          all_versions=$(echo "$all_versions" | tr -d ' \t\n\r')
+          max_version=$(echo $all_versions | jq 'max' -r)
+          echo "::set-output name=max_version::$max_version"
+
       - name: 🚀 Publish ${{ matrix.package }} package
         working-directory: ./packages/${{ matrix.package }}/build
-        run: npm publish --tag dev
+        run: |
+          current_version=$(node -p "require('./package.json').version")
+          max_version="${{ steps.get-max-version.outputs.max_version }}"
+          if [ "$current_version" '>' "$max_version" ]; then
+            echo "Current version: $current_version"
+            echo "Max version: $max_version"
+            npm publish --tag dev
+          else
+            echo "Package is up to date."
+          fi

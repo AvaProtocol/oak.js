@@ -1,6 +1,7 @@
 
 import _ from 'lodash';
 import { WsProvider, ApiPromise, Keyring } from '@polkadot/api';
+import { hexToU8a } from '@polkadot/util';
 import type { HexString } from '@polkadot/util/types';
 import type { Extrinsic } from '@polkadot/types/interfaces/extrinsics';
 import type { KeyringPair } from '@polkadot/keyring/types';
@@ -21,6 +22,13 @@ export const MIN_RUNNING_TEST_BALANCE = 20000000000;
 export const TRANSFER_AMOUNT = 1000000000;
 export const RECEIVER_ADDRESS = '66fhJwYLiK87UDXYDQP9TfYdHpeEyMvQ3MK8Z6GgWAdyyCL3';
 const RECURRING_FREQUENCY = 3600;
+// This is a Moonbeam test account private key. Please do not use it for any other purpose.
+// https://github.com/moonbeam-foundation/moonbeam/blob/2ea0db7c18d907ddeda1a5f4d3f68262e10560e7/README.md?plain=1#L65
+const ALITH_PRIVATE_KEY = '0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133';
+
+export const getEnvOrDefault = () => {
+  return process.env.ENV || 'Turing Dev';
+}
 
 export const createPolkadotApi = async (endpoint: string) => {
   const wsProvider = new WsProvider(endpoint);
@@ -47,40 +55,38 @@ export const getContext = async (polkadotApi: ApiPromise) => {
   * @param extrinsicHex 
   * @returns promise
   */
- export const sendExtrinsic = async (polkadotApi: ApiPromise, extrinsicHex: HexString) : Promise<{extrinsicHash: string, blockHash: string, events: any[]}> => {
-   return new Promise(async (resolve, reject) => {
-     try {
-       const txHash = await sendExtrinsicToChain(polkadotApi, extrinsicHex, ({ status, events, dispatchError }) => {
-         if (status?.isFinalized) {
-           if (!_.isNil(dispatchError)) {
-             if (dispatchError.isModule) {
-                 const metaError = polkadotApi.registry.findMetaError(dispatchError.asModule);
-                 const { name, section } = metaError;
-                 reject(new Error(`${section}.${name}`));
-                 return;
-             } else {
-                 reject(new Error(dispatchError.toString()));
-                 return;
-             }
-           }
- 
-           const event = _.find(events, ({ event }) => polkadotApi.events.system.ExtrinsicSuccess.is(event));
-           // We pass the event array out so the caller can access and fetch relevant data in extrinsic such as the task id. Recall that task id is emit from the TaskScheduled { who, taskId } event
-           // if the event is empty that mean the extrinsic failed the test resolve to error
-           if (event) {
-             resolve({ extrinsicHash: txHash, blockHash: status?.asFinalized?.toString(), events });
-           } else {
-             reject(new Error('The event.ExtrinsicSuccess is not found'));
-           }
-         }
-       });
-     } catch (error) {
-       reject(error);
-     }
-   });
+export const sendExtrinsic = async (polkadotApi: ApiPromise, extrinsicHex: HexString) : Promise<{extrinsicHash: string, blockHash: string, events: any[]}> => {
+  return new Promise((resolve, reject) => {
+    const extrinsic = polkadotApi.tx(extrinsicHex);
+    sendExtrinsicToChain(polkadotApi, extrinsicHex, ({ status, events, dispatchError }) => {
+      if (status?.isFinalized) {
+        if (!_.isUndefined(dispatchError)) {
+          if (dispatchError.isModule) {
+              const metaError = polkadotApi.registry.findMetaError(dispatchError.asModule);
+              const { name, section } = metaError;
+              reject(new Error(`${section}.${name}`));
+              return;
+          } else {
+              reject(new Error(dispatchError.toString()));
+              return;
+          }
+        }
+
+        const event = _.find(events, ({ event }) => polkadotApi.events.system.ExtrinsicSuccess.is(event));
+        // We pass the event array out so the caller can access and fetch relevant data in extrinsic such as the task id. Recall that task id is emit from the TaskScheduled { who, taskId } event
+        // if the event is empty that mean the extrinsic failed the test resolve to error
+        if (event) {
+          resolve({ extrinsicHash: extrinsic.hash.toString(), blockHash: status?.asFinalized?.toString(), events });
+        } else {
+          reject(new Error('The event.ExtrinsicSuccess is not found'));
+        }
+      }
+    })
+    .catch((reason) => reject(reason));
+  });
  }
  
- export const hexToAscii = (hexStr: String, hasPrefix = false) => {
+ export const hexToAscii = (hexStr: string, hasPrefix = false) => {
    const hex = hasPrefix ? hexStr : hexStr.substring(2);
    let str = '';
    for (let i = 0; i < hex.length; i += 2) {
@@ -99,10 +105,10 @@ export const getContext = async (polkadotApi: ApiPromise) => {
  };
 
 /**
- * getKeyringPair: Get keyring pair for testing
+ * Get keyring pair for testing
  * @returns keyring pair
  */
-export const getKeyringPair = async () => {
+export const getKeyringPair = async (): Promise<KeyringPair> => {
   const { mnemonic } = config;
   if (_.isEmpty(mnemonic)) {
     throw new Error('The MNEMONIC environment variable is not set.')
@@ -114,6 +120,31 @@ export const getKeyringPair = async () => {
   const keyring = new Keyring({ type: 'sr25519', ss58Format: SS58_PREFIX });
   const keyringPair = _.startsWith(mnemonic, '//') ? keyring.addFromUri(mnemonic) : keyring.addFromMnemonic(mnemonic);
   return keyringPair;
+}
+
+/**
+ * Get keyring pair for moonbeam testing
+ * @returns keyring pair
+ */
+export const getMoonbeamKeyringPair = async (): Promise<KeyringPair> => {
+  await waitReady();
+  const keyringECDSA = new Keyring({ type: 'ethereum' });
+  let moonbeamKeyringPair = null;
+  if (getEnvOrDefault() === 'Turing Dev' && _.isEmpty(process.env.MNEMONIC)) {
+    moonbeamKeyringPair = keyringECDSA.addFromSeed(hexToU8a(ALITH_PRIVATE_KEY), undefined, 'ethereum');
+  } else {
+    if (_.isEmpty(process.env.MNEMONIC)) {
+      throw new Error('The MNEMONIC environment variable is not set.')
+    }
+    const index = 0;
+    const ethDerPath = "m/44'/60'/0'/0/" + index;
+
+    await waitReady();
+    const keyringECDSA = new Keyring({ type: 'ethereum' });
+    moonbeamKeyringPair = keyringECDSA.addFromUri(`${process.env.MNEMONIC}/${ethDerPath}`);
+    console.log('moonbeamKeyringPair: ', moonbeamKeyringPair.address)
+  }
+  return moonbeamKeyringPair;
 }
 
  /**
@@ -155,7 +186,7 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
 
   // Make sure the task has been canceled.
   const tasks = await automationTimeApi.getAutomationTimeScheduledTasks(executionTimestamp);
-  expect(_.find(tasks, (task) => !_.isNil(_.find(task, ([_account, scheduledTaskId]) => scheduledTaskId === taskID)))).toBeUndefined();
+  expect(_.find(tasks, (task) => !_.isUndefined(_.find(task, (task) => task[1] === taskID)))).toBeUndefined();
 }
  
  /**
@@ -205,7 +236,8 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
 
    const taskID = Buffer.from(taskScheduledEvent.event.data.taskId).toString();
    const tasks = await automationTimeApi.getAutomationTimeScheduledTasks(firstExecutionTime);
-   expect(_.find(tasks, (task) => !_.isNil(_.find(task, ([_account, scheduledTaskId]) => scheduledTaskId === taskID)))).toBeUndefined();
+   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   expect(_.find(tasks, (task) => !_.isUndefined(_.find(task, ([_account, scheduledTaskId]) => scheduledTaskId === taskID)))).toBeUndefined();
  
    return taskID;
  }
@@ -244,7 +276,7 @@ export const cancelTaskAndVerify = async (automationTimeApi: AutomationTimeApi, 
 const defaultErrorHandler = async (polkadotApi: ApiPromise, result: ISubmittableResult): Promise<void> => {
   console.log(`Tx status: ${result.status.type}`)
   if (result.status.isFinalized) {
-    if (!_.isNil(result.dispatchError)) {
+    if (!_.isUndefined(result.dispatchError)) {
       if (result.dispatchError.isModule) {
         const metaError = polkadotApi.registry.findMetaError(result.dispatchError.asModule)
         const { docs, name, section } = metaError
@@ -277,7 +309,7 @@ const sendExtrinsicToChain = async (
   const txObject = polkadotApi.tx(extrinsicHex)
   const unsub = await txObject.send(async (result) => {
     const { status } = result
-    if (_.isNil(handleDispatch)) {
+    if (_.isUndefined(handleDispatch)) {
       await defaultErrorHandler(polkadotApi, result)
     } else {
       await handleDispatch(result)

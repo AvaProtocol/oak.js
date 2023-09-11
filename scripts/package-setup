@@ -16,7 +16,6 @@ fs.writeFileSync("./package.json", JSON.stringify(aaPkg, null, 2));
 fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
 
 process.chdir("../..");
-
 process.chdir(`types/build`);
 const tPkg = JSON.parse(fs.readFileSync('../package.json'));
 
@@ -24,5 +23,46 @@ tPkg.scripts = {};
 tPkg.main = "./index.js";
 tPkg.types = "./index.d.ts";
 fs.writeFileSync("./package.json", JSON.stringify(tPkg, null, 2));
+
+process.chdir("../..");
+process.chdir(`config/build`);
+const configPkg = JSON.parse(fs.readFileSync('../package.json'));
+
+configPkg.scripts = {};
+configPkg.main = "./index.js";
+configPkg.types = "./index.d.ts";
+fs.writeFileSync("./package.json", JSON.stringify(configPkg, null, 2));
+fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
+
+process.chdir("../..");
+process.chdir(`sdk/build`);
+const sdkPkg = JSON.parse(fs.readFileSync('../package.json'));
+
+sdkPkg.scripts = {};
+sdkPkg.main = "./index.js";
+sdkPkg.types = "./index.d.ts";
+fs.writeFileSync("./package.json", JSON.stringify(sdkPkg, null, 2));
+fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
+
+
+process.chdir("../..");
+process.chdir(`sdk-types/build`);
+const sdkTypesPkg = JSON.parse(fs.readFileSync('../package.json'));
+
+sdkTypesPkg.scripts = {};
+sdkTypesPkg.main = "./index.js";
+sdkTypesPkg.types = "./index.d.ts";
+fs.writeFileSync("./package.json", JSON.stringify(sdkTypesPkg, null, 2));
+fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
+
+process.chdir("../..");
+process.chdir(`adapter/build`);
+const adapterPkg = JSON.parse(fs.readFileSync('../package.json'));
+
+adapterPkg.scripts = {};
+adapterPkg.main = "./index.js";
+adapterPkg.types = "./index.d.ts";
+fs.writeFileSync("./package.json", JSON.stringify(adapterPkg, null, 2));
+fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
 
 process.chdir("../..");

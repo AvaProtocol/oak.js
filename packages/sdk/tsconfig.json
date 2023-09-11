@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build",
+    "skipLibCheck": true
+  },
+  "references": [
+    { "path": "../sdk-types" },
+    { "path": "../adapter" }
+  ]
+}

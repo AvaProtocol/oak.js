@@ -15,16 +15,14 @@ jobs:
           # List the packages to run here. The matrix will run one job for each package parallelly. 
           - api-augment
           - types
+          - config
+          - adapter
+          - sdk-types
+          - sdk
 
     steps:
       - name: 🤘 checkout
         uses: actions/checkout@v3
-
-      - name: Set name of packages
-        id: set_package_names
-        run: |
-          packages='api-augment types'
-          echo "::set-output name=packages::$packages"
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.0.0

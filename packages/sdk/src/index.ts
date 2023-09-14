@@ -69,10 +69,10 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
   keyringPair,
 }: ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams): Promise<SendExtrinsicResult> {
   const oakApi = oakAdapter.getApi();
-  const { paraId, xcmInstructionNetworkType, network } = destinationChainAdapter.getChainData();
+  const { paraId, xcmInstructionNetworkType, xcm } = destinationChainAdapter.getChainData();
   if (_.isUndefined(paraId)) throw new Error("chainData.paraId not set");
   if (_.isUndefined(xcmInstructionNetworkType)) throw new Error("chainData.xcmInstructionNetworkType not set");
-  if (_.isUndefined(network)) throw new Error("chainData.network not set");
+  if (_.isUndefined(xcm)) throw new Error("chainData.xcm not set");
 
   // Caluculate weight and fee for task
   const destination = { V3: destinationChainAdapter.getLocation() };
@@ -84,7 +84,7 @@ async function scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
   const executionFee = { assetLocation: { V3: executionFeeLocation }, amount: executionFeeAmout };
 
   // Calculate derive account on Turing/OAK
-  const options = xcmInstructionNetworkType === XcmInstructionNetworkType.Concrete ? { locationType: 'XcmV3MultiLocation', network } : undefined;
+  const options = xcmInstructionNetworkType === XcmInstructionNetworkType.Concrete ? { locationType: 'XcmV3MultiLocation', network: xcm.network } : undefined;
   const deriveAccountId = oakAdapter.getDerivativeAccount(u8aToHex(keyringPair.addressRaw), paraId, options);
   
   // Schedule task through proxy

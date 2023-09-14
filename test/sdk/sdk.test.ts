@@ -12,6 +12,7 @@ import { rpc, types, runtime } from '@oak-network/types';
 import { Mangata } from '@mangata-finance/sdk';
 import { getEnvOrDefault, getKeyringPair, getMoonbeamKeyringPair } from '../utils/helpFn';
 import { ChainPairConfig, chainPairConfigs } from './config';
+import { DEFAULT_TIMEOUT_INITIALIZE, DEFAULT_TIMEOUT_PER_TEST } from '../utils/constants';
 
 const getChainPairConfig = (env: string, chainFamily: string) : ChainPairConfig => {
   const envKey = env === 'Turing Staging' ? 'staging' : 'dev';
@@ -63,7 +64,7 @@ describe('test-moonbeam', () => {
     moonbaseApi = await ApiPromise.create({ provider: new WsProvider(moonbeamConfig.endpoint) });
     moonbaseAdapter = new MoonbeamAdapter(moonbaseApi, moonbeamConfig);
     await moonbaseAdapter.initialize();
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_INITIALIZE);
 
   test('test-moonbase-adapter', async () => {
     if (_.isUndefined(moonbaseApi) || _.isUndefined(moonbaseAdapter)) throw new Error("Not initialized yet");
@@ -96,7 +97,7 @@ describe('test-moonbeam', () => {
       scheduleAs: u8aToHex(keyringPair.addressRaw),
       keyringPair: moonbaseKeyringPair,
     });
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_PER_TEST);
   
   test('test-moonbeam-transfer', async () => {
     if (_.isUndefined(turingAdapter) || _.isUndefined(moonbaseApi) || _.isUndefined(moonbaseAdapter) || _.isUndefined(keyringPair) || _.isUndefined(moonbaseKeyringPair)) throw new Error("Not initialized yet");
@@ -116,12 +117,12 @@ describe('test-moonbeam', () => {
       new BN('200000000000000000'),
       moonbaseKeyringPair,
     );
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_PER_TEST);
 
   afterAll(async () => {
     await turingApi?.disconnect();
     await moonbaseApi?.disconnect();
-  }, 1000000)
+  });
 });
 
 describe('test-astar', () => {
@@ -146,7 +147,7 @@ describe('test-astar', () => {
     astarApi = await ApiPromise.create({ provider: new WsProvider(astarConfig.endpoint) });
     astarAdapter = new AstarAdapter(astarApi, astarConfig);
     await astarAdapter.initialize();
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_INITIALIZE);
 
   test('test-astar-adapter', async () => {
     if (_.isUndefined(astarApi) || _.isUndefined(astarAdapter)) throw new Error("Not initialized yet");
@@ -159,7 +160,7 @@ describe('test-astar', () => {
     const executionFee = await astarAdapter.weightToFee(overallWeight, defaultAsset.location);
     console.log('executionFee: ', executionFee.toString());
     await astarApi.disconnect();
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_PER_TEST);
 
   test('test-astar-xcmp-task', async () => {
     if (_.isUndefined(astarApi) || _.isUndefined(turingAdapter) || _.isUndefined(astarAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
@@ -181,7 +182,7 @@ describe('test-astar', () => {
       scheduleAs: u8aToHex(keyringPair.addressRaw),
       keyringPair,
     });
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_PER_TEST);
   
   test('test-astar-transfer', async () => {
     if (_.isUndefined(astarApi) || _.isUndefined(turingAdapter) || _.isUndefined(astarAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
@@ -201,12 +202,12 @@ describe('test-astar', () => {
       new BN('200000000000000000'),
       keyringPair,
     );
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_PER_TEST);
 
   afterAll(async () => {
     await turingApi?.disconnect();
     await astarApi?.disconnect();
-  }, 1000000);
+  });
 });
 
 describe('test-mangata', () => {
@@ -233,7 +234,7 @@ describe('test-mangata', () => {
     mangataApi = await mangataSdk.getApi();
     mangataAdapter = new MangataAdapter(mangataApi, mangataConfig);
     await mangataAdapter.initialize();
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_INITIALIZE);
 
   test('test-turing-adapter', async () => {
     if (_.isUndefined(turingApi) || _.isUndefined(turingAdapter)) throw new Error("Not initialized yet");
@@ -245,7 +246,7 @@ describe('test-mangata', () => {
     if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
     const executionFee = await turingAdapter.weightToFee(overallWeight, defaultAsset.location);
     console.log('executionFee: ', executionFee.toString());
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_PER_TEST);
 
   test('test-mangata-adapter', async () => {
     if (_.isUndefined(mangataApi) || _.isUndefined(mangataAdapter)) throw new Error("Not initialized yet");
@@ -255,7 +256,7 @@ describe('test-mangata', () => {
     console.log('overallWeight: ', overallWeight);
     const executionFee = await mangataAdapter.weightToFee(overallWeight, assets.tur.location);
     console.log('executionFee: ', executionFee.toString());
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_PER_TEST);
 
   test('test-mangata-xcmp-task', async () => {
     if (_.isUndefined(mangataApi) || _.isUndefined(mangataAdapter) || _.isUndefined(turingAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
@@ -271,7 +272,7 @@ describe('test-mangata', () => {
       schedule: { Fixed: { executionTimes } },
       keyringPair,
     });
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_PER_TEST);
 
   test('test-oak-adapter-transfer', async () => {
     if (_.isUndefined(mangataApi) || _.isUndefined(mangataAdapter) || _.isUndefined(turingAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
@@ -286,7 +287,7 @@ describe('test-mangata', () => {
       new BN('50000000000'),
       keyringPair,
     );
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_PER_TEST);
   
   test('test-mangat-adapter-transfer', async () => {
     if (_.isUndefined(mangataApi) || _.isUndefined(mangataAdapter) || _.isUndefined(turingAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
@@ -301,10 +302,10 @@ describe('test-mangata', () => {
       new BN('100000000000000'),
       keyringPair,
     );
-  }, 1000000);
+  }, DEFAULT_TIMEOUT_PER_TEST);
 
   afterAll(async () => {
     await turingApi?.disconnect();
     await mangataApi?.disconnect();
-  }, 1000000);
+  });
 });

@@ -3,21 +3,21 @@ import type { KeyringPair } from '@polkadot/keyring/types';
 
 import { getPolkadotApi, sendExtrinsic, getDynamicDispatchExtrinsicParams, scheduleDynamicDispatchTaskAndVerify, cancelTaskAndVerify, SECTION_NAME, checkBalance, getContext } from '../utils/helpFn';
 import { AutomationTimeApi } from '../utils';
+import { DEFAULT_TIMEOUT_INITIALIZE, DEFAULT_TIMEOUT_PER_TEST } from '../utils/constants';
 
 let polkadotApi: ApiPromise;
 let automationTimeApi: AutomationTimeApi;
 let keyringPair: KeyringPair;
 
 const initialize = async () => {
-  jest.setTimeout(540000);
   polkadotApi = await getPolkadotApi();
   const context = await getContext(polkadotApi);
   automationTimeApi = context.automationTimeApi;
   keyringPair = context.keyringPair;
 }
 
-beforeEach(() => initialize());
-afterEach(() => polkadotApi.disconnect());
+beforeAll(() => initialize(), DEFAULT_TIMEOUT_INITIALIZE);
+afterAll(() => polkadotApi?.disconnect());
 
 test('Cancel failed with nonexistent taskID', async () => {
   // Please put a string of length greater than or equal to 32 bytes here, and make sure it is a non-existing taskID.
@@ -26,7 +26,7 @@ test('Cancel failed with nonexistent taskID', async () => {
 
   const cancelExtrinsicHex = await automationTimeApi.buildCancelTaskExtrinsic(keyringPair, nonexistentTaskID);
   await expect(sendExtrinsic(polkadotApi, cancelExtrinsicHex)).rejects.toThrow(`${SECTION_NAME}.TaskDoesNotExist`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 test('Repeated cancellation of scheduleDynamicDispatchTaskExtrinsic will fail.', async () => {
   await checkBalance(polkadotApi, keyringPair);
@@ -42,4 +42,4 @@ test('Repeated cancellation of scheduleDynamicDispatchTaskExtrinsic will fail.',
   // Repeated cancellation of scheduleNativeTransferExtrinsic will fail.
   const cancelExtrinsicHex = await automationTimeApi.buildCancelTaskExtrinsic(keyringPair, taskID);
   await expect(sendExtrinsic(polkadotApi, cancelExtrinsicHex)).rejects.toThrow(`${SECTION_NAME}.TaskDoesNotExist`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);

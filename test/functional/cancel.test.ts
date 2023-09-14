@@ -3,7 +3,7 @@ import type { KeyringPair } from '@polkadot/keyring/types';
 
 import { getPolkadotApi, sendExtrinsic, getDynamicDispatchExtrinsicParams, scheduleDynamicDispatchTaskAndVerify, cancelTaskAndVerify, SECTION_NAME, checkBalance, getContext } from '../utils/helpFn';
 import { AutomationTimeApi } from '../utils';
-import { DEFAULT_TIMEOUT_PER_TEST } from '../utils/constants';
+import { DEFAULT_TIMEOUT_INITIALIZE, DEFAULT_TIMEOUT_PER_TEST } from '../utils/constants';
 
 let polkadotApi: ApiPromise;
 let automationTimeApi: AutomationTimeApi;
@@ -16,8 +16,8 @@ const initialize = async () => {
   keyringPair = context.keyringPair;
 }
 
-beforeEach(() => initialize());
-afterEach(() => polkadotApi.disconnect());
+beforeAll(() => initialize(), DEFAULT_TIMEOUT_INITIALIZE);
+afterAll(() => polkadotApi?.disconnect());
 
 test('Cancel failed with nonexistent taskID', async () => {
   // Please put a string of length greater than or equal to 32 bytes here, and make sure it is a non-existing taskID.

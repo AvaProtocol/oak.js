@@ -3,7 +3,7 @@ import type { KeyringPair } from '@polkadot/keyring/types';
 
 import { getPolkadotApi, getContext, scheduleDynamicDispatchTaskAndVerify, cancelTaskAndVerify, getDynamicDispatchExtrinsicParams, SECTION_NAME, sendExtrinsic } from '../utils/helpFn';
 import { AutomationTimeApi } from '../utils';
-import { DEFAULT_TIMEOUT_PER_TEST } from '../utils/constants';
+import { DEFAULT_TIMEOUT_INITIALIZE, DEFAULT_TIMEOUT_PER_TEST } from '../utils/constants';
 
 let polkadotApi: ApiPromise;
 let automationTimeApi: AutomationTimeApi;
@@ -16,8 +16,8 @@ const initialize = async () => {
   keyringPair = context.keyringPair;
 }
 
-beforeEach(() => initialize());
-afterEach(() => polkadotApi.disconnect());
+beforeAll(() => initialize(), DEFAULT_TIMEOUT_INITIALIZE);
+afterAll(() => polkadotApi?.disconnect());
 
 /**
  * dynamicDispatchTask.fixed schedule and cancel succeed

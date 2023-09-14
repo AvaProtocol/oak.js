@@ -25,8 +25,6 @@ export const chainConfigs = {
 }
 
 export enum AutomationAction {
-  Notify = 'Notify',
-  NativeTransfer = 'NativeTransfer',
   XCMP = 'XCMP',
   AutoCompoundDelegatedStake = 'AutoCompoundDelegatedStake',
 }

@@ -3,6 +3,7 @@ export const NO_DIFF = 0
 export const RECURRING_TASK_LIMIT = 24
 export const LOWEST_TRANSFERRABLE_AMOUNT = 1000000000
 export const SS58_PREFIX = 51
+export const DEFAULT_TIMEOUT_PER_TEST = 540000;
 
 const mnemonic = process.env.MNEMONIC;
 

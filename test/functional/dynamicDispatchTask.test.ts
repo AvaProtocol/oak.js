@@ -3,15 +3,13 @@ import type { KeyringPair } from '@polkadot/keyring/types';
 
 import { getPolkadotApi, getContext, scheduleDynamicDispatchTaskAndVerify, cancelTaskAndVerify, getDynamicDispatchExtrinsicParams, SECTION_NAME, sendExtrinsic } from '../utils/helpFn';
 import { AutomationTimeApi } from '../utils';
+import { DEFAULT_TIMEOUT_PER_TEST } from '../utils/constants';
 
 let polkadotApi: ApiPromise;
 let automationTimeApi: AutomationTimeApi;
 let keyringPair: KeyringPair;
 
-beforeEach(() => { jest.setTimeout(540000); });
-
 const initialize = async () => {
-  jest.setTimeout(540000);
   polkadotApi = await getPolkadotApi();
   const context = await getContext(polkadotApi);
   automationTimeApi = context.automationTimeApi;
@@ -33,7 +31,7 @@ test('dynamicDispatchTask.fixed schedule and cancel succeed', async () => {
 
   // Cancel task and verify
   await cancelTaskAndVerify(automationTimeApi, keyringPair, taskID, executionTimes[0]);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 
 /**
@@ -47,7 +45,7 @@ test('dynamicDispatchTask.recurring schedule and cancel succeed', async () => {
 
   // Cancel task and verify
   await cancelTaskAndVerify(automationTimeApi, keyringPair, taskID, nextExecutionTime);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with frequency that is not a multiply of 3600(3600-1) fails
@@ -60,7 +58,7 @@ test('dynamicDispatchTask.recurring with frequency that is not a multiply of 360
   // scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
   const extrinsicHex = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
   await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(`${SECTION_NAME}.InvalidTime`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
@@ -74,7 +72,7 @@ test('dynamicDispatchTask.recurring with frequency that is not a multiply of 360
   // scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
   const extrinsicHex = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
   await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(`${SECTION_NAME}.InvalidTime`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with frequency that is not a multiply of 3600(3600*3.3) fails
@@ -88,7 +86,7 @@ test('dynamicDispatchTask.recurring with frequency that is not a multiply of 360
   // scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
   const extrinsicHex = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
   await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(`${SECTION_NAME}.InvalidTime`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with frequency that is 0 fails
@@ -101,7 +99,7 @@ test('dynamicDispatchTask.recurring with frequency that is 0 fails', async () =>
   // scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
   // const extrinsicHex = await scheduler.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with frequency that is negtive integer fails
@@ -112,7 +110,7 @@ test('dynamicDispatchTask.recurring with frequency that is negtive integer fails
   schedule.recurring.frequency = -1;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with frequency that is larger than Number.MAX_SAFE_INTEGER fails
@@ -123,7 +121,7 @@ test('dynamicDispatchTask.recurring with frequency that is larger than Number.MA
   schedule.recurring.frequency = Number.MAX_SAFE_INTEGER + 1;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with frequency that is string fails
@@ -134,7 +132,7 @@ test('dynamicDispatchTask.recurring with frequency that is string fails', async 
   schedule.recurring.frequency = "123123";
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with frequency that is object fails
@@ -145,7 +143,7 @@ test('dynamicDispatchTask.recurring with frequency that is object fails', async 
   schedule.recurring.frequency = {};
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with frequency that is null fails
@@ -156,7 +154,7 @@ test('dynamicDispatchTask.recurring with frequency that is null fails', async ()
   schedule.recurring.frequency = null;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with frequency that is undefined fails
@@ -167,7 +165,7 @@ test('dynamicDispatchTask.recurring with frequency that is undefined fails', asy
   schedule.recurring.frequency = undefined;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+5min) fails.
@@ -180,7 +178,7 @@ test('dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+5min) fa
   // automationTimeApi.buildScheduleDynamicDispatchTask will fail with invalid frequency
   const extrinsicHex = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
   await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(`${SECTION_NAME}.InvalidTime`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+30min) fails.
@@ -193,7 +191,7 @@ test('dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+30min) f
   // automationTimeApi.buildScheduleDynamicDispatchTask will fail with invalid frequency
   const extrinsicHex = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
   await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(`${SECTION_NAME}.InvalidTime`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+45min) fails.
@@ -206,7 +204,7 @@ test('dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+45min) f
   // automationTimeApi.buildScheduleDynamicDispatchTask will fail with invalid frequency
   const extrinsicHex = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
   await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(`${SECTION_NAME}.InvalidTime`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 
 /**
@@ -219,7 +217,7 @@ test('dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+45min) f
 
   // automationTimeApi.buildScheduleDynamicDispatchTask will fail with invalid frequency
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with nextExecutionTime that is negtive integer fails
@@ -230,7 +228,7 @@ test('dynamicDispatchTask.recurring with nextExecutionTime that is negtive integ
   schedule.recurring.nextExecutionTime = -1;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with nextExecutionTime that is larger than Number.MAX_SAFE_INTEGER fails
@@ -241,7 +239,7 @@ test('dynamicDispatchTask.recurring with nextExecutionTime that is larger than N
   schedule.recurring.nextExecutionTime = Number.MAX_SAFE_INTEGER + 1;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with nextExecutionTime that is string fails
@@ -252,7 +250,7 @@ test('dynamicDispatchTask.recurring with nextExecutionTime that is string fails'
   schedule.recurring.nextExecutionTime = "123123";
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with frequency that is object fails
@@ -263,7 +261,7 @@ test('dynamicDispatchTask.recurring with nextExecutionTime that is object fails'
   schedule.recurring.nextExecutionTime = {};
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with nextExecutionTime that is null fails
@@ -274,7 +272,7 @@ test('dynamicDispatchTask.recurring with nextExecutionTime that is null fails', 
   schedule.recurring.nextExecutionTime = null;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with nextExecutionTime that is undefined fails
@@ -285,7 +283,7 @@ test('dynamicDispatchTask.recurring with nextExecutionTime that is undefined fai
   schedule.recurring.nextExecutionTime = undefined;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+5min) fails
@@ -298,7 +296,7 @@ test('dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+5
   // scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
   const extrinsicHex = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
   await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(`${SECTION_NAME}.InvalidTime`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+30min) fails
@@ -311,7 +309,7 @@ test('dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+3
   // scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
   const extrinsicHex = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
   await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(`${SECTION_NAME}.InvalidTime`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+45min) fails
@@ -323,7 +321,7 @@ test('dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+4
 
   const extrinsicHex = await automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call);
   await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(`${SECTION_NAME}.InvalidTime`);
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution time that is string fails
@@ -334,7 +332,7 @@ test('dynamicDispatchTask.fixed schedule with filling execution time string fail
   schedule.fixed.executionTimes = "abc";
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution time that is  object fails
@@ -345,7 +343,7 @@ test('dynamicDispatchTask.fixed schedule with filling execution time object fail
   schedule.fixed.executionTimes = {};
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution time that is null fails
@@ -356,7 +354,7 @@ test('dynamicDispatchTask.fixed schedule with filling execution time null fails'
   schedule.fixed.executionTimes = null;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution time that is undefined fails
@@ -367,7 +365,7 @@ test('dynamicDispatchTask.fixed schedule with filling execution time undefined f
   schedule.fixed.executionTimes = undefined;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with empty execution times array fails
@@ -378,7 +376,7 @@ test('dynamicDispatchTask.fixed schedule with empty execution times array fails'
   schedule.fixed.executionTimes = [];
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution times array that is string fails
@@ -389,7 +387,7 @@ test('dynamicDispatchTask.fixed schedule with execution times array that is stri
   schedule.fixed.executionTimes = "abc";
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution times array that is object fails
@@ -400,7 +398,7 @@ test('dynamicDispatchTask.fixed schedule with execution times array that is obje
   schedule.fixed.executionTimes = {};
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution times array that is null fails
@@ -411,7 +409,7 @@ test('dynamicDispatchTask.fixed schedule with execution times array that is null
   schedule.fixed.executionTimes = null;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed schedule with execution times array that is undefined fails
@@ -422,7 +420,7 @@ test('dynamicDispatchTask.fixed schedule with execution times array that is unde
   schedule.fixed.executionTimes = undefined;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed with null call fails
@@ -432,7 +430,7 @@ test('dynamicDispatchTask.fixed schedule with execution times array that is unde
   const { schedule } = extrinsicParams;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, null)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed with undefined call fails
@@ -442,7 +440,7 @@ test('dynamicDispatchTask.fixed schedule with execution times array that is unde
   const { schedule } = extrinsicParams;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, undefined)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with null call fails
@@ -452,7 +450,7 @@ test('dynamicDispatchTask.fixed schedule with execution times array that is unde
   const { schedule } = extrinsicParams;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, null)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 
 /**
@@ -463,7 +461,7 @@ test('dynamicDispatchTask.recurring with undefined call fails', async () => {
   const { schedule } = extrinsicParams;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair, schedule, undefined)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed with null schedule fails
@@ -473,7 +471,7 @@ test('dynamicDispatchTask.recurring with undefined call fails', async () => {
   const { call } = extrinsicParams;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair,null, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.fixed with undefined schedule fails
@@ -483,7 +481,7 @@ test('dynamicDispatchTask.recurring with undefined call fails', async () => {
   const { call } = extrinsicParams;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair,undefined, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 /**
  * dynamicDispatchTask.recurring with null schedule fails
@@ -493,7 +491,7 @@ test('dynamicDispatchTask.recurring with undefined call fails', async () => {
   const { call } = extrinsicParams;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair,null, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);
 
 
 /**
@@ -504,4 +502,4 @@ test('dynamicDispatchTask.recurring with undefined schedule fails', async () => 
   const { call } = extrinsicParams;
 
   await expect(automationTimeApi.buildScheduleDynamicDispatchTask(keyringPair,undefined, call)).rejects.toThrowError();
-});
+}, DEFAULT_TIMEOUT_PER_TEST);

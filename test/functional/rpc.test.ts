@@ -15,7 +15,7 @@ beforeEach(() => initialize());
 afterEach(() => polkadotApi.disconnect());
 
 test('scheduler.getTimeAutomationFees works', async () => {
-  const resultCodec = await (polkadotApi.rpc as any).automationTime.getTimeAutomationFees(AutomationAction.Notify, 3)
+  const resultCodec = await (polkadotApi.rpc as any).automationTime.getTimeAutomationFees(AutomationAction.AutoCompoundDelegatedStake, 3)
   const fee =  resultCodec.toJSON();
 
   expect(fee > 0).toEqual(true);

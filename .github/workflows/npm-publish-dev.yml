@@ -62,8 +62,35 @@ jobs:
           new_version=$(node -p "require('./package.json').version")
           echo "New version from local build folder: $new_version"
 
+          # Compare version numbers by splitting them into individual components (major, minor, patch, etc.) and comparing each component. For example, 1.2.3 is higher than 1.2.2
+          compareVersions() {
+            const v1 = "$1".split('.').map(Number);
+            const v2 = "$2".split('.').map(Number);
+
+            for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
+              const num1 = v1[i] || 0;
+              const num2 = v2[i] || 0;
+
+              if (num1 < num2) {
+                echo -1
+                return
+              } else if (num1 > num2) {
+                echo 1
+                return
+              }
+            }
+
+            echo 0
+          }
+
           # Compare the new version with the current dev version and the highest version; If we publish a lower than the highest version, it will be rejected by npm.
-          if [ "$new_version" '>' "$current_dev_version" &&  "$new_version" '>' "$highest_version"]; then
+          dev_compar_result=$(compareVersions "$new_version" "$current_dev_version")
+          highest_compare_result=$(compareVersions "$new_version" "$current_dev_version")
+
+          echo "dev_compar_result: $dev_compar_result"
+          echo "highest_compare_result: $highest_compare_result"
+
+          if [ "$dev_compar_result" -eq 1 ] && [ "$highest_compare_result" -eq 1 ]; then
             echo "$new_version is higher than the highest: $highest_version and dev tag: $current_dev_version; publishing..."
             npm publish --tag dev
           else

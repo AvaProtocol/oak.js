@@ -42,12 +42,18 @@ jobs:
       - name: Get the current dev version from npm
         id: get-current-dev-version
         run: |
+          # Get the dev tag version
           tags=$(npm show @oak-network/${{ matrix.package }} dist-tags --json)
-          echo "All version tags: $tags"
-          
+          echo "All version tags: $tags"          
           current_dev_version=$(echo "$tags" | jq -r '.dev')
           echo "Dev tag version: $current_dev_version"
           echo "{current_dev_version}={$current_dev_version}" >> $GITHUB_ENV
+
+          # Get the latest version
+          all_versions=$(npm show @oak-network/${{ matrix.package }} versions --json)
+          highest_version=$(echo "$all_versions" | tr -d ' \t\n\r' | jq 'max' -r)
+          echo "Highest version: $highest_version"
+          echo "{highest_version}={$highest_version}" >> $GITHUB_ENV
 
       - name: 🚀 Publish ${{ matrix.package }} package if newer than latest
         working-directory: ./packages/${{ matrix.package }}/build
@@ -55,8 +61,8 @@ jobs:
           new_version=$(node -p "require('./package.json').version")
           echo "New version from local build folder: $new_version"
 
-          if [ "$new_version" '>' "$current_dev_version" ]; then
-            echo "$new_version is higher than $current_dev_version, publishing..."
+          if [ "$new_version" '>' "$current_dev_version" &&  "$new_version" '>' "$highest_version"]; then
+            echo "$new_version is higher than the highest: $highest_version and dev tag: $current_dev_version; publishing..."
             npm publish --tag dev
           else
             echo "Skip publish since there’s no higher version number."

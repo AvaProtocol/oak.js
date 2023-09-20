@@ -44,13 +44,14 @@ jobs:
         run: |
           # Get the dev tag version
           tags=$(npm show @oak-network/${{ matrix.package }} dist-tags --json)
-          echo "All version tags: $tags"          
+          echo "Tag versions: $tags"          
           current_dev_version=$(echo "$tags" | jq -r '.dev')
           echo "Dev tag version: $current_dev_version"
           echo "{current_dev_version}={$current_dev_version}" >> $GITHUB_ENV
 
-          # Get the latest version
+          # Get the latest version;
           all_versions=$(npm show @oak-network/${{ matrix.package }} versions --json)
+          echo "All versions: $all_versions"          
           highest_version=$(echo "$all_versions" | tr -d ' \t\n\r' | jq 'max' -r)
           echo "Highest version: $highest_version"
           echo "{highest_version}={$highest_version}" >> $GITHUB_ENV
@@ -61,6 +62,7 @@ jobs:
           new_version=$(node -p "require('./package.json').version")
           echo "New version from local build folder: $new_version"
 
+          # Compare the new version with the current dev version and the highest version; If we publish a lower than the highest version, it will be rejected by npm.
           if [ "$new_version" '>' "$current_dev_version" &&  "$new_version" '>' "$highest_version"]; then
             echo "$new_version is higher than the highest: $highest_version and dev tag: $current_dev_version; publishing..."
             npm publish --tag dev

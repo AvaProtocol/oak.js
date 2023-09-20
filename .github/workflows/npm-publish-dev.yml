@@ -42,7 +42,7 @@ jobs:
       - name: Get the current dev version from npm
         id: get-current-dev-version
         run: |
-          tags=$(npm show @oak-network/${{ matrix.package }} versions --json)
+          tags=$(npm show @oak-network/${{ matrix.package }} dist-tags --json)
           echo "All version tags: $tags"
           
           current_dev_version=$(echo "$tags" | jq -r '.dev')

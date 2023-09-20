@@ -1,4 +1,3 @@
-import util from 'node:util';
 import BN from 'bn.js';
 
 export type relayChainType = 'local' | 'rococo' | 'moonbase-alpha-relay' | 'kusama' | 'polkadot';
@@ -20,7 +19,7 @@ export class Weight {
     return new Weight(this.refTime.add(weight.refTime), this.proofSize.add(weight.proofSize));
   }
 
-  [util.inspect.custom]() {
+  toString() {
     const { refTime, proofSize } = this;
     return `Weight { refTime: ${refTime.toString()}, proofSize: ${proofSize.toString()} }`;
   }

@@ -4,7 +4,6 @@
   "main": "./build/index.js",
   "license": "Apache-2.0",
   "dependencies": {
-    "@open-web3/orml-type-definitions": "^2.0.1",
-    "ts-loader": "^9.4.4"
+    "@open-web3/orml-type-definitions": "^2.0.1"
   }
 }

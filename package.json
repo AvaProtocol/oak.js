@@ -9,7 +9,6 @@
     "build": "npm exec -- tsc --build tsconfig.build.json",
     "postbuild": "scripts/package-setup",
     "clean": "npm exec -- tsc --build --clean tsconfig.build.json",
-    "publish": "bash scripts/publish",
     "test": "npm run build && jest --verbose --forceExit --runInBand ./test/functional",
     "test:sdk": "npm run build && jest --verbose --runInBand ./test/sdk",
     "changeset": "changeset",

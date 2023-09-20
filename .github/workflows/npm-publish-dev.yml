@@ -47,7 +47,7 @@ jobs:
           
           current_dev_version=$(echo "$tags" | jq -r '.dev')
           echo "Dev tag version: $current_dev_version"
-          run: echo "{current_dev_version}={$current_dev_version}" >> $GITHUB_ENV
+          echo "{current_dev_version}={$current_dev_version}" >> $GITHUB_ENV
 
       - name: 🚀 Publish ${{ matrix.package }} package if newer than latest
         working-directory: ./packages/${{ matrix.package }}/build

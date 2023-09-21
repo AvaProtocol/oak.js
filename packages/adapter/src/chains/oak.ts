@@ -11,7 +11,7 @@ import { getDerivativeAccountV2, sendExtrinsic } from '../util';
 import { SendExtrinsicResult } from '../types';
 import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
 
-const TRANSACT_XCM_INSTRUCTION_COUNT = 6;
+const TRANSACT_XCM_INSTRUCTION_COUNT = 4;
 
 // OakAdapter implements ChainAdapter
 export class OakAdapter extends ChainAdapter {

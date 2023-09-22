@@ -63,8 +63,7 @@ jobs:
           echo "New version from local build folder: $new_version"
 
           # Compare the new version with the current dev version and the highest version; If we publish a lower than the highest version, it will be rejected by npm.
-          if [ "$(printf "$new_version\n$current_dev_version" | sort -V | tail -n 1)" -eq "$new_version" ] &&
-             [ "$(printf "$new_version\n$highest_version" | sort -V | tail -n 1)" -eq "$new_version" ]; then
+          if [ "$(printf "$new_version\n$current_dev_version" | sort -V | tail -n 1)" == "$new_version" ] & [ "$(printf "$new_version\n$highest_version" | sort -V | tail -n 1)" == "$new_version" ]; then
             echo "$new_version is higher than the highest $highest_version and dev tag $current_dev_version; publishing..."
             npm publish --tag dev
           else

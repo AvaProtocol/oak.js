@@ -1,5 +1,11 @@
 # @oak-network/api-augment
 
+## 2.0.7
+
+### Patch Changes
+
+- 1b8e337: Deprecate the concept of rc version number by bumping up to 2.0.7
+
 ## 2.0.6
 
 ### Patch Changes

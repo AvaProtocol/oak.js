@@ -47,14 +47,14 @@ jobs:
           echo "Tag versions: $tags"          
           current_dev_version=$(echo "$tags" | jq -r '.dev')
           echo "Dev tag version: $current_dev_version"
-          echo "{current_dev_version}={$current_dev_version}" >> "$GITHUB_ENV"
+          echo "current_dev_version=$current_dev_version" >> "$GITHUB_ENV"
 
           # Get the latest version;
           all_versions=$(npm show @oak-network/${{ matrix.package }} versions --json)
           echo "All versions: $all_versions"          
           highest_version=$(echo "$all_versions" | tr -d ' \t\n\r' | jq 'max' -r)
           echo "Highest version: $highest_version"
-          echo "{highest_version}={$highest_version}" >> "$GITHUB_ENV"
+          echo "highest_version=$highest_version" >> "$GITHUB_ENV"
 
       - name: 🚀 Publish ${{ matrix.package }} package if newer than latest
         working-directory: ./packages/${{ matrix.package }}/build

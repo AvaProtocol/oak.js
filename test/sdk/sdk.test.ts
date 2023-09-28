@@ -38,6 +38,7 @@ describe('test-basic', () => {
 
   test('test-custom-moonbase-adapter-config', async () => {
     const { moonbaseAlpha } = chains;
+    // Use a custom config to construct the Adapter
     moonbaseAlpha.xcm.instructionWeight = new Weight(new BN(1), new BN(2));
     const moonbaseApi = await ApiPromise.create({ provider: new WsProvider(moonbaseAlpha.endpoint) });
     const moonbaseAdapter = new MoonbeamAdapter(moonbaseApi, moonbaseAlpha);
@@ -125,7 +126,7 @@ describe('test-moonbeam', () => {
       schedule: { Fixed: { executionTimes } },
       scheduleAs: u8aToHex(keyringPair.addressRaw),
       keyringPair: moonbaseKeyringPair,
-      options: { taskExecutionFeeAmount: new BN('51769129730000000') },
+      options: { taskPayloadExecutionFeeAmount: new BN('51769129730000000') },
     });
   }, DEFAULT_TIMEOUT_PER_TEST);
   

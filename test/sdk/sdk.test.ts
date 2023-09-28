@@ -126,7 +126,8 @@ describe('test-moonbeam', () => {
       schedule: { Fixed: { executionTimes } },
       scheduleAs: u8aToHex(keyringPair.addressRaw),
       keyringPair: moonbaseKeyringPair,
-      options: { taskPayloadExecutionFeeAmount: new BN('51769129730000000') },
+      // Custom xcm options
+      xcmOptions: { executionFeeAmount: new BN('51457336600000') },
     });
   }, DEFAULT_TIMEOUT_PER_TEST);
   

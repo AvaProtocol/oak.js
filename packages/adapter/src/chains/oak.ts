@@ -1,15 +1,15 @@
-import _ from 'lodash';
-import BN from 'bn.js';
-import type { HexString } from '@polkadot/util/types';
-import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
-import type { u32, u128, Option } from '@polkadot/types';
-import type { WeightV2 } from '@polkadot/types/interfaces';
-import type { KeyringPair } from '@polkadot/keyring/types';
-import { Weight } from '@oak-network/sdk-types';
-import { ChainAdapter } from './chainAdapter';
-import { getDerivativeAccountV2, sendExtrinsic } from '../util';
-import { SendExtrinsicResult } from '../types';
-import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
+import _ from "lodash";
+import BN from "bn.js";
+import type { HexString } from "@polkadot/util/types";
+import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
+import type { u32, u128, Option } from "@polkadot/types";
+import type { WeightV2 } from "@polkadot/types/interfaces";
+import type { KeyringPair } from "@polkadot/keyring/types";
+import { Weight } from "@oak-network/sdk-types";
+import { ChainAdapter } from "./chainAdapter";
+import { getDerivativeAccountV2, sendExtrinsic } from "../util";
+import { SendExtrinsicResult } from "../types";
+import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 
 const TRANSACT_XCM_INSTRUCTION_COUNT = 4;
 
@@ -24,49 +24,63 @@ export class OakAdapter extends ChainAdapter {
 
   /**
    * Get extrinsic weight
-   * @param extrinsic 
-   * @param account 
+   * @param extrinsic
+   * @param account
    * @returns Extrinsic weight
    */
-  async getExtrinsicWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair): Promise<Weight> {
-    const { refTime, proofSize } = (await extrinsic.paymentInfo(account)).weight as unknown as WeightV2;
+  async getExtrinsicWeight(
+    extrinsic: SubmittableExtrinsic<"promise">,
+    account: AddressOrPair,
+  ): Promise<Weight> {
+    const { refTime, proofSize } = (await extrinsic.paymentInfo(account))
+      .weight as unknown as WeightV2;
     return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
   /**
    * Calculate encoded call weight and overall weight for transact an extrinsic call through XCM message
    * @param extrinsic The extrinsic that needs to be transacted
-   * @param account 
+   * @param account
    * @param instructionCount The number of XCM instructions
    * returns { encodedCallWeight, overallWeight }
    */
-  async getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
+  async getXcmWeight(
+    extrinsic: SubmittableExtrinsic<"promise">,
+    account: AddressOrPair,
+    instructionCount: number,
+  ): Promise<{ encodedCallWeight: Weight; overallWeight: Weight }> {
     const { xcm } = this.chainData;
     if (_.isUndefined(xcm)) throw new Error("chainData.xcm not set");
     const encodedCallWeight = await this.getExtrinsicWeight(extrinsic, account);
-    const overallWeight = encodedCallWeight.add(xcm.instructionWeight.muln(instructionCount));
+    const overallWeight = encodedCallWeight.add(
+      xcm.instructionWeight.muln(instructionCount),
+    );
     return { encodedCallWeight, overallWeight };
   }
 
   /**
    * Calculate XCM execution fee based on weight
-   * @param weight 
-   * @param assetLocation 
+   * @param weight
+   * @param assetLocation
    * @returns XCM execution fee
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
     const { defaultAsset } = this.chainData;
-    if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
+    if (_.isUndefined(defaultAsset))
+      throw new Error("chainData.defaultAsset not set");
 
     const api = this.getApi();
     const location = _.isEqual(assetLocation, defaultAsset.location)
-      ? { parents: 0, interior: 'Here' } : assetLocation;
-    const storageValue = await api.query.assetRegistry.locationToAssetId(location);
+      ? { parents: 0, interior: "Here" }
+      : assetLocation;
+    const storageValue =
+      await api.query.assetRegistry.locationToAssetId(location);
     const item = storageValue as unknown as Option<u32>;
     if (item.isNone) throw new Error("AssetId not set");
 
     const assetId = item.unwrap();
-    const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
+    const metadataStorageValue =
+      await api.query.assetRegistry.metadata(assetId);
     const metadataItem = metadataStorageValue as unknown as Option<any>;
     if (metadataItem.isNone) throw new Error("Metadata not set");
 
@@ -74,7 +88,9 @@ export class OakAdapter extends ChainAdapter {
     const feePerSecond = additional.feePerSecond as unknown as Option<u128>;
     if (feePerSecond.isNone) throw new Error("feePerSecond is null");
 
-    return weight.refTime.mul(feePerSecond.unwrap()).div(WEIGHT_REF_TIME_PER_SECOND);
+    return weight.refTime
+      .mul(feePerSecond.unwrap())
+      .div(WEIGHT_REF_TIME_PER_SECOND);
   }
 
   /**
@@ -86,11 +102,17 @@ export class OakAdapter extends ChainAdapter {
    * @param keyringPair Operator's keyring pair
    * @returns SendExtrinsicResult
    */
-  async crossChainTransfer(destination: any, recipient: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
+  async crossChainTransfer(
+    destination: any,
+    recipient: HexString,
+    assetLocation: any,
+    assetAmount: BN,
+    keyringPair: KeyringPair,
+  ): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error('chainData.key not set');
+    if (_.isUndefined(key)) throw new Error("chainData.key not set");
     const api = this.getApi();
-    
+
     const extrinsic = api.tx.xTokens.transferMultiasset(
       {
         V3: {
@@ -107,9 +129,9 @@ export class OakAdapter extends ChainAdapter {
               { AccountId32: { network: null, id: recipient } },
             ],
           },
-        }
+        },
       },
-      'Unlimited',
+      "Unlimited",
     );
 
     console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());
@@ -120,7 +142,9 @@ export class OakAdapter extends ChainAdapter {
   /**
    * Get the instruction number of XCM instructions for transact
    */
-  getTransactXcmInstructionCount() { return TRANSACT_XCM_INSTRUCTION_COUNT; }
+  getTransactXcmInstructionCount() {
+    return TRANSACT_XCM_INSTRUCTION_COUNT;
+  }
 
   /**
    * Schedule XCMP task
@@ -134,10 +158,19 @@ export class OakAdapter extends ChainAdapter {
    * @param keyringPair Operator's keyring pair
    * @returns SendExtrinsicResult
    */
-  async scheduleXcmpTask(destination: any, schedule: any, scheduleFee: any, executionFee: any, encodedCall: HexString, encodedCallWeight: Weight, overallWeight: Weight, keyringPair: KeyringPair) : Promise<SendExtrinsicResult> {
+  async scheduleXcmpTask(
+    destination: any,
+    schedule: any,
+    scheduleFee: any,
+    executionFee: any,
+    encodedCall: HexString,
+    encodedCallWeight: Weight,
+    overallWeight: Weight,
+    keyringPair: KeyringPair,
+  ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
     const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error('chainData.key not set');
+    if (_.isUndefined(key)) throw new Error("chainData.key not set");
 
     const extrinsic = api.tx.automationTime.scheduleXcmpTask(
       schedule,
@@ -148,22 +181,28 @@ export class OakAdapter extends ChainAdapter {
       encodedCallWeight,
       overallWeight,
     );
-  
-    console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
+
+    console.log(
+      `Send extrinsic from ${key} to schedule task. extrinsic:`,
+      extrinsic.method.toHex(),
+    );
     const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
   }
 
   /**
    * Calculate the derivative account ID of a certain account ID
-   * @param accountId 
+   * @param accountId
    * @param paraId The paraId of the XCM message sender
    * @param options Optional operation options: { locationType, network }
    * @returns Derivative account
    */
-  getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString {
+  getDerivativeAccount(
+    accountId: HexString,
+    paraId: number,
+    options?: any,
+  ): HexString {
     const api = this.getApi();
     return getDerivativeAccountV2(api, accountId, paraId, options);
   }
 }
-

@@ -1,9 +1,15 @@
-import BN from 'bn.js';
+import BN from "bn.js";
 
-export type relayChainType = 'local' | 'rococo' | 'moonbase-alpha-relay' | 'kusama' | 'polkadot';
+export type relayChainType =
+  | "local"
+  | "rococo"
+  | "moonbase-alpha-relay"
+  | "kusama"
+  | "polkadot";
 
 export class Weight {
   refTime: BN;
+
   proofSize: BN;
 
   constructor(refTime: BN, proofSize: BN) {
@@ -16,7 +22,10 @@ export class Weight {
   }
 
   public add(weight: Weight): Weight {
-    return new Weight(this.refTime.add(weight.refTime), this.proofSize.add(weight.proofSize));
+    return new Weight(
+      this.refTime.add(weight.refTime),
+      this.proofSize.add(weight.proofSize),
+    );
   }
 
   toString() {

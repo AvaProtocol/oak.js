@@ -1,5 +1,5 @@
+import { EventRecord } from "@polkadot/types/interfaces";
 import { ChainAdapter, TaskScheduler } from "./chains";
-import { EventRecord } from '@polkadot/types/interfaces';
 
 export interface SendExtrinsicResult {
   events: EventRecord[];
@@ -9,8 +9,8 @@ export interface SendExtrinsicResult {
 export type TaskSchedulerChainAdapter = ChainAdapter & TaskScheduler;
 
 export enum AccountType {
-  AccountKey20 = 'AccountKey20',
-  AccountId32 = 'AccountId32',
+  AccountKey20 = "AccountKey20",
+  AccountId32 = "AccountId32",
 }
 
 export enum XcmInstructionNetworkType {

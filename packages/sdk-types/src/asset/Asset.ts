@@ -7,8 +7,11 @@ export interface AssetConstructorParams {
 
 export class Asset {
   key: string;
+
   symbol: string;
+
   decimals: number;
+
   location: any;
 
   constructor({ key, symbol, decimals, location }: AssetConstructorParams) {

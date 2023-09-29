@@ -1,16 +1,20 @@
-import _ from 'lodash';
-import BN from 'bn.js';
-import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
-import type { u64, u128, Option } from '@polkadot/types';
-import type { WeightV2 } from '@polkadot/types/interfaces';
-import type { HexString } from '@polkadot/util/types';
-import { u8aToHex } from '@polkadot/util';
-import type { KeyringPair } from '@polkadot/keyring/types';
-import { Weight } from '@oak-network/sdk-types';
-import { ChainAdapter, TaskScheduler } from './chainAdapter';
-import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic } from '../util';
-import { SendExtrinsicResult, XcmInstructionNetworkType } from '../types';
-import { WEIGHT_REF_TIME_PER_SECOND } from '../constants';
+import _ from "lodash";
+import BN from "bn.js";
+import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
+import type { u64, u128, Option } from "@polkadot/types";
+import type { WeightV2 } from "@polkadot/types/interfaces";
+import type { HexString } from "@polkadot/util/types";
+import { u8aToHex } from "@polkadot/util";
+import type { KeyringPair } from "@polkadot/keyring/types";
+import { Weight } from "@oak-network/sdk-types";
+import { ChainAdapter, TaskScheduler } from "./chainAdapter";
+import {
+  convertAbsoluteLocationToRelative,
+  getDerivativeAccountV3,
+  sendExtrinsic,
+} from "../util";
+import { SendExtrinsicResult, XcmInstructionNetworkType } from "../types";
+import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 
 const TRANSACT_XCM_INSTRUCTION_COUNT = 6;
 
@@ -28,61 +32,76 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    */
   public async fetchAndUpdateConfigs(): Promise<void> {
     await super.fetchAndUpdateConfigs();
-    this.chainData.xcmInstructionNetworkType = XcmInstructionNetworkType.Concrete;
+    this.chainData.xcmInstructionNetworkType =
+      XcmInstructionNetworkType.Concrete;
   }
 
   /**
    * Get extrinsic weight
-   * @param extrinsic 
-   * @param account 
+   * @param extrinsic
+   * @param account
    * @returns Extrinsic weight
    */
-  async getExtrinsicWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair): Promise<Weight> {
-    const { refTime, proofSize } = (await extrinsic.paymentInfo(account)).weight as unknown as WeightV2;
+  async getExtrinsicWeight(
+    extrinsic: SubmittableExtrinsic<"promise">,
+    account: AddressOrPair,
+  ): Promise<Weight> {
+    const { refTime, proofSize } = (await extrinsic.paymentInfo(account))
+      .weight as unknown as WeightV2;
     return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
-   /**
+  /**
    * Calculate encoded call weight and overall weight for transact an extrinsic call through XCM message
    * @param extrinsic The extrinsic that needs to be transacted
-   * @param account 
+   * @param account
    * @param instructionCount The number of XCM instructions
    * returns { encodedCallWeight, overallWeight }
    */
-  async getXcmWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair, instructionCount: number): Promise<{ encodedCallWeight: Weight; overallWeight: Weight; }> {
+  async getXcmWeight(
+    extrinsic: SubmittableExtrinsic<"promise">,
+    account: AddressOrPair,
+    instructionCount: number,
+  ): Promise<{ encodedCallWeight: Weight; overallWeight: Weight }> {
     const { xcm } = this.chainData;
     if (_.isUndefined(xcm)) throw new Error("chainData.xcm not set");
     const encodedCallWeight = await this.getExtrinsicWeight(extrinsic, account);
-    const overallWeight = encodedCallWeight.add(xcm.instructionWeight.muln(instructionCount));
+    const overallWeight = encodedCallWeight.add(
+      xcm.instructionWeight.muln(instructionCount),
+    );
     return { encodedCallWeight, overallWeight };
   }
 
   /**
    * Calculate XCM execution fee based on weight
-   * @param weight 
-   * @param assetLocation 
+   * @param weight
+   * @param assetLocation
    * @returns XCM execution fee
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
     const { defaultAsset } = this.chainData;
-    if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
+    if (_.isUndefined(defaultAsset))
+      throw new Error("chainData.defaultAsset not set");
 
     const api = this.getApi();
     if (_.isEqual(defaultAsset.location, assetLocation)) {
-      const fee = await api.call.transactionPaymentApi.queryWeightToFee(weight) as u64;
+      const fee = (await api.call.transactionPaymentApi.queryWeightToFee(
+        weight,
+      )) as u64;
       return fee;
-    } else {
-      const AssetLocationUnitsPerSecond = await api.query.xcAssetConfig.assetLocationUnitsPerSecond(assetLocation);
-      const metadataItem = AssetLocationUnitsPerSecond as unknown as Option<u128>;
-      if (metadataItem.isNone) throw new Error("MetadatAssetLocationUnitsPerSecond is null");
-      const unitsPerSecond = metadataItem.unwrap();
-      return weight.refTime.mul(unitsPerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
     }
+    const AssetLocationUnitsPerSecond =
+      await api.query.xcAssetConfig.assetLocationUnitsPerSecond(assetLocation);
+    const metadataItem = AssetLocationUnitsPerSecond as unknown as Option<u128>;
+    if (metadataItem.isNone)
+      throw new Error("MetadatAssetLocationUnitsPerSecond is null");
+    const unitsPerSecond = metadataItem.unwrap();
+    return weight.refTime.mul(unitsPerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
   }
 
   /**
    * Calculate the derivative account ID of a certain account ID
-   * @param accountId 
+   * @param accountId
    * @param paraId The paraId of the XCM message sender
    * @returns Derivative account
    */
@@ -93,7 +112,9 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
   /**
    * Get the instruction number of XCM instructions for transact
    */
-  getTransactXcmInstructionCount() { return TRANSACT_XCM_INSTRUCTION_COUNT; }
+  getTransactXcmInstructionCount() {
+    return TRANSACT_XCM_INSTRUCTION_COUNT;
+  }
 
   /**
    * Schedule Task through XCM message
@@ -106,10 +127,18 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * @param keyringPair Operator's keyring pair
    * @returns SendExtrinsicResult
    */
-  async scheduleTaskThroughXcm(destination: any, encodedTaskExtrinsic: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
+  async scheduleTaskThroughXcm(
+    destination: any,
+    encodedTaskExtrinsic: HexString,
+    feeLocation: any,
+    feeAmount: BN,
+    encodedCallWeight: Weight,
+    overallWeight: Weight,
+    keyringPair: KeyringPair,
+  ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
     const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error('chainData.key not set.');
+    if (_.isUndefined(key)) throw new Error("chainData.key not set.");
 
     const extrinsic = api.tx.polkadotXcm.send(
       { V3: destination },
@@ -134,19 +163,26 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
           },
           {
             Transact: {
-              originKind: 'SovereignAccount',
+              originKind: "SovereignAccount",
               requireWeightAtMost: encodedCallWeight,
               call: { encoded: encodedTaskExtrinsic },
             },
           },
-          { RefundSurplus: '' },
+          { RefundSurplus: "" },
           {
             DepositAsset: {
               assets: { Wild: { AllCounted: 1 } },
               maxAssets: 1,
               beneficiary: {
                 parents: 1,
-                interior: { X1: { AccountId32: { network: null, id: u8aToHex(keyringPair.addressRaw) } } },
+                interior: {
+                  X1: {
+                    AccountId32: {
+                      network: null,
+                      id: u8aToHex(keyringPair.addressRaw),
+                    },
+                  },
+                },
               },
             },
           },
@@ -154,7 +190,10 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
       },
     );
 
-    console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
+    console.log(
+      `Send extrinsic from ${key} to schedule task. extrinsic:`,
+      extrinsic.method.toHex(),
+    );
 
     const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
@@ -162,13 +201,14 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
 
   /**
    * Check if it is a native asset
-   * @param assetLocation 
+   * @param assetLocation
    * @returns A bool value indicating whether it is a native asset
    */
   isNativeAsset(assetLocation: any): boolean {
     const { defaultAsset, assets } = this.chainData;
-    if (_.isUndefined(defaultAsset)) throw new Error('chainData.defaultAsset not set');
-    const foundAsset = _.find(assets, ({ location: assetLocation }));
+    if (_.isUndefined(defaultAsset))
+      throw new Error("chainData.defaultAsset not set");
+    const foundAsset = _.find(assets, { location: assetLocation });
     return !_.isUndefined(foundAsset) && foundAsset.isNative;
   }
 
@@ -180,15 +220,21 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * @param assetAmount Asset amount
    * @param keyringPair Operator's keyring pair
    */
-  async crossChainTransfer(destination: any, recipient: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
+  async crossChainTransfer(
+    destination: any,
+    recipient: HexString,
+    assetLocation: any,
+    assetAmount: BN,
+    keyringPair: KeyringPair,
+  ): Promise<SendExtrinsicResult> {
     const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error('chainData.key not set');
+    if (_.isUndefined(key)) throw new Error("chainData.key not set");
     const api = this.getApi();
 
     const transferAssetLocation = this.isNativeAsset(assetLocation)
       ? convertAbsoluteLocationToRelative(assetLocation)
       : assetLocation;
-    
+
     const extrinsic = api.tx.xtokens.transferMultiasset(
       {
         V3: {
@@ -205,9 +251,9 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
               { AccountId32: { network: null, id: recipient } },
             ],
           },
-        }
+        },
       },
-      'Unlimited',
+      "Unlimited",
     );
 
     console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());

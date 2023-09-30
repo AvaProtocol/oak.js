@@ -61,6 +61,10 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxWeightPerSlot: u128 & AugmentedConst<ApiType>;
       /**
+       * The minimum time interval tasks could schedule for. For example, if the value is 600, then only inputs that are multiples of 600 are allowed. In other words, tasks can only be scheduled at 0, 10, 20 ... minutes of each hour.
+       **/
+      slotSizeSeconds: u64 & AugmentedConst<ApiType>;
+      /**
        * The maximum percentage of weight per block used for scheduled tasks.
        **/
       updateQueueRatio: Perbill & AugmentedConst<ApiType>;

@@ -10,7 +10,7 @@ import type { Data } from '@polkadot/types';
 import type { Bytes, Compact, Option, Struct, U8aFixed, Vec, bool, i128, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
-import type { CumulusPrimitivesParachainInherentParachainInherentData, FrameSupportPreimagesBounded, OrmlTraitsAssetRegistryAssetMetadata, PalletAutomationPriceDirection, PalletAutomationTimeAssetPayment, PalletAutomationTimeScheduleParam, PalletDemocracyConviction, PalletDemocracyVoteAccountVote, PalletIdentityBitFlags, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletMultisigTimepoint, PrimitivesAssetsCustomMetadata, SpWeightsWeightV2Weight, TuringRuntimeOriginCaller, TuringRuntimeProxyType, TuringRuntimeSessionKeys, XcmV3MultiLocation, XcmV3WeightLimit, XcmVersionedMultiAsset, XcmVersionedMultiAssets, XcmVersionedMultiLocation, XcmVersionedXcm } from '@polkadot/types/lookup';
+import type { CumulusPrimitivesParachainInherentParachainInherentData, FrameSupportPreimagesBounded, OrmlTraitsAssetRegistryAssetMetadata, PalletAutomationPriceAssetPayment, PalletAutomationTimeAssetPayment, PalletAutomationTimeScheduleParam, PalletDemocracyConviction, PalletDemocracyVoteAccountVote, PalletIdentityBitFlags, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletMultisigTimepoint, PrimitivesAssetsCustomMetadata, SpWeightsWeightV2Weight, TuringRuntimeOriginCaller, TuringRuntimeProxyType, TuringRuntimeSessionKeys, XcmV3MultiLocation, XcmV3WeightLimit, XcmVersionedMultiAsset, XcmVersionedMultiAssets, XcmVersionedMultiLocation, XcmVersionedXcm } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -27,6 +27,17 @@ declare module '@polkadot/api-base/types/submittable' {
       [key: string]: SubmittableExtrinsicFunction<ApiType>;
     };
     automationPrice: {
+      cancelTask: AugmentedSubmittable<(taskId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * Delete an asset
+       * 
+       * # Parameters
+       * * `asset`: asset type
+       * * `directions`: number of directions of data input. (up, down, ?)
+       * 
+       * # Errors
+       **/
+      deleteAsset: AugmentedSubmittable<(chain: Bytes | string | Uint8Array, exchange: Bytes | string | Uint8Array, asset1: Bytes | string | Uint8Array, asset2: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes, Bytes]>;
       /**
        * Initialize an asset
        * 
@@ -42,45 +53,55 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * # Errors
        **/
-      addAsset: AugmentedSubmittable<(asset: Bytes | string | Uint8Array, targetPrice: u128 | AnyNumber | Uint8Array, upperBound: u16 | AnyNumber | Uint8Array, lowerBound: u8 | AnyNumber | Uint8Array, assetOwner: AccountId32 | string | Uint8Array, expirationPeriod: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u128, u16, u8, AccountId32, u64]>;
+      initializeAsset: AugmentedSubmittable<(chain: Bytes | string | Uint8Array, exchange: Bytes | string | Uint8Array, asset1: Bytes | string | Uint8Array, asset2: Bytes | string | Uint8Array, decimal: u8 | AnyNumber | Uint8Array, assetOwners: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes, Bytes, u8, Vec<AccountId32>]>;
+      scheduleXcmpTask: AugmentedSubmittable<(chain: Bytes | string | Uint8Array, exchange: Bytes | string | Uint8Array, asset1: Bytes | string | Uint8Array, asset2: Bytes | string | Uint8Array, expiredAt: u128 | AnyNumber | Uint8Array, triggerFunction: Bytes | string | Uint8Array, triggerParam: Vec<u128> | (u128 | AnyNumber | Uint8Array)[], destination: XcmVersionedMultiLocation | { V2: any } | { V3: any } | string | Uint8Array, scheduleFee: XcmVersionedMultiLocation | { V2: any } | { V3: any } | string | Uint8Array, executionFee: PalletAutomationPriceAssetPayment | { assetLocation?: any; amount?: any } | string | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, overallWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes, Bytes, u128, Bytes, Vec<u128>, XcmVersionedMultiLocation, XcmVersionedMultiLocation, PalletAutomationPriceAssetPayment, Bytes, SpWeightsWeightV2Weight, SpWeightsWeightV2Weight]>;
       /**
-       * Post asset update
+       * TODO: correct weight to use schedule_xcmp_task
+       * Schedule a task through XCMP through proxy account to fire an XCMP message with a provided call.
        * 
-       * Update the asset price
+       * Before the task can be scheduled the task must past validation checks.
+       * * The transaction is signed
+       * * The asset pair is already initialized
        * 
        * # Parameters
-       * * `asset`: asset type
-       * * `value`: value of asset
-       * 
-       * # Errors
+       * * `chain`: The chain name where we will send the task over
+       * * `exchange`: the exchange name where we
+       * * `asset1`: The payment asset location required for scheduling automation task.
+       * * `asset2`: The fee will be paid for XCMP execution.
+       * * `expired_at`: the epoch when after that time we will remove the task if it has not been executed yet
+       * * `trigger_function`: currently only support `gt` or `lt`. Essentially mean greater than or less than.
+       * * `trigger_params`: a list of parameter to feed into `trigger_function`. with `gt` and `lt` we only need to pass the target price as a single element vector
+       * * `schedule_fee`: The payment asset location required for scheduling automation task.
+       * * `execution_fee`: The fee will be paid for XCMP execution.
+       * * `encoded_call`: Call that will be sent via XCMP to the parachain id provided.
+       * * `encoded_call_weight`: Required weight at most the provided call will take.
+       * * `overall_weight`: The overall weight in which fees will be paid for XCM instructions.
        **/
-      assetPriceUpdate: AugmentedSubmittable<(asset: Bytes | string | Uint8Array, value: u128 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u128]>;
+      scheduleXcmpTaskThroughProxy: AugmentedSubmittable<(chain: Bytes | string | Uint8Array, exchange: Bytes | string | Uint8Array, asset1: Bytes | string | Uint8Array, asset2: Bytes | string | Uint8Array, expiredAt: u128 | AnyNumber | Uint8Array, triggerFunction: Bytes | string | Uint8Array, triggerParams: Vec<u128> | (u128 | AnyNumber | Uint8Array)[], destination: XcmVersionedMultiLocation | { V2: any } | { V3: any } | string | Uint8Array, scheduleFee: XcmVersionedMultiLocation | { V2: any } | { V3: any } | string | Uint8Array, executionFee: PalletAutomationPriceAssetPayment | { assetLocation?: any; amount?: any } | string | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, overallWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, scheduleAs: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes, Bytes, u128, Bytes, Vec<u128>, XcmVersionedMultiLocation, XcmVersionedMultiLocation, PalletAutomationPriceAssetPayment, Bytes, SpWeightsWeightV2Weight, SpWeightsWeightV2Weight, AccountId32]>;
       /**
-       * Delete an asset
+       * Update prices of multiple asset pairs at the same time
+       * 
+       * Only authorized origin can update the price. The authorized origin is set when
+       * initializing an asset.
+       * 
+       * An asset is identified by this tuple: (chain, exchange, (asset1, asset2)).
+       * 
+       * To support updating multiple pairs, each element of the tuple become a separate
+       * argument to this function, where as each of these argument is a vector.
+       * 
+       * Every element of each vector arguments, in the same position in the vector form the
+       * above tuple.
        * 
        * # Parameters
-       * * `asset`: asset type
-       * * `directions`: number of directions of data input. (up, down, ?)
-       * 
-       * # Errors
+       * * `chains`: a vector of chain names
+       * * `exchange`: a vector of  exchange name
+       * * `asset1`: a vector of asset1 name
+       * * `asset2`: a vector of asset2 name
+       * * `prices`: a vector of price of asset1, re-present in asset2
+       * * `submitted_at`: a vector of epoch. This epoch is the time when the price is recognized from the oracle provider
+       * * `rounds`: a number to re-present which round of the asset price we're updating.  Unused internally
        **/
-      deleteAsset: AugmentedSubmittable<(asset: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Schedule a task to fire an event with a custom message.
-       * 
-       * Schedule a transfer task for price triggers
-       * 
-       * # Parameters
-       * * `provided_id`: An id provided by the user. This id must be unique for the user.
-       * * `asset`: asset type
-       * * `direction`: direction of trigger movement
-       * * `trigger_percentage`: what percentage task should be triggered at
-       * * `recipient`: person to transfer money to
-       * * `amount`: amount to transfer
-       * 
-       * # Errors
-       **/
-      scheduleTransferTask: AugmentedSubmittable<(providedId: Bytes | string | Uint8Array, asset: Bytes | string | Uint8Array, direction: PalletAutomationPriceDirection | 'Up' | 'Down' | number | Uint8Array, triggerPercentage: u128 | AnyNumber | Uint8Array, recipient: AccountId32 | string | Uint8Array, amount: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, PalletAutomationPriceDirection, u128, AccountId32, Compact<u128>]>;
+      updateAssetPrices: AugmentedSubmittable<(chains: Vec<Bytes> | (Bytes | string | Uint8Array)[], exchanges: Vec<Bytes> | (Bytes | string | Uint8Array)[], assets1: Vec<Bytes> | (Bytes | string | Uint8Array)[], assets2: Vec<Bytes> | (Bytes | string | Uint8Array)[], prices: Vec<u128> | (u128 | AnyNumber | Uint8Array)[], submittedAt: Vec<u128> | (u128 | AnyNumber | Uint8Array)[], rounds: Vec<u128> | (u128 | AnyNumber | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<Bytes>, Vec<Bytes>, Vec<Bytes>, Vec<Bytes>, Vec<u128>, Vec<u128>, Vec<u128>]>;
       /**
        * Generic tx
        **/
@@ -121,7 +142,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `account_minimum`: The minimum amount of funds that should be left in the wallet
        * 
        * # Errors
-       * * `InvalidTime`: Execution time and frequency must end in a whole hour.
+       * * `InvalidTime`: Execution time and frequency must be a multiple of SlotSizeSeconds.
        * * `PastTime`: Time must be in the future.
        * * `DuplicateTask`: There can be no duplicate tasks.
        * * `TimeSlotFull`: Time slot is full. No more tasks can be scheduled for this time.
@@ -138,7 +159,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `call`: The call that will be dispatched.
        * 
        * # Errors
-       * * `InvalidTime`: Execution time and frequency must end in a whole hour.
+       * * `InvalidTime`: Execution time and frequency must be a multiple of SlotSizeSeconds.
        * * `PastTime`: Time must be in the future.
        * * `DuplicateTask`: There can be no duplicate tasks.
        * * `TimeSlotFull`: Time slot is full. No more tasks can be scheduled for this time.
@@ -163,7 +184,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `overall_weight`: The overall weight in which fees will be paid for XCM instructions.
        * 
        * # Errors
-       * * `InvalidTime`: Time must end in a whole hour.
+       * * `InvalidTime`: Time in seconds must be a multiple of SlotSizeSeconds.
        * * `PastTime`: Time must be in the future.
        * * `DuplicateTask`: There can be no duplicate tasks.
        * * `TimeTooFarOut`: Execution time or frequency are past the max time horizon.
@@ -189,7 +210,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `overall_weight`: The overall weight in which fees will be paid for XCM instructions.
        * 
        * # Errors
-       * * `InvalidTime`: Time must end in a whole hour.
+       * * `InvalidTime`: Time in seconds must be a multiple of SlotSizeSeconds.
        * * `PastTime`: Time must be in the future.
        * * `DuplicateTask`: There can be no duplicate tasks.
        * * `TimeTooFarOut`: Execution time or frequency are past the max time horizon.

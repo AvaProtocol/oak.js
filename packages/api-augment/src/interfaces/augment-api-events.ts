@@ -24,38 +24,27 @@ declare module '@polkadot/api-base/types/events' {
       [key: string]: AugmentedEvent<ApiType>;
     };
     automationPrice: {
-      AssetCreated: AugmentedEvent<ApiType, [asset: Bytes], { asset: Bytes }>;
+      AssetCreated: AugmentedEvent<ApiType, [chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes, decimal: u8], { chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes, decimal: u8 }>;
       AssetDeleted: AugmentedEvent<ApiType, [asset: Bytes], { asset: Bytes }>;
       AssetPeriodReset: AugmentedEvent<ApiType, [asset: Bytes], { asset: Bytes }>;
-      AssetUpdated: AugmentedEvent<ApiType, [asset: Bytes], { asset: Bytes }>;
+      AssetUpdated: AugmentedEvent<ApiType, [who: AccountId32, chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes, price: u128], { who: AccountId32, chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes, price: u128 }>;
       Notify: AugmentedEvent<ApiType, [message: Bytes], { message: Bytes }>;
-      /**
-       * Successfully transferred funds
-       **/
-      SuccessfullyTransferredFunds: AugmentedEvent<ApiType, [taskId: H256], { taskId: H256 }>;
-      TaskNotFound: AugmentedEvent<ApiType, [taskId: H256], { taskId: H256 }>;
+      TaskCancelled: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
+      TaskCompleted: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
+      TaskExecuted: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
+      TaskExecutionFailed: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError], { who: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError }>;
+      TaskNotFound: AugmentedEvent<ApiType, [taskId: Bytes], { taskId: Bytes }>;
       /**
        * Schedule task success.
        **/
-      TaskScheduled: AugmentedEvent<ApiType, [who: AccountId32, taskId: H256], { who: AccountId32, taskId: H256 }>;
-      /**
-       * Transfer Failed
-       **/
-      TransferFailed: AugmentedEvent<ApiType, [taskId: H256, error: SpRuntimeDispatchError], { taskId: H256, error: SpRuntimeDispatchError }>;
+      TaskScheduled: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
+      TaskTriggered: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
       /**
        * Generic event
        **/
       [key: string]: AugmentedEvent<ApiType>;
     };
     automationTime: {
-      /**
-       * Notify event for the task.
-       **/
-      Notify: AugmentedEvent<ApiType, [message: Bytes], { message: Bytes }>;
-      /**
-       * Successfully transferred funds
-       **/
-      SuccessfullyTransferredFunds: AugmentedEvent<ApiType, [taskId: Bytes], { taskId: Bytes }>;
       /**
        * Cancelled a task.
        **/
@@ -88,14 +77,6 @@ declare module '@polkadot/api-base/types/events' {
        **/
       TaskScheduled: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, scheduleAs: Option<AccountId32>], { who: AccountId32, taskId: Bytes, scheduleAs: Option<AccountId32> }>;
       TaskTriggered: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, condition: BTreeMap<Bytes, Bytes>, encodedCall: Option<Bytes>], { who: AccountId32, taskId: Bytes, condition: BTreeMap<Bytes, Bytes>, encodedCall: Option<Bytes> }>;
-      /**
-       * Transfer Failed
-       **/
-      TransferFailed: AugmentedEvent<ApiType, [taskId: Bytes, error: SpRuntimeDispatchError], { taskId: Bytes, error: SpRuntimeDispatchError }>;
-      /**
-       * Failed to send XCMP
-       **/
-      XcmpTaskFailed: AugmentedEvent<ApiType, [taskId: Bytes, destination: XcmV3MultiLocation, error: SpRuntimeDispatchError], { taskId: Bytes, destination: XcmV3MultiLocation, error: SpRuntimeDispatchError }>;
       /**
        * Generic event
        **/

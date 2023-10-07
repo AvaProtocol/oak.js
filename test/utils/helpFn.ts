@@ -89,8 +89,7 @@ export const sendExtrinsic = async (
           reject(new Error('The event.ExtrinsicSuccess is not found'));
         }
       }
-    })
-    ).catch((reason) => reject(reason));
+    }).catch((reason) => reject(reason));
   });
 
 export const hexToAscii = (hexStr: string, hasPrefix = false) => {

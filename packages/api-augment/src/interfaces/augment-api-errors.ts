@@ -39,6 +39,7 @@ declare module '@polkadot/api-base/types/errors' {
       [key: string]: AugmentedError<ApiType>;
     };
     automationPrice: {
+      AssetAlreadyInitialized: AugmentedError<ApiType>;
       /**
        * Asset already supported
        **/
@@ -47,6 +48,7 @@ declare module '@polkadot/api-base/types/errors' {
        * Too Many Assets Created
        **/
       AssetLimitReached: AugmentedError<ApiType>;
+      AssetNotInitialized: AugmentedError<ApiType>;
       /**
        * Asset must be in triggerable range.
        **/
@@ -55,22 +57,20 @@ declare module '@polkadot/api-base/types/errors' {
        * Non existent asset
        **/
       AssetNotSupported: AugmentedError<ApiType>;
+      AssetUpdatePayloadMalform: AugmentedError<ApiType>;
+      /**
+       * The version of the `VersionedMultiLocation` value used is not able
+       * to be interpreted.
+       **/
+      BadVersion: AugmentedError<ApiType>;
       /**
        * Block Time not set
        **/
       BlockTimeNotSet: AugmentedError<ApiType>;
       /**
-       * Direction Not Supported
-       **/
-      DirectionNotSupported: AugmentedError<ApiType>;
-      /**
        * Duplicate task
        **/
       DuplicateTask: AugmentedError<ApiType>;
-      /**
-       * The provided_id cannot be empty
-       **/
-      EmptyProvidedId: AugmentedError<ApiType>;
       /**
        * Insufficient Balance
        **/
@@ -83,10 +83,7 @@ declare module '@polkadot/api-base/types/errors' {
        * Asset cannot be updated by this account
        **/
       InvalidAssetSudo: AugmentedError<ApiType>;
-      /**
-       * Time must end in a whole hour.
-       **/
-      InvalidTime: AugmentedError<ApiType>;
+      InvalidTaskId: AugmentedError<ApiType>;
       /**
        * Restrictions on Liquidity in Account
        **/
@@ -95,10 +92,15 @@ declare module '@polkadot/api-base/types/errors' {
        * Maximum tasks reached for the slot
        **/
       MaxTasksReached: AugmentedError<ApiType>;
+      OracleNotAuthorized: AugmentedError<ApiType>;
       /**
        * Failed to insert task
        **/
       TaskInsertionFailure: AugmentedError<ApiType>;
+      /**
+       * Failed to remove task
+       **/
+      TaskRemoveFailure: AugmentedError<ApiType>;
       /**
        * Generic error
        **/
@@ -124,10 +126,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       DuplicateTask: AugmentedError<ApiType>;
       /**
-       * The message cannot be empty.
-       **/
-      EmptyMessage: AugmentedError<ApiType>;
-      /**
        * Incoverible currency ID.
        **/
       IncoveribleCurrencyId: AugmentedError<ApiType>;
@@ -136,11 +134,7 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       InsufficientBalance: AugmentedError<ApiType>;
       /**
-       * Amount has to be larger than 0.1 OAK.
-       **/
-      InvalidAmount: AugmentedError<ApiType>;
-      /**
-       * Time must end in a whole hour.
+       * Time in seconds must be a multiple of SlotSizeSeconds
        **/
       InvalidTime: AugmentedError<ApiType>;
       /**
@@ -167,10 +161,6 @@ declare module '@polkadot/api-base/types/errors' {
        * Too many execution times provided.
        **/
       TooManyExecutionsTimes: AugmentedError<ApiType>;
-      /**
-       * Sender cannot transfer money to self.
-       **/
-      TransferToSelf: AugmentedError<ApiType>;
       UnsupportedFeePayment: AugmentedError<ApiType>;
       /**
        * Generic error

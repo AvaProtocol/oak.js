@@ -1,5 +1,11 @@
 # @oak-network/adapter
 
+## 0.1.4
+
+### Patch Changes
+
+- 2da1f1e: Schedule XCMP price task; Custom SDK options;
+
 ## 0.1.3
 
 ### Patch Changes

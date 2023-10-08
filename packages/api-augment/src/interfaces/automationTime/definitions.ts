@@ -27,13 +27,6 @@ const automationTime = {
     },
   },
   types: {
-    AutomationAction: {
-      _enum: [
-        'NativeTransfer',
-        'XCMP',
-        'AutoCompoundDelegatedStake'
-      ],
-    },
     AutostakingResult: {
       period: 'i32',
       apy: 'f64',

@@ -1,8 +1,8 @@
 import { ChainAsset } from "./ChainAsset";
-import { Weight, relayChainType } from "../types";
+import { Weight, RelayChainType } from "../types";
 
 export interface ChainXcmInfo {
-  network: relayChainType;
+  network: RelayChainType;
   instructionWeight: Weight;
 }
 
@@ -11,7 +11,7 @@ export interface ChainConstructorParams {
   assets: ChainAsset[];
   defaultAsset: ChainAsset;
   endpoint: string;
-  relayChain: relayChainType;
+  relayChain: RelayChainType;
   xcm: ChainXcmInfo;
 }
 
@@ -30,7 +30,7 @@ export class Chain {
 
   name: string | undefined;
 
-  relayChain: relayChainType;
+  relayChain: RelayChainType;
 
   xcm: ChainXcmInfo;
 
@@ -42,7 +42,8 @@ export class Chain {
     relayChain,
     xcm,
   }: ChainConstructorParams) {
-    (this.key = key), (this.assets = assets);
+    this.key = key;
+    this.assets = assets;
     this.defaultAsset = defaultAsset;
     this.endpoint = endpoint;
     this.relayChain = relayChain;

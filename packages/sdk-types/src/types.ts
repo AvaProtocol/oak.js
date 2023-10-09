@@ -1,11 +1,22 @@
 import BN from "bn.js";
 
-export type relayChainType =
+const MAX_NUMBER_BITS = 52;
+
+export type RelayChainType =
   | "local"
   | "rococo"
   | "moonbase-alpha-relay"
   | "kusama"
   | "polkadot";
+
+/**
+ * convert bn number to number or hexstring
+ * Reference: https://github.com/polkadot-js/api/blob/a22a111f7228e80e03bc75298347dbd184c5630b/packages/types-codec/src/abstract/Int.ts#L221
+ * @param bn
+ * @returns number or hexstring
+ */
+const convertBNtoNumber = (bn: BN): number | string =>
+  bn.bitLength() > MAX_NUMBER_BITS ? `0x${bn.toString(16)}` : bn.toNumber();
 
 export class Weight {
   refTime: BN;
@@ -31,5 +42,13 @@ export class Weight {
   toString() {
     const { refTime, proofSize } = this;
     return `Weight { refTime: ${refTime.toString()}, proofSize: ${proofSize.toString()} }`;
+  }
+
+  toJSON() {
+    const { refTime, proofSize } = this;
+    return {
+      proofSize: convertBNtoNumber(proofSize),
+      refTime: convertBNtoNumber(refTime),
+    };
   }
 }

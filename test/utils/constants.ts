@@ -9,24 +9,19 @@ export const DEFAULT_TIMEOUT_INITIALIZE = 10000;
 const mnemonic = process.env.MNEMONIC;
 
 export const chainConfigs = {
+  Turing: {
+    endpoint: "wss://rpc.turing.oak.tech",
+    mnemonic,
+    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,
+  },
   "Turing Dev": {
     endpoint: process.env.ENDPOINT || "ws://127.0.0.1:9946",
-    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000, // 6 months
     mnemonic: mnemonic || "//Alice",
+    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000, // 6 months
   },
   "Turing Staging": {
     endpoint: "wss://rpc.turing-staging.oak.tech",
-    scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,
     mnemonic,
-  },
-  Turing: {
-    endpoint: "wss://rpc.turing.oak.tech",
     scheduleLimit: 6 * 30 * 24 * 60 * 60 * 1000,
-    mnemonic,
   },
 };
-
-export enum AutomationAction {
-  XCMP = "XCMP",
-  AutoCompoundDelegatedStake = "AutoCompoundDelegatedStake",
-}

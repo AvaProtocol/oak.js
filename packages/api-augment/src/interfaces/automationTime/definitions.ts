@@ -3,14 +3,6 @@ import { runtime } from './runtime';
 
 const automationTime = {
   rpc: {
-    getTimeAutomationFees: {
-      description: 'Retrieve automation fees',
-      params: [
-        { name: 'action', type: 'AutomationAction' },
-        { name: 'executions', type: 'u32' },
-      ],
-      type: 'Balance',
-    },
     calculateOptimalAutostaking: {
       description: 'Calculate the optimal period to restake',
       params: [
@@ -35,13 +27,6 @@ const automationTime = {
     },
   },
   types: {
-    AutomationAction: {
-      _enum: [
-        'NativeTransfer',
-        'XCMP',
-        'AutoCompoundDelegatedStake'
-      ],
-    },
     AutostakingResult: {
       period: 'i32',
       apy: 'f64',

@@ -1,15 +1,11 @@
 import BN from "bn.js";
 import { Weight } from "./types/Weight";
 import { createChain } from "./types/Chain";
-import { XToken } from "../tokens/types/XToken";
 import { RococoTokens } from "../tokens";
-
-const rocstarTokens = [{ asset: RococoTokens.rstr, isNative: true }].map((data) => new XToken(data));
 
 const rocstar = createChain({
 	key: "rocstar",
-	assets: rocstarTokens,
-	defaultToken: rocstarTokens[0],
+	assets: [{ asset: RococoTokens.rstr, isNative: true }],
 	endpoint: "wss://rocstar.astar.network",
 	relayChain: "rococo",
 	xcm: {
@@ -18,15 +14,24 @@ const rocstar = createChain({
 	},
 });
 
-const turingTokens = [
-	{ asset: RococoTokens.tur, isNative: true },
-	{ asset: RococoTokens.rstr, isNative: false },
-].map((data) => new XToken(data));
+const mangataRococo = createChain({
+	key: "mangata-rococo",
+	assets: [{ asset: RococoTokens.mgr, isNative: true }, { asset: RococoTokens.tur, isNative: false }],
+	endpoint: "wss://collator-01-ws-rococo.mangata.online",
+	relayChain: "rococo",
+	xcm: {
+	  network: "rococo",
+	  instructionWeight: new Weight(new BN("150000000"), new BN("0")),
+	},
+  });
+  
 
 const turingStaging = createChain({
 	key: "turing",
-	assets: turingTokens,
-	defaultToken: turingTokens[0],
+	assets: [
+		{ asset: RococoTokens.tur, isNative: true },
+		{ asset: RococoTokens.rstr, isNative: false },
+	],
 	endpoint: "wss://rpc.turing-staging.oak.tech",
 	relayChain: "rococo",
 	xcm: {
@@ -35,4 +40,4 @@ const turingStaging = createChain({
 	},
 });
 
-export { turingStaging, rocstar };
+export default { mangataRococo, turingStaging, rocstar };

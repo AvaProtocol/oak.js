@@ -1,16 +1,10 @@
-import * as astarChains from "./astar";
-import * as mangataChains from "./mangata";
-import * as moonbeamChains from "./moonbeam";
-import * as oakChains from "./oak";
 import { Chain, XcmConfig } from "./types/Chain";
 import { Weight } from "./types/Weight";
+import devChains from "./dev";
+import kusamaChains from "./kusama";
+import polkadotChains from "./polkadot";
+import rococoChains from "./rococo";
+import moonbaseChains from "./moonbase";
 
-const chains = {
-	...astarChains,
-	...mangataChains,
-	...moonbeamChains,
-	...oakChains,
-};
-
-export { chains };
+export { devChains, moonbaseChains, rococoChains, kusamaChains, polkadotChains };
 export type { Chain, XcmConfig, Weight };

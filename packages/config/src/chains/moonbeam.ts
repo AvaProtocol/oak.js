@@ -1,18 +1,18 @@
 import BN from "bn.js";
-import { Chain, ChainAsset, Weight } from "@oak-network/sdk-types";
-import { assets } from "../assets";
+import { Chain, XToken, Weight } from "@oak-network/sdk-types";
+import { assets } from "../tokens/assets";
 
-const moonbaseAlphaAsset = new ChainAsset({
+const moonbaseAlphaToken = new XToken({
   asset: assets.moonbaseAlpha,
   isNative: true,
 });
-const moonbaseAssets = [moonbaseAlphaAsset];
+const moonbaseTokens = [moonbaseAlphaToken];
 
 // moonbase-local
 export const moonbaseLocal = new Chain({
   key: "moonbase-local",
-  assets: moonbaseAssets,
-  defaultAsset: moonbaseAlphaAsset,
+  assets: moonbaseTokens,
+  defaultToken: moonbaseAlphaToken,
   endpoint: "ws://127.0.0.1:9949",
   relayChain: "local",
   xcm: {
@@ -24,8 +24,8 @@ export const moonbaseLocal = new Chain({
 // moonbase-alpha
 export const moonbaseAlpha = new Chain({
   key: "moonbase-alpha",
-  assets: moonbaseAssets,
-  defaultAsset: moonbaseAlphaAsset,
+  assets: moonbaseTokens,
+  defaultToken: moonbaseAlphaToken,
   endpoint: "wss://wss.api.moonbase.moonbeam.network",
   relayChain: "moonbase-alpha-relay",
   xcm: {
@@ -37,8 +37,8 @@ export const moonbaseAlpha = new Chain({
 // moonriver
 export const moonriver = new Chain({
   key: "moonriver",
-  assets: moonbaseAssets,
-  defaultAsset: moonbaseAlphaAsset,
+  assets: moonbaseTokens,
+  defaultToken: moonbaseAlphaToken,
   endpoint: "wss://wss.api.moonriver.moonbeam.network",
   relayChain: "kusama",
   xcm: {

@@ -1,12 +1,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "composite": true,
     "rootDir": "src",
     "outDir": "build",
     "skipLibCheck": true
   },
   "references": [
     { "path": "../types" },
+    { "path": "../config" },
     { "path": "../sdk-types" }
   ]
 }

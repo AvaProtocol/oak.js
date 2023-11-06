@@ -1,18 +1,18 @@
 import BN from "bn.js";
-import { Chain, ChainAsset, Weight } from "@oak-network/sdk-types";
-import { assets } from "../assets";
+import { Chain, XToken, Weight } from "@oak-network/sdk-types";
+import { assets } from "../tokens/rococo";
 
 // turing-local
-const turAsset = new ChainAsset({ asset: assets.tur, isNative: true });
-const moonbaseAlphaAsset = new ChainAsset({
+const turToken = new XToken({ asset: assets.tur, isNative: true });
+const moonbaseAlphaToken = new XToken({
   asset: assets.moonbaseAlpha,
   isNative: false,
 });
-const turingRococoAssets = [turAsset, moonbaseAlphaAsset];
+const turingRococoTokens = [turToken, moonbaseAlphaToken];
 export const turingLocal = new Chain({
   key: "turing-local",
-  assets: turingRococoAssets,
-  defaultAsset: turAsset,
+  assets: turingRococoTokens,
+  defaultToken: turToken,
   endpoint: "ws://127.0.0.1:9946",
   relayChain: "local",
   xcm: {
@@ -24,8 +24,8 @@ export const turingLocal = new Chain({
 // turing-staging
 export const turingStaging = new Chain({
   key: "turing-staging",
-  assets: turingRococoAssets,
-  defaultAsset: turAsset,
+  assets: turingRococoTokens,
+  defaultToken: turToken,
   endpoint: "wss://rpc.turing-staging.oak.tech",
   relayChain: "rococo",
   xcm: {
@@ -37,8 +37,8 @@ export const turingStaging = new Chain({
 // turing-moonbase
 export const turingMoonbase = new Chain({
   key: "turing-moonbase",
-  assets: turingRococoAssets,
-  defaultAsset: turAsset,
+  assets: turingRococoTokens,
+  defaultToken: turToken,
   endpoint: "ws://167.99.226.24:8846",
   relayChain: "moonbase-alpha-relay",
   xcm: {
@@ -48,11 +48,11 @@ export const turingMoonbase = new Chain({
 });
 
 // turing-kusama
-const turingKusamaAssets = [turAsset, moonbaseAlphaAsset];
+const turingKusamaTokens = [turToken, moonbaseAlphaToken];
 export const turing = new Chain({
   key: "turing",
-  assets: turingKusamaAssets,
-  defaultAsset: turAsset,
+  assets: turingKusamaTokens,
+  defaultToken: turToken,
   endpoint: "wss://rpc.turing.oak.tech",
   relayChain: "kusama",
   xcm: {

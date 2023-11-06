@@ -1,9 +1,10 @@
 {
-  "name": "@oak-network/adapter",
-  "version": "0.1.4",
-  "license": "Apache-2.0",
-  "main": "./build/index.js",
-  "dependencies": {
-    "@polkadot/api": "^10.9.1"
-  }
+	"name": "@oak-network/adapter",
+	"version": "0.1.4",
+	"license": "Apache-2.0",
+	"main": "./build/index.js",
+	"dependencies": {
+		"@polkadot/api": "^10.9.1",
+		"@oak-network/config": "workspace:*"
+	}
 }

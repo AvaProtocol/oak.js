@@ -6,13 +6,13 @@ import type { KeyringPair } from '@polkadot/keyring/types';
 import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
 import type { u32 } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
-import { ChainAsset, Weight, Chain as ChainConfig, ChainXcmInfo } from '@oak-network/sdk-types';
+import type { XToken, Weight, Chain as ChainConfig, XcmConfig } from '@oak-network/config';
 import { SendExtrinsicResult, XcmInstructionNetworkType } from '../types';
 
 export class ChainData {
   key: string | undefined;
-  assets: ChainAsset [] = [];
-  defaultAsset: ChainAsset | undefined;
+  assets: XToken [] = [];
+  defaultAsset: XToken | undefined;
   endpoint: string | undefined;
   relayChain: string | undefined;
   network: string | undefined;
@@ -20,7 +20,7 @@ export class ChainData {
   ss58Prefix: number | undefined;
   name: string | undefined;
   xcmInstructionNetworkType: XcmInstructionNetworkType = XcmInstructionNetworkType.Null; 
-  xcm: ChainXcmInfo | undefined;
+  xcm: XcmConfig | undefined;
 }
 
 export abstract class ChainAdapter {

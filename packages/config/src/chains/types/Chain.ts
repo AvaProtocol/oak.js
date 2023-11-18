@@ -15,6 +15,7 @@ type AssetInfo = {
 
 interface ChainConstructorParams {
 	key: string;
+	name: string;
 	assets: XToken[];
 	endpoint: string;
 	relayChain: RelayChainType;
@@ -31,8 +32,9 @@ class Chain {
 	relayChain: RelayChainType;
 	xcm: XcmConfig;
 
-	constructor({ key, assets, endpoint, relayChain, xcm }: ChainConstructorParams) {
+	constructor({ key, name, assets, endpoint, relayChain, xcm }: ChainConstructorParams) {
 		this.key = key;
+		this.name = name;
 		this.assets = assets;
 		this.endpoint = endpoint;
 		this.relayChain = relayChain;
@@ -40,10 +42,11 @@ class Chain {
 	}
 }
 
-function createChain(config: { key: string; assets: AssetInfo[]; endpoint: string; relayChain: RelayChainType; xcm: XcmConfig }): Chain {
-	const { key, assets, endpoint, relayChain, xcm } = config;
+function createChain(config: { key: string; name: string; assets: AssetInfo[]; endpoint: string; relayChain: RelayChainType; xcm: XcmConfig }): Chain {
+	const { key, name, assets, endpoint, relayChain, xcm } = config;
 	return new Chain({
 		key,
+		name,
 		assets: assets.map((asset) => new XToken(asset)),
 		endpoint,
 		relayChain,

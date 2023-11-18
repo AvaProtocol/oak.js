@@ -5,6 +5,7 @@ import { RococoTokens } from "../tokens";
 
 const rocstar = createChain({
 	key: "rocstar",
+	name: "Rocstar",
 	assets: [{ asset: RococoTokens.rstr, isNative: true }],
 	endpoint: "wss://rocstar.astar.network",
 	relayChain: "rococo",
@@ -16,6 +17,7 @@ const rocstar = createChain({
 
 const mangataRococo = createChain({
 	key: "mangata-rococo",
+	name: "Mangata Rococo",	
 	assets: [{ asset: RococoTokens.mgr, isNative: true }, { asset: RococoTokens.tur, isNative: false }],
 	endpoint: "wss://collator-01-ws-rococo.mangata.online",
 	relayChain: "rococo",
@@ -27,7 +29,8 @@ const mangataRococo = createChain({
   
 
 const turingStaging = createChain({
-	key: "turing",
+	key: "turing-staging",
+	name: "Turing Staging",
 	assets: [
 		{ asset: RococoTokens.tur, isNative: true },
 		{ asset: RococoTokens.rstr, isNative: false },

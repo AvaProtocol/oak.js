@@ -5,6 +5,7 @@ import { KusamaTokens } from "../tokens";
 
 const shiden = createChain({
 	key: "shiden",
+	name: "Shiden Network",
 	assets: [{ asset: KusamaTokens.sdn, isNative: true }],
 	endpoint: "wss://shiden-rpc.dwellir.com",
 	relayChain: "kusama",
@@ -16,6 +17,7 @@ const shiden = createChain({
 
 const turing = createChain({
 	key: "turing",
+	name: "Turing Network",
 	assets: [
 		{ asset: KusamaTokens.tur, isNative: true },
 		{ asset: KusamaTokens.sdn, isNative: false },
@@ -32,6 +34,7 @@ const turing = createChain({
 
 const mangata = createChain({
 	key: "mangata",
+	name: "Mangata",
 	assets: [
 		{ asset: KusamaTokens.mgx, isNative: true },
 		{ asset: KusamaTokens.tur, isNative: false },
@@ -46,6 +49,7 @@ const mangata = createChain({
 
 const moonriver = createChain({
 	key: "moonriver",
+	name: "Moonriver",
 	assets: [
 		{ asset: KusamaTokens.movr, isNative: true },
 		{ asset: KusamaTokens.tur, isNative: false },

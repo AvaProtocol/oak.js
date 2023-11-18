@@ -5,6 +5,7 @@ import { MoonbaseTokens } from "../tokens";
 
 const turingMoonbase = createChain({
 	key: "turing-moonbase",
+	name: "Moonbase Turing",
 	assets: [{ asset: MoonbaseTokens.tur, isNative: true }],
 	endpoint: "ws://167.99.226.24:8846",
 	relayChain: "moonbase-alpha-relay",
@@ -16,6 +17,7 @@ const turingMoonbase = createChain({
 
 const moonbaseAlpha = createChain({
 	key: "moonbase-alpha",
+	name: "Moonbase Alpha",
 	assets: [
 		{ asset: MoonbaseTokens.dev, isNative: true },
 		{ asset: MoonbaseTokens.tur, isNative: false },

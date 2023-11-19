@@ -1,10 +1,10 @@
 import { Chain, XcmConfig } from "./types/Chain";
 import { Weight } from "./types/Weight";
-import devChains from "./dev";
-import kusamaChains from "./kusama";
-import polkadotChains from "./polkadot";
-import rococoChains from "./rococo";
-import moonbaseChains from "./moonbase";
+import DevChains from "./dev";
+import MoonbaseChains from "./moonbase";
+import RococoChains from "./rococo";
+import KusamaChains from "./kusama";
+import PolkadotChains from "./polkadot";
 
-export { devChains, moonbaseChains, rococoChains, kusamaChains, polkadotChains };
+export { DevChains, MoonbaseChains, RococoChains, KusamaChains, PolkadotChains };
 export type { Chain, XcmConfig, Weight };

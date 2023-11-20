@@ -8,7 +8,6 @@
   },
   "references": [
     { "path": "../types" },
-    { "path": "../config" },
-    { "path": "../sdk-types" }
+    { "path": "../config" }
   ]
 }

@@ -15,8 +15,6 @@
       "@oak-network/api-augment/*": ["./packages/api-augment/src/*"],
       "@oak-network/types": ["./packages/types/src"],
       "@oak-network/types/*": ["./packages/types/src/*"],
-      "@oak-network/sdk-types": ["./packages/sdk-types/src"],
-      "@oak-network/sdk-types/*": ["./packages/sdk-types/src/*"],
       "@oak-network/config": ["./packages/config/src"],
       "@oak-network/config/*": ["./packages/config/src/*"],
       "@oak-network/adapter": ["./packages/adapter/src"],

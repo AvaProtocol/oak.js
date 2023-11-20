@@ -5,7 +5,7 @@ import type { WeightV2 } from '@polkadot/types/interfaces';
 import type { u64, u128, Option } from '@polkadot/types';
 import type { HexString } from '@polkadot/util/types';
 import type { KeyringPair } from '@polkadot/keyring/types';
-import { Asset, ChainAsset, Weight } from '@oak-network/sdk-types';
+import { Asset, XToken, Weight } from '@oak-network/sdk-types';
 import { ChainAdapter, TaskScheduler } from './chainAdapter';
 import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic } from '../util';
 import { AccountType, SendExtrinsicResult } from '../types';
@@ -69,7 +69,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
       const { value: { xcm: location } } = item;
       const { name, symbol, decimals } = value;
       const asset = new Asset({ key: name, symbol, decimals, location });
-      const chainAsset = new ChainAsset({ asset, isNative: false });
+      const chainAsset = new XToken({ asset, isNative: false });
       this.chainData.assets.push(chainAsset);
     })
   }

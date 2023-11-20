@@ -3,7 +3,6 @@
   "references": [
     { "path": "packages/types" },
     { "path": "packages/api-augment" },
-    { "path": "packages/sdk-types" },
     { "path": "packages/config" },
     { "path": "packages/adapter" },
     { "path": "packages/sdk" }

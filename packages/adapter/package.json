@@ -5,6 +5,9 @@
 	"main": "./build/index.js",
 	"dependencies": {
 		"@polkadot/api": "^10.9.1",
+		"@polkadot/util": "^12.6.1",
+		"bn.js": "^5.2.1",
+		"lodash": "^4.17.21",
 		"@oak-network/config": "workspace:*"
 	}
 }

@@ -1,30 +1,18 @@
-import _ from 'lodash';
-import BN from 'bn.js';
+import _ from "lodash";
+import BN from "bn.js";
 // import '@polkadot/api-augment';
-import type { ApiPromise } from '@polkadot/api';
-import type { KeyringPair } from '@polkadot/keyring/types';
-import type { SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types';
-import type { u32 } from '@polkadot/types';
-import type { HexString } from '@polkadot/util/types';
-import type { XToken, Weight, Chain as ChainConfig, XcmConfig } from '@oak-network/config';
-import { SendExtrinsicResult, XcmInstructionNetworkType } from '../types';
-
-export class ChainData {
-  key: string | undefined;
-  assets: XToken [] = [];
-  defaultAsset: XToken | undefined;
-  endpoint: string | undefined;
-  relayChain: string | undefined;
-  network: string | undefined;
-  paraId: number | undefined;
-  ss58Prefix: number | undefined;
-  name: string | undefined;
-  xcmInstructionNetworkType: XcmInstructionNetworkType = XcmInstructionNetworkType.Null; 
-  xcm: XcmConfig | undefined;
-}
+import type { ApiPromise } from "@polkadot/api";
+import type { KeyringPair } from "@polkadot/keyring/types";
+import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
+import type { u32 } from "@polkadot/types";
+import type { HexString } from "@polkadot/util/types";
+import type { Weight, Chain as ChainConfig } from "@oak-network/config";
+import { SendExtrinsicResult } from "../types";
+import { ChainData } from "./chainData";
 
 export abstract class ChainAdapter {
   api: ApiPromise | undefined;
+
   protected chainData: ChainData;
 
   /**
@@ -37,26 +25,30 @@ export abstract class ChainAdapter {
     this.chainData = new ChainData();
     this.chainData.key = config.key;
     this.chainData.assets = config.assets;
-    this.chainData.defaultAsset = config.defaultAsset;
+    [this.chainData.defaultAsset] = config.assets;
     this.chainData.endpoint = config.endpoint;
     this.chainData.relayChain = config.relayChain;
     this.chainData.xcm = config.xcm;
   }
-  
+
   /**
    * Initialize adapter
    */
   public abstract initialize(): Promise<void>;
-  
+
   /**
    * Calculate the derivative account ID of a certain account ID
    * @param api Polkadot API
-   * @param accountId 
+   * @param accountId
    * @param paraId The paraId of the XCM message sender
    * @param options Optional operation options: { locationType, network }
    * @returns Derivative account
    */
-  public abstract getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString;
+  public abstract getDerivativeAccount(
+    accountId: HexString,
+    paraId: number,
+    options?: any,
+  ): HexString;
 
   /**
    * Get extrinsic weight for transact an extrinsic call through XCM message
@@ -64,7 +56,10 @@ export abstract class ChainAdapter {
    * @param account
    * @returns Extrinsic weight
    */
-  public abstract getExtrinsicWeight(extrinsic: SubmittableExtrinsic<'promise'>, account: AddressOrPair): Promise<Weight>;
+  public abstract getExtrinsicWeight(
+    extrinsic: SubmittableExtrinsic<"promise">,
+    account: AddressOrPair,
+  ): Promise<Weight>;
 
   /**
    * Calculate XCM overall weight for transact an extrinsic call through XCM message
@@ -72,12 +67,15 @@ export abstract class ChainAdapter {
    * @param instructionCount The number of XCM instructions
    * @returns XCM overall weight
    */
-  public abstract calculateXcmOverallWeight(transactCallWeight: Weight, instructionCount: number): Promise<Weight>;
+  public abstract calculateXcmOverallWeight(
+    transactCallWeight: Weight,
+    instructionCount: number,
+  ): Promise<Weight>;
 
   /**
    * Calculate XCM execution fee based on weight
-   * @param weight 
-   * @param assetLocation 
+   * @param weight
+   * @param assetLocation
    * @returns XCM execution fee
    */
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
@@ -90,7 +88,13 @@ export abstract class ChainAdapter {
    * @param assetAmount Asset amount
    * @param keyringPair Operator's keyring pair
    */
-  public abstract crossChainTransfer(destination: any, recipient: HexString, assetLocation: any, assetAmount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult>;
+  public abstract crossChainTransfer(
+    destination: any,
+    recipient: HexString,
+    assetLocation: any,
+    assetAmount: BN,
+    keyringPair: KeyringPair,
+  ): Promise<SendExtrinsicResult>;
 
   /**
    * Get polkadot API
@@ -106,7 +110,9 @@ export abstract class ChainAdapter {
    */
   public async fetchAndUpdateConfigs(): Promise<void> {
     const api = this.getApi();
-    this.chainData.ss58Prefix = (api.consts.system.ss58Prefix as unknown as u32).toNumber();
+    this.chainData.ss58Prefix = (
+      api.consts.system.ss58Prefix as unknown as u32
+    ).toNumber();
     const storageValue = await api.query.parachainInfo.parachainId();
     this.chainData.paraId = (storageValue as unknown as u32).toNumber();
   }
@@ -126,7 +132,7 @@ export abstract class ChainAdapter {
   public getLocation(): any {
     const { paraId } = this.chainData;
     if (_.isUndefined(paraId)) throw new Error("chainData.paraId not set");
-    return { parents: 1, interior: { X1: { Parachain: paraId } } };
+    return { interior: { X1: { Parachain: paraId } }, parents: 1 };
   }
 }
 
@@ -135,7 +141,7 @@ export interface TaskScheduler {
    * Get the instruction number of XCM instructions for transact
    */
   getTransactXcmInstructionCount(): number;
-  
+
   /**
    * Schedule Task through XCM message
    * @param destination The location of the destination chain
@@ -146,5 +152,13 @@ export interface TaskScheduler {
    * @param overallWeight The overall weight of the XCM instructions
    * @param keyringPair Operator's keyring pair
    */
-  scheduleTaskThroughXcm(destination: any, encodedTaskExtrinsic: HexString, feeLocation: any, feeAmount: BN, encodedCallWeight: Weight, overallWeight: Weight, keyringPair: KeyringPair): Promise<SendExtrinsicResult>;
+  scheduleTaskThroughXcm(
+    destination: any,
+    encodedTaskExtrinsic: HexString,
+    feeLocation: any,
+    feeAmount: BN,
+    encodedCallWeight: Weight,
+    overallWeight: Weight,
+    keyringPair: KeyringPair,
+  ): Promise<SendExtrinsicResult>;
 }

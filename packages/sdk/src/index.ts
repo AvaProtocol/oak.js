@@ -1,21 +1,32 @@
-import _ from 'lodash';
-import BN from 'bn.js';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import { u8aToHex } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
-import type { KeyringPair } from '@polkadot/keyring/types';
-import type { ApiPromise } from '@polkadot/api';
-import { ChainAdapter, OakAdapter, TaskSchedulerChainAdapter, SendExtrinsicResult, XcmInstructionNetworkType } from '@oak-network/adapter';
-import { Weight } from '@oak-network/sdk-types';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import _ from "lodash";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import BN from "bn.js";
+import type { SubmittableExtrinsic } from "@polkadot/api/types";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { u8aToHex } from "@polkadot/util";
+import type { HexString } from "@polkadot/util/types";
+import type { KeyringPair } from "@polkadot/keyring/types";
+import type { ApiPromise } from "@polkadot/api";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import {
+  ChainAdapter,
+  OakAdapter,
+  TaskSchedulerChainAdapter,
+  SendExtrinsicResult,
+  XcmInstructionNetworkType,
+} from "@oak-network/adapter";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Weight } from "@oak-network/config";
 
 interface ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams {
   oakAdapter: OakAdapter;
   destinationChainAdapter: ChainAdapter;
-  taskPayloadExtrinsic: SubmittableExtrinsic<'promise'>;
+  taskPayloadExtrinsic: SubmittableExtrinsic<"promise">;
   schedule: any;
   keyringPair: KeyringPair;
   xcmOptions?: {
-    instructionCount?: number,
+    instructionCount?: number;
     overallWeight?: Weight;
     executionFeeAmount?: BN;
   };
@@ -24,14 +35,14 @@ interface ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams {
 interface ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams {
   oakAdapter: OakAdapter;
   destinationChainAdapter: TaskSchedulerChainAdapter;
-  taskPayloadExtrinsic: SubmittableExtrinsic<'promise'>;
-  scheduleFeeLocation: any,
-  executionFeeLocation: any,
+  taskPayloadExtrinsic: SubmittableExtrinsic<"promise">;
+  scheduleFeeLocation: any;
+  executionFeeLocation: any;
   schedule: any;
   scheduleAs: HexString;
   keyringPair: KeyringPair;
   xcmOptions?: {
-    instructionCount?: number,
+    instructionCount?: number;
     overallWeight?: Weight;
     executionFeeAmount?: BN;
   };
@@ -43,16 +54,16 @@ interface AutomationPriceTriggerParams {
   asset1: string;
   asset2: string;
   submittedAt: number;
-  triggerFunction: 'lt' | 'gt';
+  triggerFunction: "lt" | "gt";
   triggerParam: number[];
 }
 
 interface ScheduleXcmpPriceTaskWithPayThroughRemoteDerivativeAccountFlowParams {
   oakAdapter: OakAdapter;
   destinationChainAdapter: TaskSchedulerChainAdapter;
-  taskPayloadExtrinsic: SubmittableExtrinsic<'promise'>;
-  scheduleFeeLocation: any,
-  executionFeeLocation: any,
+  taskPayloadExtrinsic: SubmittableExtrinsic<"promise">;
+  scheduleFeeLocation: any;
+  executionFeeLocation: any;
   automationPriceTriggerParams: AutomationPriceTriggerParams;
   scheduleAs: HexString;
   keyringPair: KeyringPair;
@@ -61,13 +72,15 @@ interface ScheduleXcmpPriceTaskWithPayThroughRemoteDerivativeAccountFlowParams {
 interface CommonScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams {
   oakAdapter: OakAdapter;
   destinationChainAdapter: TaskSchedulerChainAdapter;
-  taskPayloadExtrinsic: SubmittableExtrinsic<'promise'>;
-  createTaskFunc: (params: CreateTaskFuncParams) => SubmittableExtrinsic<'promise'>;
-  scheduleFeeLocation: any,
-  executionFeeLocation: any,
+  taskPayloadExtrinsic: SubmittableExtrinsic<"promise">;
+  createTaskFunc: (
+    params: CreateTaskFuncParams,
+  ) => SubmittableExtrinsic<"promise">;
+  scheduleFeeLocation: any;
+  executionFeeLocation: any;
   keyringPair: KeyringPair;
   xcmOptions?: {
-    instructionCount?: number,
+    instructionCount?: number;
     overallWeight?: Weight;
     executionFeeAmount?: BN;
   };
@@ -85,11 +98,19 @@ interface CreateTaskFuncParams {
 /**
  * Schedule XCMP task with PayThroughRemoteDerivativeAccount instruction sequances
  * @param params Operation params
- * @returns 
+ * @returns
  */
-const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (params: CommonScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams) : Promise<SendExtrinsicResult> => {
+const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
+  params: CommonScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams,
+): Promise<SendExtrinsicResult> => {
   const {
-    oakAdapter, destinationChainAdapter, taskPayloadExtrinsic, createTaskFunc, executionFeeLocation, keyringPair, xcmOptions,
+    oakAdapter,
+    destinationChainAdapter,
+    taskPayloadExtrinsic,
+    createTaskFunc,
+    executionFeeLocation,
+    keyringPair,
+    xcmOptions,
   } = params;
 
   const { defaultAsset } = oakAdapter.getChainData();
@@ -97,7 +118,8 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (params:
     throw new Error("chainData.defaultAsset not set");
   }
 
-  const { paraId, xcmInstructionNetworkType, xcm } = destinationChainAdapter.getChainData();
+  const { paraId, xcmInstructionNetworkType, xcm } =
+    destinationChainAdapter.getChainData();
   if (_.isUndefined(paraId)) {
     throw new Error("chainData.paraId not set");
   }
@@ -111,46 +133,216 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (params:
   // Caluculate weight and fee for task
   const destination = { V3: destinationChainAdapter.getLocation() };
   const encodedCall = taskPayloadExtrinsic.method.toHex();
-  const oakTransactXcmInstructionCount = xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount();
-  const taskPayloadEncodedCallWeight = await destinationChainAdapter.getExtrinsicWeight(taskPayloadExtrinsic, keyringPair);
-  const taskPayloadOverallWeight = xcmOptions?.overallWeight || await destinationChainAdapter.calculateXcmOverallWeight(taskPayloadEncodedCallWeight, oakTransactXcmInstructionCount);
-  const executionFeeAmout = xcmOptions?.executionFeeAmount || await destinationChainAdapter.weightToFee(taskPayloadOverallWeight, executionFeeLocation);
-  const executionFee = { assetLocation: { V3: executionFeeLocation }, amount: executionFeeAmout };
+  const oakTransactXcmInstructionCount =
+    xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount();
+  const taskPayloadEncodedCallWeight =
+    await destinationChainAdapter.getExtrinsicWeight(
+      taskPayloadExtrinsic,
+      keyringPair,
+    );
+  const taskPayloadOverallWeight =
+    xcmOptions?.overallWeight ||
+    (await destinationChainAdapter.calculateXcmOverallWeight(
+      taskPayloadEncodedCallWeight,
+      oakTransactXcmInstructionCount,
+    ));
+  const executionFeeAmout =
+    xcmOptions?.executionFeeAmount ||
+    (await destinationChainAdapter.weightToFee(
+      taskPayloadOverallWeight,
+      executionFeeLocation,
+    ));
+  const executionFee = {
+    amount: executionFeeAmout,
+    assetLocation: { V3: executionFeeLocation },
+  };
 
   // Calculate derive account on Turing/OAK
-  const accountOptions = xcmInstructionNetworkType === XcmInstructionNetworkType.Concrete ? { locationType: 'XcmV3MultiLocation', network: xcm.network } : undefined;
-  const deriveAccountId = oakAdapter.getDerivativeAccount(u8aToHex(keyringPair.addressRaw), paraId, accountOptions);
+  const accountOptions =
+    xcmInstructionNetworkType === XcmInstructionNetworkType.Concrete
+      ? { locationType: "XcmV3MultiLocation", network: xcm.network }
+      : undefined;
+  const deriveAccountId = oakAdapter.getDerivativeAccount(
+    u8aToHex(keyringPair.addressRaw),
+    paraId,
+    accountOptions,
+  );
 
   // Create task extrinsic
   const taskExtrinsic = createTaskFunc({
-    oakApi: oakAdapter.getApi(),
     destination,
-    executionFee,
     encodedCall,
     encodedCallWeight: taskPayloadEncodedCallWeight,
+    executionFee,
+    oakApi: oakAdapter.getApi(),
     overallWeight: taskPayloadOverallWeight,
   });
-  
+
   // Schedule task through XCM
   const taskEncodedCall = taskExtrinsic.method.toHex();
-  const destinationTransactXcmInstructionCount = destinationChainAdapter.getTransactXcmInstructionCount();
-  const taskEncodedCallWeight = await oakAdapter.getExtrinsicWeight(taskExtrinsic, deriveAccountId);
-  const taskOverallWeight = await oakAdapter.calculateXcmOverallWeight(taskEncodedCallWeight, destinationTransactXcmInstructionCount);
-  const taskExecutionFee = await oakAdapter.weightToFee(taskOverallWeight, executionFeeLocation);
-  const oakLocation = oakAdapter.getLocation(); 
-  const sendExtrinsicResult = await destinationChainAdapter.scheduleTaskThroughXcm(oakLocation, taskEncodedCall, executionFeeLocation, taskExecutionFee, taskEncodedCallWeight, taskOverallWeight, keyringPair);
+  const destinationTransactXcmInstructionCount =
+    destinationChainAdapter.getTransactXcmInstructionCount();
+  const taskEncodedCallWeight = await oakAdapter.getExtrinsicWeight(
+    taskExtrinsic,
+    deriveAccountId,
+  );
+  const taskOverallWeight = await oakAdapter.calculateXcmOverallWeight(
+    taskEncodedCallWeight,
+    destinationTransactXcmInstructionCount,
+  );
+  const taskExecutionFee = await oakAdapter.weightToFee(
+    taskOverallWeight,
+    executionFeeLocation,
+  );
+  const oakLocation = oakAdapter.getLocation();
+  const sendExtrinsicResult =
+    await destinationChainAdapter.scheduleTaskThroughXcm(
+      oakLocation,
+      taskEncodedCall,
+      executionFeeLocation,
+      taskExecutionFee,
+      taskEncodedCallWeight,
+      taskOverallWeight,
+      keyringPair,
+    );
   return sendExtrinsicResult;
 };
 
 export function Sdk() {
   return {
     /**
+     * Schedule XCMP price task with PayThroughRemoteDerivativeAccount instruction sequances
+     * @param params Operation params
+     * @returns
+     */
+    scheduleXcmpPriceTaskWithPayThroughRemoteDerivativeAccountFlow: async (
+      params: ScheduleXcmpPriceTaskWithPayThroughRemoteDerivativeAccountFlowParams,
+    ): Promise<SendExtrinsicResult> => {
+      const {
+        oakAdapter,
+        destinationChainAdapter,
+        taskPayloadExtrinsic,
+        scheduleFeeLocation,
+        executionFeeLocation,
+        automationPriceTriggerParams,
+        scheduleAs,
+        keyringPair,
+      } = params;
+      const createTaskFunc = (
+        funcParams: CreateTaskFuncParams,
+      ): SubmittableExtrinsic<"promise"> => {
+        const {
+          oakApi,
+          destination,
+          executionFee,
+          encodedCall,
+          encodedCallWeight,
+          overallWeight,
+        } = funcParams;
+        const taskExtrinsic =
+          oakApi.tx.automationPrice.scheduleXcmpTaskThroughProxy(
+            automationPriceTriggerParams.chain,
+            automationPriceTriggerParams.exchange,
+            automationPriceTriggerParams.asset1,
+            automationPriceTriggerParams.asset2,
+            automationPriceTriggerParams.submittedAt,
+            automationPriceTriggerParams.triggerFunction,
+            automationPriceTriggerParams.triggerParam,
+            destination,
+            { V3: scheduleFeeLocation },
+            executionFee,
+            encodedCall,
+            encodedCallWeight,
+            overallWeight,
+            scheduleAs,
+          );
+        return taskExtrinsic;
+      };
+      const sendExtrinsicResult =
+        scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
+          createTaskFunc,
+          destinationChainAdapter,
+          executionFeeLocation,
+          keyringPair,
+          oakAdapter,
+          scheduleFeeLocation,
+          taskPayloadExtrinsic,
+        });
+      return sendExtrinsicResult;
+    },
+
+    /**
+     * Schedule XCMP time task with PayThroughRemoteDerivativeAccount instruction sequances
+     * @param params Operation params
+     * @returns
+     */
+    scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow: async (
+      params: ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams,
+    ): Promise<SendExtrinsicResult> => {
+      const {
+        oakAdapter,
+        destinationChainAdapter,
+        taskPayloadExtrinsic,
+        scheduleFeeLocation,
+        executionFeeLocation,
+        schedule,
+        scheduleAs,
+        keyringPair,
+      } = params;
+      const createTaskFunc = (
+        funcParams: CreateTaskFuncParams,
+      ): SubmittableExtrinsic<"promise"> => {
+        const {
+          oakApi,
+          destination,
+          executionFee,
+          encodedCall,
+          encodedCallWeight,
+          overallWeight,
+        } = funcParams;
+        console.log("scheduleFeeLocation: ", scheduleFeeLocation);
+        const taskExtrinsic =
+          oakApi.tx.automationTime.scheduleXcmpTaskThroughProxy(
+            schedule,
+            destination,
+            { V3: scheduleFeeLocation },
+            executionFee,
+            encodedCall,
+            encodedCallWeight,
+            overallWeight,
+            scheduleAs,
+          );
+        return taskExtrinsic;
+      };
+      const sendExtrinsicResult =
+        scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
+          createTaskFunc,
+          destinationChainAdapter,
+          executionFeeLocation,
+          keyringPair,
+          oakAdapter,
+          scheduleFeeLocation,
+          taskPayloadExtrinsic,
+        });
+      return sendExtrinsicResult;
+    },
+
+    /**
      * Schedule XCMP task with PayThroughSoverignAccount instruction sequances
      * @param params Operation params
-     * @returns 
+     * @returns
      */
-    scheduleXcmpTaskWithPayThroughSoverignAccountFlow: async (params: ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams): Promise<SendExtrinsicResult> => {
-      const { oakAdapter, destinationChainAdapter, taskPayloadExtrinsic, schedule, keyringPair, xcmOptions } = params;
+    scheduleXcmpTaskWithPayThroughSoverignAccountFlow: async (
+      params: ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams,
+    ): Promise<SendExtrinsicResult> => {
+      const {
+        oakAdapter,
+        destinationChainAdapter,
+        taskPayloadExtrinsic,
+        schedule,
+        keyringPair,
+        xcmOptions,
+      } = params;
       const { defaultAsset } = oakAdapter.getChainData();
       if (_.isUndefined(defaultAsset)) {
         throw new Error("chainData.defaultAsset not set");
@@ -159,12 +351,31 @@ export function Sdk() {
       // Caluculate weight and fee for task
       const destination = { V3: destinationChainAdapter.getLocation() };
       const encodedCall = taskPayloadExtrinsic.method.toHex();
-      const oakTransactXcmInstructionCount = xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount();
-      const taskPayloadEncodedCallWeight = await destinationChainAdapter.getExtrinsicWeight(taskPayloadExtrinsic, keyringPair);
-      const taskPayloadOverallWeight = xcmOptions?.overallWeight || await destinationChainAdapter.calculateXcmOverallWeight(taskPayloadEncodedCallWeight, oakTransactXcmInstructionCount);
-      const scheduleFee = { V3: defaultAsset.location }
-      const executionFeeAmout = xcmOptions?.executionFeeAmount || await destinationChainAdapter.weightToFee(taskPayloadOverallWeight, defaultAsset.location);
-      const executionFee = { assetLocation: { V3: defaultAsset.location }, amount: executionFeeAmout };
+      const oakTransactXcmInstructionCount =
+        xcmOptions?.instructionCount ||
+        oakAdapter.getTransactXcmInstructionCount();
+      const taskPayloadEncodedCallWeight =
+        await destinationChainAdapter.getExtrinsicWeight(
+          taskPayloadExtrinsic,
+          keyringPair,
+        );
+      const taskPayloadOverallWeight =
+        xcmOptions?.overallWeight ||
+        (await destinationChainAdapter.calculateXcmOverallWeight(
+          taskPayloadEncodedCallWeight,
+          oakTransactXcmInstructionCount,
+        ));
+      const scheduleFee = { V3: defaultAsset.location };
+      const executionFeeAmout =
+        xcmOptions?.executionFeeAmount ||
+        (await destinationChainAdapter.weightToFee(
+          taskPayloadOverallWeight,
+          defaultAsset.location,
+        ));
+      const executionFee = {
+        amount: executionFeeAmout,
+        assetLocation: { V3: defaultAsset.location },
+      };
 
       // Schedule XCMP task
       const sendExtrinsicResult = oakAdapter.scheduleXcmpTask(
@@ -176,75 +387,9 @@ export function Sdk() {
         taskPayloadEncodedCallWeight,
         taskPayloadOverallWeight,
         keyringPair,
-      )
+      );
 
       return sendExtrinsicResult;
     },
-
-    /**
-     * Schedule XCMP time task with PayThroughRemoteDerivativeAccount instruction sequances
-     * @param params Operation params
-     * @returns 
-     */
-    scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow: async (params: ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams): Promise<SendExtrinsicResult> => {
-      const {
-        oakAdapter, destinationChainAdapter, taskPayloadExtrinsic, scheduleFeeLocation, executionFeeLocation, schedule, scheduleAs, keyringPair,
-      } = params;
-      const createTaskFunc = (params: CreateTaskFuncParams) : SubmittableExtrinsic<'promise'> => {
-        const { oakApi, destination, executionFee, encodedCall, encodedCallWeight, overallWeight } = params;
-        console.log('scheduleFeeLocation: ', scheduleFeeLocation);
-        const taskExtrinsic = oakApi.tx.automationTime.scheduleXcmpTaskThroughProxy(
-          schedule,
-          destination,
-          { V3: scheduleFeeLocation },
-          executionFee,
-          encodedCall,
-          encodedCallWeight,
-          overallWeight,
-          scheduleAs,
-        );  
-        return taskExtrinsic;
-      };
-      const sendExtrinsicResult = scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
-        oakAdapter, destinationChainAdapter, taskPayloadExtrinsic, createTaskFunc, scheduleFeeLocation, executionFeeLocation, keyringPair,
-      });
-      return sendExtrinsicResult;
-    },
-
-    /**
-     * Schedule XCMP price task with PayThroughRemoteDerivativeAccount instruction sequances
-     * @param params Operation params
-     * @returns 
-     */
-    scheduleXcmpPriceTaskWithPayThroughRemoteDerivativeAccountFlow: async (params: ScheduleXcmpPriceTaskWithPayThroughRemoteDerivativeAccountFlowParams): Promise<SendExtrinsicResult> => {
-      const {
-        oakAdapter, destinationChainAdapter, taskPayloadExtrinsic, scheduleFeeLocation, executionFeeLocation,
-        automationPriceTriggerParams, scheduleAs, keyringPair,
-      } = params;
-      const createTaskFunc = (params: CreateTaskFuncParams) : SubmittableExtrinsic<'promise'> => {
-        const { oakApi, destination, executionFee, encodedCall, encodedCallWeight, overallWeight } = params;
-        const taskExtrinsic = oakApi.tx.automationPrice.scheduleXcmpTaskThroughProxy(
-          automationPriceTriggerParams.chain,
-          automationPriceTriggerParams.exchange,
-          automationPriceTriggerParams.asset1,
-          automationPriceTriggerParams.asset2,
-          automationPriceTriggerParams.submittedAt,
-          automationPriceTriggerParams.triggerFunction,
-          automationPriceTriggerParams.triggerParam,
-          destination,
-          { V3: scheduleFeeLocation },
-          executionFee,
-          encodedCall,
-          encodedCallWeight,
-          overallWeight,
-          scheduleAs,
-        );
-        return taskExtrinsic;
-      };
-      const sendExtrinsicResult = scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
-        oakAdapter, destinationChainAdapter, taskPayloadExtrinsic, createTaskFunc, scheduleFeeLocation, executionFeeLocation, keyringPair,
-      });
-      return sendExtrinsicResult;
-    },
-  }
+  };
 }

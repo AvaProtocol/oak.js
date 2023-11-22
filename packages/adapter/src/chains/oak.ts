@@ -204,4 +204,128 @@ export class OakAdapter extends ChainAdapter {
     const api = this.getApi();
     return getDerivativeAccountV2(api, accountId, paraId, options);
   }
+
+  async delegate(
+    collator: HexString,
+    amount: BN,
+    keyringPair: KeyringPair,
+  ): Promise<SendExtrinsicResult> {
+    const api = this.getApi();
+    // Check if delegation exists
+    const delegatorWalletAddress = keyringPair.address;
+    const delegatorStateCodec = await api.query.parachainStaking.delegatorState(
+      delegatorWalletAddress,
+    );
+    const delegatorState = delegatorStateCodec as unknown as Option<any>;
+    let foundDelegation;
+    if (delegatorState.isSome) {
+      const { delegations } = delegatorState.unwrap();
+      foundDelegation = _.find(
+        delegations,
+        ({ owner }) => owner.toHex() === collator,
+      );
+    }
+    if (foundDelegation) {
+      throw new Error("Delegation already exists");
+    }
+    const delegationsLength = delegatorState.unwrap().delegations.length;
+
+    const { minDelegationCodec } = api.consts.parachainStaking;
+    const minDelegation = minDelegationCodec as u128;
+    if (amount.lt(minDelegation)) {
+      throw new Error(
+        `Amount must be greater than or equal to ${minDelegation}`,
+      );
+    }
+
+    const candidateInfoCodec =
+      await api.query.parachainStaking.candidateInfo(collator);
+    const candidateInfo = candidateInfoCodec as unknown as Option<any>;
+    if (candidateInfo.isSome) {
+      throw new Error("Candidate info not found");
+    }
+    const { delegationCount: candidateDelegationCount } =
+      candidateInfo.unwrap();
+
+    const autoCompoundingDelegationsCodec =
+      await api.query.parachainStaking.autoCompoundingDelegations(
+        delegatorWalletAddress,
+      );
+    const autoCompoundingDelegations =
+      autoCompoundingDelegationsCodec as unknown as Option<any>;
+
+    let autoCompoundingDelegationsLength = 0;
+    if (autoCompoundingDelegations.isSome) {
+      const { delegations } = autoCompoundingDelegations.unwrap();
+      autoCompoundingDelegationsLength = delegations.length;
+    }
+
+    // Delegate to collator
+    const delegateExtrinsic = api.tx.parachainStaking.delegateWithAutoCompound(
+      collator,
+      amount,
+      0,
+      candidateDelegationCount,
+      autoCompoundingDelegationsLength,
+      delegationsLength,
+    );
+
+    const result = await sendExtrinsic(api, delegateExtrinsic, keyringPair);
+    return result;
+  }
+
+  async bondMoreAutoCompound(
+    collator: HexString,
+    amount: BN,
+    startTimestamp: number,
+    frequency: number,
+    keyringPair: KeyringPair,
+  ): Promise<SendExtrinsicResult> {
+    const api = this.getApi();
+    // Check if the task is already scheduled
+    const entries =
+      await api.query.automationTime.accountTasks.entries(collator);
+
+    const entry = _.find(entries, ([, valueCodec]) => {
+      const value = valueCodec as unknown as Option<any>;
+      const task = value.unwrap();
+      const { action } = task;
+      if (!action.isDynamicDispatch) {
+        return false;
+      }
+      const { encodedCall } = action.asDynamicDispatch;
+      const extrinsicCall = api.createType("Call", encodedCall);
+      const { method, section, args } = extrinsicCall;
+      if (section !== "parachainStaking" || method !== "delegatorBondMore") {
+        return false;
+      }
+      const [candidate] = args;
+      return collator === candidate.toHex();
+    });
+
+    if (!_.isUndefined(entry)) {
+      throw new Error("The task is already scheduled.");
+    }
+
+    // Create bondMoreExtrinsic
+    const bondMoreExtrinsic = api.tx.parachainStaking.delegatorBondMore(
+      collator,
+      amount,
+    );
+
+    // Schedule dynamic task to auto compound
+    const schedule = {
+      Recurring: {
+        frequency,
+        nextExecutionTime: startTimestamp,
+      },
+    };
+    const extrinsic = api.tx.automationTime.scheduleDynamicDispatchTask(
+      schedule,
+      bondMoreExtrinsic,
+    );
+
+    const result = await sendExtrinsic(api, extrinsic, keyringPair);
+    return result;
+  }
 }

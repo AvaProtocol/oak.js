@@ -3,9 +3,42 @@ import BN from "bn.js";
 import "@oak-network/api-augment";
 import { rpc, types } from "@oak-network/types";
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { getKeyringPair, listenEvents, sendExtrinsic } from "./utils";
+import {
+  findEvent,
+  getKeyringPair,
+  listenEvents,
+  sendExtrinsic,
+} from "./utils";
 
 const MIN_ACCOUNT_BALANCE = new BN(100);
+
+const getAutocompoundDelegationsLength = async (api, collatorWalletAddress) => {
+  const autoCompoundingDelegations =
+    await api.query.parachainStaking.autoCompoundingDelegations(
+      collatorWalletAddress,
+    );
+  return autoCompoundingDelegations.length;
+};
+
+const getCandidateDelegationCount = async (api, collatorWalletAddress) => {
+  const candidateInfo = await api.query.parachainStaking.candidateInfo(
+    collatorWalletAddress,
+  );
+  if (candidateInfo.isNone) {
+    throw new Error(`The candidate(${collatorWalletAddress}) does not exist.`);
+  }
+  return candidateInfo.unwrap().delegationCount.toNumber();
+};
+
+const getDelegatorState = async (api, delegatorWalletAddress) => {
+  const delegatorState = await api.query.parachainStaking.delegatorState(
+    delegatorWalletAddress,
+  );
+  if (delegatorState.isNone) {
+    return undefined;
+  }
+  return delegatorState.unwrap();
+};
 
 async function main() {
   const providerUrl =
@@ -46,40 +79,28 @@ async function main() {
 
   // Check if delegation exists
   const delegatorWalletAddress = keyringPair.address;
-  const delegatorState = await api.query.parachainStaking.delegatorState(
-    delegatorWalletAddress,
-  );
+  const delegatorState = await getDelegatorState(api, delegatorWalletAddress);
   let foundDelegation = null;
-  console.log("delegatorState: ", delegatorState.toHuman());
-  console.log("delegatorWalletAddress: ", delegatorWalletAddress);
-  if (delegatorState.isSome) {
-    const { delegations } = delegatorState.unwrap();
-    foundDelegation = _.find(delegations, ({ owner }) => {
-      console.log("owner: ", owner.toHex());
-      return owner.toHex() === collatorWalletAddress;
-    });
+  if (!_.isUndefined(delegatorState)) {
+    const { delegations } = delegatorState;
+    foundDelegation = _.find(
+      delegations,
+      ({ owner }) => owner.toHex() === collatorWalletAddress,
+    );
   }
 
   if (!foundDelegation) {
     // Get Delegation params
     const minDelegationStake = api.consts.parachainStaking.minDelegation;
-    const candidateInfo = await api.query.parachainStaking.candidateInfo(
+    const candidateDelegationCount = await getCandidateDelegationCount(
+      api,
       collatorWalletAddress,
     );
-    const candidateDelegationCount = JSON.parse(candidateInfo).delegationCount;
-    const delegationsLength =
-      delegatorState.toJSON() !== null && delegatorState.toJSON().delegations
-        ? delegatorState.toJSON().delegations.length
-        : 0;
-    const autoCompoundingDelegations =
-      await api.query.parachainStaking.autoCompoundingDelegations(
-        delegatorWalletAddress,
-      );
-    const autoCompoundingDelegationsLength =
-      autoCompoundingDelegations.toJSON() !== null &&
-      autoCompoundingDelegations.toJSON().delegations
-        ? autoCompoundingDelegations.toJSON().delegations.length
-        : 0;
+    const delegationsLength = delegatorState.delegations.length;
+    const autoCompoundingDelegationsLength = getAutocompoundDelegationsLength(
+      api,
+      collatorWalletAddress,
+    );
 
     console.log(`a. Minimum Amount to be staked: ${minDelegationStake}`);
     console.log(`b. Candidate Delegation Count: ${candidateDelegationCount}`);
@@ -92,7 +113,7 @@ async function main() {
     const delegateExtrinsic = api.tx.parachainStaking.delegateWithAutoCompound(
       collatorWalletAddress,
       minDelegationStake,
-      100,
+      50,
       candidateDelegationCount,
       autoCompoundingDelegationsLength,
       delegationsLength,
@@ -107,7 +128,7 @@ async function main() {
       `Delegate, extrinsicHash: ${delegateExtrinsicHash}, blockHash: ${delegateBlockHash}`,
     );
 
-    console.log("\n4. Listening to the event: parachainStaking.Compounded...");
+    console.log("Listening to the event: parachainStaking.Compounded...");
     const { foundEvent } = await listenEvents(
       api,
       "parachainStaking",
@@ -127,6 +148,62 @@ async function main() {
       )}). Skip delegation.`,
     );
   }
+
+  // Set auto compound
+  console.log("\n4. Setting auto compound...");
+  const autoCompoundingDelegationsLength =
+    await getAutocompoundDelegationsLength(api, collatorWalletAddress);
+  const { delegations } = await getDelegatorState(api, delegatorWalletAddress);
+  const setAutoCompoundExtrinsic = api.tx.parachainStaking.setAutoCompound(
+    collatorWalletAddress,
+    90,
+    autoCompoundingDelegationsLength + 1,
+    delegations.length + 1,
+  );
+
+  const {
+    events,
+    extrinsicHash: setCompoundExtrinsicHash,
+    blockHash: setCompoundBlockHash,
+  } = await sendExtrinsic(setAutoCompoundExtrinsic, api, keyringPair);
+
+  console.log(
+    `setAutoCompound, extrinsicHash: ${setCompoundExtrinsicHash}, blockHash: ${setCompoundBlockHash}`,
+  );
+  const event = findEvent(events, "parachainStaking", "AutoCompoundSet");
+  console.log(
+    "Found the parachainStaking.AutoCompoundSet event.",
+    event.toHuman(),
+  );
+
+  // Bond more
+  console.log("\n5. Bond more...");
+  const bondMoreExtrinsic = api.tx.parachainStaking.delegatorBondMore(
+    collatorWalletAddress,
+    "10000000000",
+  );
+
+  const {
+    events: bondMoreExtrinsicEvents,
+    extrinsicHash: bondMoreExtrinsicHash,
+    blockHash: bondMoreBlockHash,
+  } = await sendExtrinsic(bondMoreExtrinsic, api, keyringPair);
+
+  console.log(
+    `bondMore, extrinsicHash: ${bondMoreExtrinsicHash}, blockHash: ${bondMoreBlockHash}`,
+  );
+
+  console.log("Listening to the parachainStaking.DelegationIncreased event...");
+  const delegationIncreasedEvent = findEvent(
+    bondMoreExtrinsicEvents,
+    "parachainStaking",
+    "DelegationIncreased",
+  );
+
+  console.log(
+    "Found the parachainStaking.DelegationIncreased event.",
+    delegationIncreasedEvent.toHuman(),
+  );
 }
 
 main()

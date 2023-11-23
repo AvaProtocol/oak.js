@@ -1,141 +1,11 @@
-const {
-  find,
-  isNil,
-  isEmpty,
-  keys,
-  each,
-  isUndefined,
-  findIndex,
-} = require("lodash");
-const BN = require("bn.js");
-require("@oak-network/api-augment");
-const { rpc, types } = require("@oak-network/types");
-const { ApiPromise, WsProvider, Keyring } = require("@polkadot/api");
-const { waitReady } = require("@polkadot/wasm-crypto");
+import _ from "lodash";
+import BN from "bn.js";
+import "@oak-network/api-augment";
+import { rpc, types } from "@oak-network/types";
+import { ApiPromise, WsProvider } from "@polkadot/api";
+import { getKeyringPair, listenEvents, sendExtrinsic } from "./utils";
 
 const MIN_ACCOUNT_BALANCE = new BN(100);
-
-const getKeyringPair = async (ss58Format) => {
-  await waitReady();
-  if (isEmpty(process.env.SENDER_MNEMONIC)) {
-    throw new Error("The SENDER_MNEMONIC environment variable is not set.");
-  }
-  // Generate sender keyring pair from mnemonic
-  const keyring = new Keyring({ ss58Format, type: "sr25519" });
-  const keyringPair = keyring.addFromMnemonic(process.env.SENDER_MNEMONIC);
-  return keyringPair;
-};
-
-const sendExtrinsic = (extrinsic, api, keyringPair) =>
-  new Promise((resolve, reject) => {
-    const signAndSend = async () => {
-      const unsub = await extrinsic.signAndSend(keyringPair, (result) => {
-        const { status, events, dispatchError } = result;
-        console.log("status.type: ", status.type);
-
-        if (status?.isFinalized) {
-          unsub();
-          if (!isNil(dispatchError)) {
-            reject(dispatchError);
-          }
-
-          const event = find(events, ({ event: eventData }) =>
-            api.events.system.ExtrinsicSuccess.is(eventData),
-          );
-          if (event) {
-            resolve({
-              blockHash: status?.asFinalized?.toString(),
-              events,
-              extrinsicHash: extrinsic.hash,
-            });
-          } else {
-            reject(new Error("The event.ExtrinsicSuccess is not found"));
-          }
-        }
-      });
-    };
-    signAndSend();
-  });
-
-const listenEvents = async (
-  api,
-  section,
-  method,
-  conditions,
-  timeout = undefined,
-) =>
-  new Promise((resolve) => {
-    let unsub = null;
-    let timeoutId = null;
-
-    if (timeout) {
-      timeoutId = setTimeout(() => {
-        unsub();
-        resolve(null);
-      }, timeout);
-    }
-
-    const listenSystemEvents = async () => {
-      unsub = await api.query.system.events((events) => {
-        const foundEventIndex = findIndex(events, ({ event }) => {
-          const { section: eventSection, method: eventMethod, data } = event;
-          if (eventSection !== section || eventMethod !== method) {
-            return false;
-          }
-
-          if (!isUndefined(conditions)) {
-            return true;
-          }
-
-          let conditionPassed = true;
-          each(keys(conditions), (key) => {
-            if (conditions[key] === data[key]) {
-              conditionPassed = false;
-            }
-          });
-
-          return conditionPassed;
-        });
-
-        if (foundEventIndex !== -1) {
-          const foundEvent = events[foundEventIndex];
-          const {
-            event: {
-              section: eventSection,
-              method: eventMethod,
-              typeDef,
-              data: eventData,
-            },
-            phase,
-          } = foundEvent;
-
-          // Print out the name of the event found
-          console.log(
-            `\t${eventSection}:${eventMethod}:: (phase=${phase.toString()})`,
-          );
-
-          // Loop through the conent of the event, displaying the type and data
-          eventData.forEach((data, index) => {
-            console.log(`\t\t\t${typeDef[index].type}: ${data.toString()}`);
-          });
-
-          unsub();
-
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-          }
-
-          resolve({
-            events,
-            foundEvent,
-            foundEventIndex,
-          });
-        }
-      });
-    };
-
-    listenSystemEvents().catch(console.log);
-  });
 
 async function main() {
   const providerUrl =
@@ -184,7 +54,7 @@ async function main() {
   console.log("delegatorWalletAddress: ", delegatorWalletAddress);
   if (delegatorState.isSome) {
     const { delegations } = delegatorState.unwrap();
-    foundDelegation = find(delegations, ({ owner }) => {
+    foundDelegation = _.find(delegations, ({ owner }) => {
       console.log("owner: ", owner.toHex());
       return owner.toHex() === collatorWalletAddress;
     });
@@ -236,6 +106,20 @@ async function main() {
     console.log(
       `Delegate, extrinsicHash: ${delegateExtrinsicHash}, blockHash: ${delegateBlockHash}`,
     );
+
+    console.log("\n4. Listening to the event: parachainStaking.Compounded...");
+    const { foundEvent } = await listenEvents(
+      api,
+      "parachainStaking",
+      "Compounded",
+      undefined,
+      undefined,
+    );
+
+    console.log(
+      "Found the parachainStaking.Compounded event. Auto compound is success.",
+      foundEvent.toHuman(),
+    );
   } else {
     console.log(
       `Delegation already exists(${JSON.stringify(
@@ -243,20 +127,6 @@ async function main() {
       )}). Skip delegation.`,
     );
   }
-
-  console.log("\n4. Listening to the event: parachainStaking.Compounded...");
-  const { foundEvent } = await listenEvents(
-    api,
-    "parachainStaking",
-    "Compounded",
-    undefined,
-    undefined,
-  );
-
-  console.log(
-    "Found the parachainStaking.Compounded event. Auto compound is success.",
-    foundEvent.toHuman(),
-  );
 }
 
 main()

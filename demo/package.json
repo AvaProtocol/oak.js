@@ -6,7 +6,8 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "compound-task": "babel-node src/scheduleDynamicDispatchTaskToAutoCompound.js"
+    "compound-task": "babel-node src/scheduleDynamicDispatchTaskToAutoCompound.js",
+    "compound-reward": "babel-node src/autoCompoundReward.js"
   },
   "dependencies": {
     "@oak-network/api-augment": "file:../packages/api-augment/build",

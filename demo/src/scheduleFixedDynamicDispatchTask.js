@@ -1,24 +1,19 @@
-require("@oak-network/api-augment");
-const { rpc, types } = require("@oak-network/types");
-const { ApiPromise, WsProvider, Keyring } = require("@polkadot/api");
-const { waitReady } = require("@polkadot/wasm-crypto");
-const lodash = require("lodash");
+import _ from "lodash";
+import "@oak-network/api-augment";
+import { rpc, types } from "@oak-network/types";
+import { ApiPromise, WsProvider, Keyring } from "@polkadot/api";
+import { waitReady } from "@polkadot/wasm-crypto";
+import { findEvent, getTaskIdInTaskScheduledEvent } from "./utils";
 
 const SS58_PREFIX = 51;
 const TRANSFER_AMOUNT = 1000000000;
 const RECEIVER_ADDRESS = "66fhJwYLiK87UDXYDQP9TfYdHpeEyMvQ3MK8Z6GgWAdyyCL3";
 
-const findEvent = (events, section, method) =>
-  events.find((e) => e.event.section === section && e.event.method === method);
-
-const getTaskIdInTaskScheduledEvent = (event) =>
-  Buffer.from(event.event.data.taskId).toString();
-
 const getHourlyRecurringTimestamps = (startTimestamp, numberRecurring) => {
   const secondsInHour = 60 * 60 * 1000;
   const firstEventTimestamp =
     startTimestamp - (startTimestamp % secondsInHour) + secondsInHour;
-  return lodash.times(
+  return _.times(
     numberRecurring,
     (index) => firstEventTimestamp + index * secondsInHour,
   );
@@ -26,7 +21,7 @@ const getHourlyRecurringTimestamps = (startTimestamp, numberRecurring) => {
 
 const getKeyringPair = async () => {
   await waitReady();
-  if (lodash.isEmpty(process.env.SENDER_MNEMONIC)) {
+  if (_.isEmpty(process.env.SENDER_MNEMONIC)) {
     throw new Error("The SENDER_MNEMONIC environment variable is not set.");
   }
   // Generate sender keyring pair from mnemonic
@@ -44,11 +39,11 @@ const sendExtrinsic = (extrinsic, api, keyringPair) =>
 
         if (status?.isFinalized) {
           unsub();
-          if (!lodash.isNil(dispatchError)) {
+          if (!_.isNil(dispatchError)) {
             reject(dispatchError);
           }
 
-          const event = lodash.find(events, ({ event: eventItem }) =>
+          const event = _.find(events, ({ event: eventItem }) =>
             api.events.system.ExtrinsicSuccess.is(eventItem),
           );
           if (event) {
@@ -74,7 +69,7 @@ async function main() {
   const api = await ApiPromise.create({ provider, rpc, types });
   const keyringPair = await getKeyringPair();
 
-  const executionTimes = lodash.map(
+  const executionTimes = _.map(
     getHourlyRecurringTimestamps(new Date().valueOf(), 5),
     (time) => time / 1000,
   );

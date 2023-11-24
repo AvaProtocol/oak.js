@@ -107,4 +107,5 @@ build
 
 .DS_Store
 
+# Ignore package-lock.json to solely rely on yarn.lock
 package-lock.json

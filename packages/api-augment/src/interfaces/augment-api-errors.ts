@@ -67,10 +67,12 @@ declare module '@polkadot/api-base/types/errors' {
        * Block Time not set
        **/
       BlockTimeNotSet: AugmentedError<ApiType>;
+      CannotReanchor: AugmentedError<ApiType>;
       /**
        * Duplicate task
        **/
       DuplicateTask: AugmentedError<ApiType>;
+      FeePaymentError: AugmentedError<ApiType>;
       /**
        * Insufficient Balance
        **/
@@ -83,24 +85,41 @@ declare module '@polkadot/api-base/types/errors' {
        * Asset cannot be updated by this account
        **/
       InvalidAssetSudo: AugmentedError<ApiType>;
+      /**
+       * Error when setting task expired less than the current block time
+       **/
+      InvalidTaskExpiredAt: AugmentedError<ApiType>;
       InvalidTaskId: AugmentedError<ApiType>;
       /**
        * Restrictions on Liquidity in Account
        **/
       LiquidityRestrictions: AugmentedError<ApiType>;
       /**
+       * Maximum tasks reached for a given account
+       **/
+      MaxTasksPerAccountReached: AugmentedError<ApiType>;
+      /**
        * Maximum tasks reached for the slot
        **/
       MaxTasksReached: AugmentedError<ApiType>;
       OracleNotAuthorized: AugmentedError<ApiType>;
       /**
+       * Error when failed to update task expiration storage
+       **/
+      TaskExpiredStorageFailedToUpdate: AugmentedError<ApiType>;
+      /**
        * Failed to insert task
        **/
       TaskInsertionFailure: AugmentedError<ApiType>;
       /**
+       * Task Not Found When canceling
+       **/
+      TaskNotFound: AugmentedError<ApiType>;
+      /**
        * Failed to remove task
        **/
       TaskRemoveFailure: AugmentedError<ApiType>;
+      UnsupportedFeePayment: AugmentedError<ApiType>;
       /**
        * Generic error
        **/
@@ -134,6 +153,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       InsufficientBalance: AugmentedError<ApiType>;
       /**
+       * Invalid asset location.
+       **/
+      InvalidAssetLocation: AugmentedError<ApiType>;
+      /**
        * Time in seconds must be a multiple of SlotSizeSeconds
        **/
       InvalidTime: AugmentedError<ApiType>;
@@ -149,6 +172,10 @@ declare module '@polkadot/api-base/types/errors' {
        * The task does not exist.
        **/
       TaskDoesNotExist: AugmentedError<ApiType>;
+      /**
+       * The task schedule_as does not match.
+       **/
+      TaskScheduleAsNotMatch: AugmentedError<ApiType>;
       /**
        * Time slot is full. No more tasks can be scheduled for this time.
        **/
@@ -169,35 +196,43 @@ declare module '@polkadot/api-base/types/errors' {
     };
     balances: {
       /**
-       * Beneficiary account must pre-exist
+       * Beneficiary account must pre-exist.
        **/
       DeadAccount: AugmentedError<ApiType>;
       /**
-       * Value too low to create account due to existential deposit
+       * Value too low to create account due to existential deposit.
        **/
       ExistentialDeposit: AugmentedError<ApiType>;
       /**
-       * A vesting schedule already exists for this account
+       * A vesting schedule already exists for this account.
        **/
       ExistingVestingSchedule: AugmentedError<ApiType>;
+      /**
+       * Transfer/payment would kill account.
+       **/
+      Expendability: AugmentedError<ApiType>;
       /**
        * Balance too low to send value.
        **/
       InsufficientBalance: AugmentedError<ApiType>;
       /**
-       * Transfer/payment would kill account
-       **/
-      KeepAlive: AugmentedError<ApiType>;
-      /**
-       * Account liquidity restrictions prevent withdrawal
+       * Account liquidity restrictions prevent withdrawal.
        **/
       LiquidityRestrictions: AugmentedError<ApiType>;
       /**
-       * Number of named reserves exceed MaxReserves
+       * Number of freezes exceed `MaxFreezes`.
+       **/
+      TooManyFreezes: AugmentedError<ApiType>;
+      /**
+       * Number of holds exceed `MaxHolds`.
+       **/
+      TooManyHolds: AugmentedError<ApiType>;
+      /**
+       * Number of named reserves exceed `MaxReserves`.
        **/
       TooManyReserves: AugmentedError<ApiType>;
       /**
-       * Vesting balance too high to send value
+       * Vesting balance too high to send value.
        **/
       VestingBalance: AugmentedError<ApiType>;
       /**
@@ -387,6 +422,10 @@ declare module '@polkadot/api-base/types/errors' {
        * The given account did not vote on the referendum.
        **/
       NotVoter: AugmentedError<ApiType>;
+      /**
+       * The preimage does not exist.
+       **/
+      PreimageNotExist: AugmentedError<ApiType>;
       /**
        * Proposal still blacklisted
        **/
@@ -588,10 +627,12 @@ declare module '@polkadot/api-base/types/errors' {
       CandidateCannotLeaveYet: AugmentedError<ApiType>;
       CandidateDNE: AugmentedError<ApiType>;
       CandidateExists: AugmentedError<ApiType>;
+      CandidateLimitReached: AugmentedError<ApiType>;
       CandidateNotLeaving: AugmentedError<ApiType>;
       CannotDelegateIfLeaving: AugmentedError<ApiType>;
       CannotDelegateLessThanOrEqualToLowestBottomWhenFull: AugmentedError<ApiType>;
       CannotGoOnlineIfLeaving: AugmentedError<ApiType>;
+      CannotSetAboveMaxCandidates: AugmentedError<ApiType>;
       CannotSetBelowMin: AugmentedError<ApiType>;
       DelegationBelowMin: AugmentedError<ApiType>;
       DelegationDNE: AugmentedError<ApiType>;
@@ -614,11 +655,15 @@ declare module '@polkadot/api-base/types/errors' {
       PendingDelegationRequestDNE: AugmentedError<ApiType>;
       PendingDelegationRequestNotDueYet: AugmentedError<ApiType>;
       PendingDelegationRevoke: AugmentedError<ApiType>;
+      RemovedCall: AugmentedError<ApiType>;
       RoundLengthMustBeGreaterThanTotalSelectedCollators: AugmentedError<ApiType>;
       TooLowCandidateAutoCompoundingDelegationCountToAutoCompound: AugmentedError<ApiType>;
       TooLowCandidateAutoCompoundingDelegationCountToDelegate: AugmentedError<ApiType>;
+      TooLowCandidateAutoCompoundingDelegationCountToLeaveCandidates: AugmentedError<ApiType>;
       TooLowCandidateCountToLeaveCandidates: AugmentedError<ApiType>;
+      TooLowCandidateCountWeightHint: AugmentedError<ApiType>;
       TooLowCandidateCountWeightHintCancelLeaveCandidates: AugmentedError<ApiType>;
+      TooLowCandidateCountWeightHintGoOffline: AugmentedError<ApiType>;
       TooLowCandidateCountWeightHintJoinCandidates: AugmentedError<ApiType>;
       TooLowCandidateDelegationCountToDelegate: AugmentedError<ApiType>;
       TooLowCandidateDelegationCountToLeaveCandidates: AugmentedError<ApiType>;
@@ -632,7 +677,7 @@ declare module '@polkadot/api-base/types/errors' {
     };
     parachainSystem: {
       /**
-       * The inherent which supplies the host configuration did not run this block
+       * The inherent which supplies the host configuration did not run this block.
        **/
       HostConfigurationNotAvailable: AugmentedError<ApiType>;
       /**
@@ -644,16 +689,16 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NotScheduled: AugmentedError<ApiType>;
       /**
-       * Attempt to upgrade validation function while existing upgrade pending
+       * Attempt to upgrade validation function while existing upgrade pending.
        **/
       OverlappingUpgrades: AugmentedError<ApiType>;
       /**
-       * Polkadot currently prohibits this parachain from upgrading its validation function
+       * Polkadot currently prohibits this parachain from upgrading its validation function.
        **/
       ProhibitedByPolkadot: AugmentedError<ApiType>;
       /**
        * The supplied validation function has compiled into a blob larger than Polkadot is
-       * willing to run
+       * willing to run.
        **/
       TooBig: AugmentedError<ApiType>;
       /**
@@ -661,7 +706,7 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       Unauthorized: AugmentedError<ApiType>;
       /**
-       * The inherent which supplies the validation data did not run this block
+       * The inherent which supplies the validation data did not run this block.
        **/
       ValidationDataNotAvailable: AugmentedError<ApiType>;
       /**
@@ -708,7 +753,7 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       Filtered: AugmentedError<ApiType>;
       /**
-       * The unlock operation cannot succeed because there are still users of the lock.
+       * The unlock operation cannot succeed because there are still consumers of the lock.
        **/
       InUse: AugmentedError<ApiType>;
       /**
@@ -1136,7 +1181,9 @@ declare module '@polkadot/api-base/types/errors' {
        * Either the weight or fee per second is too large.
        **/
       FeeOverflow: AugmentedError<ApiType>;
+      InvalidAssetLocation: AugmentedError<ApiType>;
       TransactInfoNotFound: AugmentedError<ApiType>;
+      UnsupportedFeePayment: AugmentedError<ApiType>;
       /**
        * Either the instruction weight or the transact weight is too large.
        **/

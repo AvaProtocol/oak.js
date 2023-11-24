@@ -12,8 +12,3 @@ export enum AccountType {
   AccountKey20 = "AccountKey20",
   AccountId32 = "AccountId32",
 }
-
-export enum XcmInstructionNetworkType {
-  Null,
-  Concrete,
-}

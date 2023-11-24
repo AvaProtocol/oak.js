@@ -1,22 +1,16 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import _ from "lodash";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import BN from "bn.js";
 import type { SubmittableExtrinsic } from "@polkadot/api/types";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { u8aToHex } from "@polkadot/util";
 import type { HexString } from "@polkadot/util/types";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import type { ApiPromise } from "@polkadot/api";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import {
   ChainAdapter,
   OakAdapter,
   TaskSchedulerChainAdapter,
   SendExtrinsicResult,
-  XcmInstructionNetworkType,
 } from "@oak-network/adapter";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Weight } from "@oak-network/config";
 
 interface ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams {
@@ -113,18 +107,14 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
     xcmOptions,
   } = params;
 
-  const { defaultAsset } = oakAdapter.getChainData();
+  const [defaultAsset] = oakAdapter.getChainData().assets;
   if (_.isUndefined(defaultAsset)) {
     throw new Error("chainData.defaultAsset not set");
   }
 
-  const { paraId, xcmInstructionNetworkType, xcm } =
-    destinationChainAdapter.getChainData();
+  const { paraId, xcm } = destinationChainAdapter.getChainData();
   if (_.isUndefined(paraId)) {
     throw new Error("chainData.paraId not set");
-  }
-  if (_.isUndefined(xcmInstructionNetworkType)) {
-    throw new Error("chainData.xcmInstructionNetworkType not set");
   }
   if (_.isUndefined(xcm)) {
     throw new Error("chainData.xcm not set");
@@ -158,14 +148,10 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
   };
 
   // Calculate derive account on Turing/OAK
-  const accountOptions =
-    xcmInstructionNetworkType === XcmInstructionNetworkType.Concrete
-      ? { locationType: "XcmV3MultiLocation", network: xcm.network }
-      : undefined;
   const deriveAccountId = oakAdapter.getDerivativeAccount(
     u8aToHex(keyringPair.addressRaw),
     paraId,
-    accountOptions,
+    xcm.instructionNetworkType,
   );
 
   // Create task extrinsic
@@ -343,7 +329,7 @@ export function Sdk() {
         keyringPair,
         xcmOptions,
       } = params;
-      const { defaultAsset } = oakAdapter.getChainData();
+      const [defaultAsset] = oakAdapter.getChainData().assets;
       if (_.isUndefined(defaultAsset)) {
         throw new Error("chainData.defaultAsset not set");
       }

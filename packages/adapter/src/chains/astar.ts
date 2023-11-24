@@ -6,14 +6,14 @@ import type { WeightV2 } from "@polkadot/types/interfaces";
 import type { HexString } from "@polkadot/util/types";
 import { u8aToHex } from "@polkadot/util";
 import type { KeyringPair } from "@polkadot/keyring/types";
-import { Weight } from "@oak-network/config";
+import { Weight, XcmInstructionNetworkType } from "@oak-network/config";
 import { ChainAdapter, TaskScheduler } from "./chainAdapter";
 import {
   convertAbsoluteLocationToRelative,
   getDerivativeAccountV3,
   sendExtrinsic,
 } from "../util";
-import { SendExtrinsicResult, XcmInstructionNetworkType } from "../types";
+import { SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 
 const TRANSACT_XCM_INSTRUCTION_COUNT = 6;
@@ -32,7 +32,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    */
   public async fetchAndUpdateConfigs(): Promise<void> {
     await super.fetchAndUpdateConfigs();
-    this.chainData.xcmInstructionNetworkType =
+    this.chainData.xcm.instructionNetworkType =
       XcmInstructionNetworkType.Concrete;
   }
 
@@ -77,7 +77,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * @returns XCM execution fee
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-    const { defaultAsset } = this.chainData;
+    const [defaultAsset] = this.chainData.assets;
     if (_.isUndefined(defaultAsset))
       throw new Error("chainData.defaultAsset not set");
 
@@ -205,9 +205,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * @returns A bool value indicating whether it is a native asset
    */
   isNativeAsset(assetLocation: any): boolean {
-    const { defaultAsset, assets } = this.chainData;
-    if (_.isUndefined(defaultAsset))
-      throw new Error("chainData.defaultAsset not set");
+    const { assets } = this.chainData;
     const foundAsset = _.find(assets, { location: assetLocation });
     return !_.isUndefined(foundAsset) && foundAsset.isNative;
   }

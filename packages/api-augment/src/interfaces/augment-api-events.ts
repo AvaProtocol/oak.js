@@ -9,7 +9,7 @@ import type { ApiTypes, AugmentedEvent } from '@polkadot/api-base/types';
 import type { BTreeMap, Bytes, Null, Option, Result, U8aFixed, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, H256, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
-import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, OrmlTraitsAssetRegistryAssetMetadata, PalletDemocracyVoteAccountVote, PalletDemocracyVoteThreshold, PalletMultisigTimepoint, PalletParachainStakingDelegationRequestsCancelledScheduledRequest, PalletParachainStakingDelegatorAdded, SpRuntimeDispatchError, SpWeightsWeightV2Weight, TuringRuntimeProxyType, XcmV3MultiAsset, XcmV3MultiLocation, XcmV3MultiassetMultiAssets, XcmV3Response, XcmV3TraitsError, XcmV3TraitsOutcome, XcmV3Xcm, XcmVersionedMultiAssets, XcmVersionedMultiLocation } from '@polkadot/types/lookup';
+import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, OrmlTraitsAssetRegistryAssetMetadata, PalletAutomationPriceTaskCondition, PalletDemocracyMetadataOwner, PalletDemocracyVoteAccountVote, PalletDemocracyVoteThreshold, PalletMultisigTimepoint, PalletParachainStakingDelegationRequestsCancelledScheduledRequest, PalletParachainStakingDelegatorAdded, SpRuntimeDispatchError, SpWeightsWeightV2Weight, TuringRuntimeProxyType, XcmV3MultiAsset, XcmV3MultiLocation, XcmV3MultiassetMultiAssets, XcmV3Response, XcmV3TraitsError, XcmV3TraitsOutcome, XcmV3Xcm, XcmVersionedMultiAssets, XcmVersionedMultiLocation } from '@polkadot/types/lookup';
 
 export type __AugmentedEvent<ApiType extends ApiTypes> = AugmentedEvent<ApiType>;
 
@@ -25,20 +25,21 @@ declare module '@polkadot/api-base/types/events' {
     };
     automationPrice: {
       AssetCreated: AugmentedEvent<ApiType, [chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes, decimal: u8], { chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes, decimal: u8 }>;
-      AssetDeleted: AugmentedEvent<ApiType, [asset: Bytes], { asset: Bytes }>;
-      AssetPeriodReset: AugmentedEvent<ApiType, [asset: Bytes], { asset: Bytes }>;
-      AssetUpdated: AugmentedEvent<ApiType, [who: AccountId32, chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes, price: u128], { who: AccountId32, chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes, price: u128 }>;
-      Notify: AugmentedEvent<ApiType, [message: Bytes], { message: Bytes }>;
-      TaskCancelled: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
-      TaskCompleted: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
-      TaskExecuted: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
-      TaskExecutionFailed: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError], { who: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError }>;
-      TaskNotFound: AugmentedEvent<ApiType, [taskId: Bytes], { taskId: Bytes }>;
+      AssetDeleted: AugmentedEvent<ApiType, [chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes], { chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes }>;
+      AssetUpdated: AugmentedEvent<ApiType, [ownerId: AccountId32, chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes, price: u128], { ownerId: AccountId32, chain: Bytes, exchange: Bytes, asset1: Bytes, asset2: Bytes, price: u128 }>;
+      PriceAlreadyMoved: AugmentedEvent<ApiType, [ownerId: AccountId32, taskId: Bytes, condition: PalletAutomationPriceTaskCondition], { ownerId: AccountId32, taskId: Bytes, condition: PalletAutomationPriceTaskCondition }>;
+      TaskCancelled: AugmentedEvent<ApiType, [ownerId: AccountId32, taskId: Bytes], { ownerId: AccountId32, taskId: Bytes }>;
+      TaskCompleted: AugmentedEvent<ApiType, [ownerId: AccountId32, taskId: Bytes], { ownerId: AccountId32, taskId: Bytes }>;
+      TaskExecuted: AugmentedEvent<ApiType, [ownerId: AccountId32, taskId: Bytes], { ownerId: AccountId32, taskId: Bytes }>;
+      TaskExecutionFailed: AugmentedEvent<ApiType, [ownerId: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError], { ownerId: AccountId32, taskId: Bytes, error: SpRuntimeDispatchError }>;
+      TaskExpired: AugmentedEvent<ApiType, [ownerId: AccountId32, taskId: Bytes, condition: PalletAutomationPriceTaskCondition], { ownerId: AccountId32, taskId: Bytes, condition: PalletAutomationPriceTaskCondition }>;
+      TaskNotFound: AugmentedEvent<ApiType, [ownerId: AccountId32, taskId: Bytes], { ownerId: AccountId32, taskId: Bytes }>;
       /**
        * Schedule task success.
        **/
-      TaskScheduled: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
-      TaskTriggered: AugmentedEvent<ApiType, [who: AccountId32, taskId: Bytes], { who: AccountId32, taskId: Bytes }>;
+      TaskScheduled: AugmentedEvent<ApiType, [ownerId: AccountId32, taskId: Bytes, scheduleAs: Option<AccountId32>], { ownerId: AccountId32, taskId: Bytes, scheduleAs: Option<AccountId32> }>;
+      TaskSweep: AugmentedEvent<ApiType, [ownerId: AccountId32, taskId: Bytes, condition: PalletAutomationPriceTaskCondition], { ownerId: AccountId32, taskId: Bytes, condition: PalletAutomationPriceTaskCondition }>;
+      TaskTriggered: AugmentedEvent<ApiType, [ownerId: AccountId32, taskId: Bytes, condition: PalletAutomationPriceTaskCondition], { ownerId: AccountId32, taskId: Bytes, condition: PalletAutomationPriceTaskCondition }>;
       /**
        * Generic event
        **/
@@ -86,7 +87,11 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A balance was set by root.
        **/
-      BalanceSet: AugmentedEvent<ApiType, [who: AccountId32, free: u128, reserved: u128], { who: AccountId32, free: u128, reserved: u128 }>;
+      BalanceSet: AugmentedEvent<ApiType, [who: AccountId32, free: u128], { who: AccountId32, free: u128 }>;
+      /**
+       * Some amount was burned from an account.
+       **/
+      Burned: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
       /**
        * Some amount was deposited (e.g. for transaction fees).
        **/
@@ -101,6 +106,26 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Endowed: AugmentedEvent<ApiType, [account: AccountId32, freeBalance: u128], { account: AccountId32, freeBalance: u128 }>;
       /**
+       * Some balance was frozen.
+       **/
+      Frozen: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
+      /**
+       * Total issuance was increased by `amount`, creating a credit to be balanced.
+       **/
+      Issued: AugmentedEvent<ApiType, [amount: u128], { amount: u128 }>;
+      /**
+       * Some balance was locked.
+       **/
+      Locked: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
+      /**
+       * Some amount was minted into an account.
+       **/
+      Minted: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
+      /**
+       * Total issuance was decreased by `amount`, creating a debt to be balanced.
+       **/
+      Rescinded: AugmentedEvent<ApiType, [amount: u128], { amount: u128 }>;
+      /**
        * Some balance was reserved (moved from free to reserved).
        **/
       Reserved: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
@@ -110,17 +135,37 @@ declare module '@polkadot/api-base/types/events' {
        **/
       ReserveRepatriated: AugmentedEvent<ApiType, [from: AccountId32, to: AccountId32, amount: u128, destinationStatus: FrameSupportTokensMiscBalanceStatus], { from: AccountId32, to: AccountId32, amount: u128, destinationStatus: FrameSupportTokensMiscBalanceStatus }>;
       /**
+       * Some amount was restored into an account.
+       **/
+      Restored: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
+      /**
        * Some amount was removed from the account (e.g. for misbehavior).
        **/
       Slashed: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
+      /**
+       * Some amount was suspended from an account (it can be restored later).
+       **/
+      Suspended: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
+      /**
+       * Some balance was thawed.
+       **/
+      Thawed: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
       /**
        * Transfer succeeded.
        **/
       Transfer: AugmentedEvent<ApiType, [from: AccountId32, to: AccountId32, amount: u128], { from: AccountId32, to: AccountId32, amount: u128 }>;
       /**
+       * Some balance was unlocked.
+       **/
+      Unlocked: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
+      /**
        * Some balance was unreserved (moved from reserved to free).
        **/
       Unreserved: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
+      /**
+       * An account was upgraded.
+       **/
+      Upgraded: AugmentedEvent<ApiType, [who: AccountId32], { who: AccountId32 }>;
       /**
        * Some amount was withdrawn from the account (e.g. for transaction fees).
        **/
@@ -238,6 +283,18 @@ declare module '@polkadot/api-base/types/events' {
        * An external proposal has been tabled.
        **/
       ExternalTabled: AugmentedEvent<ApiType, []>;
+      /**
+       * Metadata for a proposal or a referendum has been cleared.
+       **/
+      MetadataCleared: AugmentedEvent<ApiType, [owner: PalletDemocracyMetadataOwner, hash_: H256], { owner: PalletDemocracyMetadataOwner, hash_: H256 }>;
+      /**
+       * Metadata for a proposal or a referendum has been set.
+       **/
+      MetadataSet: AugmentedEvent<ApiType, [owner: PalletDemocracyMetadataOwner, hash_: H256], { owner: PalletDemocracyMetadataOwner, hash_: H256 }>;
+      /**
+       * Metadata has been transferred to new owner.
+       **/
+      MetadataTransferred: AugmentedEvent<ApiType, [prevOwner: PalletDemocracyMetadataOwner, owner: PalletDemocracyMetadataOwner, hash_: H256], { prevOwner: PalletDemocracyMetadataOwner, owner: PalletDemocracyMetadataOwner, hash_: H256 }>;
       /**
        * A proposal has been rejected by referendum.
        **/

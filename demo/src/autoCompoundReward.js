@@ -1,3 +1,16 @@
+/**
+ * This script is used to set auto compound with reward.
+ * To accumulate the reward, you need to configure these parameters:
+ * 1. blocks_per_round and inflation_config
+ * https://github.com/OAK-Foundation/OAK-blockchain/blob/4b36c45eaf6f0f2e1ef298b4c05bd6c313c6cf33/node/src/chain_spec/turing.rs#L265-L266
+ * 600 -> 2
+ * 2. MinBlocksPerRound
+ * https://github.com/OAK-Foundation/OAK-blockchain/blob/4b36c45eaf6f0f2e1ef298b4c05bd6c313c6cf33/runtime/turing/src/lib.rs#L714
+ * 10 -> 2
+ * 3. RewardPaymentDelay
+ * https://github.com/OAK-Foundation/OAK-blockchain/blob/4b36c45eaf6f0f2e1ef298b4c05bd6c313c6cf33/runtime/turing/src/lib.rs#L726
+ * 2 -> 1
+ */
 import _ from "lodash";
 import BN from "bn.js";
 import "@oak-network/api-augment";
@@ -8,37 +21,12 @@ import {
   getKeyringPair,
   listenEvents,
   sendExtrinsic,
+  getDelegatorState,
+  getCandidateDelegationCount,
+  getAutocompoundDelegationsLength,
 } from "./utils";
 
 const MIN_ACCOUNT_BALANCE = new BN(100);
-
-const getAutocompoundDelegationsLength = async (api, collatorWalletAddress) => {
-  const autoCompoundingDelegations =
-    await api.query.parachainStaking.autoCompoundingDelegations(
-      collatorWalletAddress,
-    );
-  return autoCompoundingDelegations.length;
-};
-
-const getCandidateDelegationCount = async (api, collatorWalletAddress) => {
-  const candidateInfo = await api.query.parachainStaking.candidateInfo(
-    collatorWalletAddress,
-  );
-  if (candidateInfo.isNone) {
-    throw new Error(`The candidate(${collatorWalletAddress}) does not exist.`);
-  }
-  return candidateInfo.unwrap().delegationCount.toNumber();
-};
-
-const getDelegatorState = async (api, delegatorWalletAddress) => {
-  const delegatorState = await api.query.parachainStaking.delegatorState(
-    delegatorWalletAddress,
-  );
-  if (delegatorState.isNone) {
-    return undefined;
-  }
-  return delegatorState.unwrap();
-};
 
 async function main() {
   const providerUrl =

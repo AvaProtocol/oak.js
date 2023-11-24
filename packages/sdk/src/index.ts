@@ -1,14 +1,10 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import _ from "lodash";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import BN from "bn.js";
 import type { SubmittableExtrinsic } from "@polkadot/api/types";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { u8aToHex } from "@polkadot/util";
 import type { HexString } from "@polkadot/util/types";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import type { ApiPromise } from "@polkadot/api";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import {
   ChainAdapter,
   OakAdapter,
@@ -16,7 +12,6 @@ import {
   SendExtrinsicResult,
   XcmInstructionNetworkType,
 } from "@oak-network/adapter";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Weight } from "@oak-network/config";
 
 interface ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams {

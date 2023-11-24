@@ -1589,6 +1589,13 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@oak-network/adapter@workspace:*":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@oak-network/adapter/-/adapter-0.1.4.tgz#d674018d413c827222cd997094b190952f763577"
+  integrity sha512-Wr5qxzMEGp8dm1yAsjLxXcaRSc7lqrG9KlpGgf6PJno1675bhOWjzFTLxWjY8JDoaW2Sq6Ry1cmdHlVVRw3ejg==
+  dependencies:
+    "@polkadot/api" "^10.9.1"
+
 "@oak-network/config@workspace:*":
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@oak-network/config/-/config-0.1.2.tgz#d743a6ed07c10236842c4fbf695abe5e6a8f206d"

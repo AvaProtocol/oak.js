@@ -105,7 +105,7 @@ If you would like to develop or test the code in this repository, please follow 
 Run the following command to install the necessary dependencies:
 
 ```bash
-npm i
+yarn # Please use yarn to install dependencies due to the use of Yarn Workspace
 ```
 
 ### Running Foundational Tests
@@ -117,18 +117,18 @@ The default WebSocket endpoint is `ws://127.0.0.1:9946` and  the default test wa
 
 You can start the tests by running the following command:
 ```bash
-npm run test
+yarn run test
 ```
 
 Please note that the tests are not meant to be repeatedly run against live networks. However, you can run them against the Turing Staging environment using the following command:
 ```bash
-ENV="Turing Staging" MNEMONIC="<MNEMONIC>" npm run test
+ENV="Turing Staging" MNEMONIC="<MNEMONIC>" yarn run test
 ```
 
 You can also specify the endpoint in the Turing Dev environment:
 
 ```bash
-MNEMONIC="<MNEMONIC>" ENDPOINT="ws://127.0.0.1:9944" npm run test
+MNEMONIC="<MNEMONIC>" ENDPOINT="ws://127.0.0.1:9944" yarn run test
 ```
 
 ### SDK Tests
@@ -136,7 +136,7 @@ MNEMONIC="<MNEMONIC>" ENDPOINT="ws://127.0.0.1:9944" npm run test
 You can start the tests by running the following command:
 
 ```bash
-MNEMONIC="<MNEMONIC>" ENV="Turing Staging" npm run test:sdk
+MNEMONIC="<MNEMONIC>" ENV="Turing Staging" yarn run test:sdk
 ```
 
 If you wish to perform local testing, you'll need to launch the parachain test network yourself using the following command:
@@ -150,7 +150,7 @@ This command will initiate the test network for parachains.
 Then, you'll need to specify a test suite since each suite executes tests for a single parachains.
 
 ```bash
-npm run test:sdk -- -t test-mangata
+yarn run test:sdk -- -t test-mangata
 ```
 
 ## File structure
@@ -203,10 +203,10 @@ zombienet spawn zombienets/turing/single-chain.toml
 You are now ready to update the packages' code in this oak.js project. From the root of this project, run the following commands:
 
 ```bash
-npm install
+yarn
 cd packages/api-augment
-npm run clean:defs
-npm run generate
+yarn run clean:defs
+yarn run generate
 ```
 
 ## 3. Rebuilding packages
@@ -214,8 +214,8 @@ npm run generate
 The last step is to build the packages' source code in preparation for publishing. Navigate back to the root of the oak.js directory and run the following commands:
 
 ```bash
-npm run clean
-npm run build
+yarn run clean
+yarn run build
 ```
 
 The build command will generate distribution files under `packages/api-augment/build`.

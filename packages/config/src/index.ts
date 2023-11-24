@@ -15,6 +15,7 @@ import {
   KusamaTokens,
   PolkadotTokens,
 } from "./tokens";
+import { XcmInstructionNetworkType } from "./chains/types/XcmInstructionNetworkType";
 
 // Importing types
 import type { Chain, XcmConfig } from "./chains";
@@ -35,7 +36,7 @@ export const tokens = {
   RococoTokens,
 };
 
-export { XToken, Weight };
+export { XToken, Weight, XcmInstructionNetworkType };
 
 // Exporting types
 export type { Chain, XcmConfig };

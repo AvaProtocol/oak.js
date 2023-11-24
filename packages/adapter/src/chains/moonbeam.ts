@@ -102,7 +102,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
    * @returns XCM overall weight
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-    const { defaultAsset } = this.chainData;
+    const [defaultAsset] = this.chainData.assets;
     if (_.isUndefined(defaultAsset))
       throw new Error("chainData.defaultAsset not set");
     const api = this.getApi();
@@ -152,7 +152,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     const { key } = this.chainData;
     if (_.isUndefined(key)) throw new Error("chainData.key not set");
 
-    const { defaultAsset } = this.chainData;
+    const [defaultAsset] = this.chainData.assets;
     if (_.isUndefined(defaultAsset))
       throw new Error("chainData.defaultAsset not set");
     const currency = _.isEqual(feeLocation, defaultAsset.location)
@@ -191,9 +191,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
    * @returns A bool value indicating whether it is a native asset
    */
   isNativeAsset(assetLocation: any): boolean {
-    const { defaultAsset, assets } = this.chainData;
-    if (_.isUndefined(defaultAsset))
-      throw new Error("chainData.defaultAsset not set");
+    const { assets } = this.chainData;
     const foundAsset = _.find(assets, { location: assetLocation });
     return !_.isUndefined(foundAsset) && foundAsset.isNative;
   }

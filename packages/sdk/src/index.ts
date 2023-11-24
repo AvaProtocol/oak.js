@@ -10,7 +10,6 @@ import {
   OakAdapter,
   TaskSchedulerChainAdapter,
   SendExtrinsicResult,
-  XcmInstructionNetworkType,
 } from "@oak-network/adapter";
 import { Weight } from "@oak-network/config";
 
@@ -108,18 +107,14 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
     xcmOptions,
   } = params;
 
-  const { defaultAsset } = oakAdapter.getChainData();
+  const [defaultAsset] = oakAdapter.getChainData().assets;
   if (_.isUndefined(defaultAsset)) {
     throw new Error("chainData.defaultAsset not set");
   }
 
-  const { paraId, xcmInstructionNetworkType, xcm } =
-    destinationChainAdapter.getChainData();
+  const { paraId, xcm } = destinationChainAdapter.getChainData();
   if (_.isUndefined(paraId)) {
     throw new Error("chainData.paraId not set");
-  }
-  if (_.isUndefined(xcmInstructionNetworkType)) {
-    throw new Error("chainData.xcmInstructionNetworkType not set");
   }
   if (_.isUndefined(xcm)) {
     throw new Error("chainData.xcm not set");
@@ -153,14 +148,10 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
   };
 
   // Calculate derive account on Turing/OAK
-  const accountOptions =
-    xcmInstructionNetworkType === XcmInstructionNetworkType.Concrete
-      ? { locationType: "XcmV3MultiLocation", network: xcm.network }
-      : undefined;
   const deriveAccountId = oakAdapter.getDerivativeAccount(
     u8aToHex(keyringPair.addressRaw),
     paraId,
-    accountOptions,
+    xcm.instructionNetworkType,
   );
 
   // Create task extrinsic
@@ -338,7 +329,7 @@ export function Sdk() {
         keyringPair,
         xcmOptions,
       } = params;
-      const { defaultAsset } = oakAdapter.getChainData();
+      const [defaultAsset] = oakAdapter.getChainData().assets;
       if (_.isUndefined(defaultAsset)) {
         throw new Error("chainData.defaultAsset not set");
       }

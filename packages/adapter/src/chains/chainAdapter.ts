@@ -6,29 +6,22 @@ import type { KeyringPair } from "@polkadot/keyring/types";
 import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
 import type { u32 } from "@polkadot/types";
 import type { HexString } from "@polkadot/util/types";
-import type { Weight, Chain as ChainConfig } from "@oak-network/config";
+import type { Weight, Chain } from "@oak-network/config";
 import { SendExtrinsicResult } from "../types";
-import { ChainData } from "./chainData";
 
 export abstract class ChainAdapter {
   api: ApiPromise | undefined;
 
-  protected chainData: ChainData;
+  protected chainData: Chain;
 
   /**
    * Constructor
    * @param api Polkadot API
    * @param config Chain config
    */
-  constructor(api: ApiPromise, config: ChainConfig) {
+  constructor(api: ApiPromise, config: Chain) {
     this.api = api;
-    this.chainData = new ChainData();
-    this.chainData.key = config.key;
-    this.chainData.assets = config.assets;
-    [this.chainData.defaultAsset] = config.assets;
-    this.chainData.endpoint = config.endpoint;
-    this.chainData.relayChain = config.relayChain;
-    this.chainData.xcm = config.xcm;
+    this.chainData = config;
   }
 
   /**
@@ -121,7 +114,7 @@ export abstract class ChainAdapter {
    * Get chain data
    * @returns Chain data
    */
-  public getChainData(): ChainData {
+  public getChainData(): Chain {
     return this.chainData;
   }
 

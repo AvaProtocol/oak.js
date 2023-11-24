@@ -1792,7 +1792,7 @@
     "@polkadot/util" "^12.6.1"
     tslib "^2.6.2"
 
-"@polkadot/types@10.11.1", "@polkadot/types@^10.9.1":
+"@polkadot/types@10.11.1", "@polkadot/types@^10.11.1", "@polkadot/types@^10.9.1":
   version "10.11.1"
   resolved "https://registry.yarnpkg.com/@polkadot/types/-/types-10.11.1.tgz#d2b8c747c103b0a5f725090980d4be10037ddef0"
   integrity sha512-4uKnzW2GZqNA5qRZpTPJ7z+G/ARTvXI89etv9xXXVttUdfTaYZsMf4rMuMThOAE/mAUn70LoH0JKthZLwzVgNQ==

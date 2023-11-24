@@ -5,7 +5,7 @@ import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
 import type { u32, u128, Option } from "@polkadot/types";
 import type { WeightV2 } from "@polkadot/types/interfaces";
 import type { KeyringPair } from "@polkadot/keyring/types";
-import { Weight } from "@oak-network/config";
+import { Weight, XcmInstructionNetworkType } from "@oak-network/config";
 import { ChainAdapter } from "./chainAdapter";
 import { getDerivativeAccountV2, sendExtrinsic } from "../util";
 import { SendExtrinsicResult } from "../types";
@@ -63,7 +63,7 @@ export class OakAdapter extends ChainAdapter {
    * @returns XCM execution fee
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-    const { defaultAsset } = this.chainData;
+    const [defaultAsset] = this.chainData.assets;
     if (_.isUndefined(defaultAsset))
       throw new Error("chainData.defaultAsset not set");
 
@@ -199,9 +199,16 @@ export class OakAdapter extends ChainAdapter {
   getDerivativeAccount(
     accountId: HexString,
     paraId: number,
-    options?: any,
+    xcmInstructionNetworkType: XcmInstructionNetworkType = XcmInstructionNetworkType.Null,
   ): HexString {
     const api = this.getApi();
-    return getDerivativeAccountV2(api, accountId, paraId, options);
+    const accountOptions =
+      xcmInstructionNetworkType === XcmInstructionNetworkType.Concrete
+        ? {
+            locationType: "XcmV3MultiLocation",
+            network: this.getChainData().xcm.network,
+          }
+        : undefined;
+    return getDerivativeAccountV2(api, accountId, paraId, accountOptions);
   }
 }

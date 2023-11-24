@@ -65,7 +65,7 @@ export class MangataAdapter extends ChainAdapter {
    * @returns XCM execution fee
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-    const { defaultAsset } = this.chainData;
+    const [defaultAsset] = this.chainData.assets;
     if (_.isUndefined(defaultAsset))
       throw new Error("chainData.defaultAsset not set");
 
@@ -113,9 +113,7 @@ export class MangataAdapter extends ChainAdapter {
    * @returns A bool value indicating whether it is a native asset
    */
   isNativeAsset(assetLocation: any): boolean {
-    const { defaultAsset, assets } = this.chainData;
-    if (_.isUndefined(defaultAsset))
-      throw new Error("chainData.defaultAsset not set");
+    const { assets } = this.chainData;
     const foundAsset = _.find(assets, { location: assetLocation });
     return !_.isUndefined(foundAsset) && foundAsset.isNative;
   }

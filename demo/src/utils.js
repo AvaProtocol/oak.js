@@ -144,3 +144,55 @@ export const listenEvents = async (
 
     listenSystemEvents().catch(console.log);
   });
+
+/**
+ * Get the length of delegations in autoCompoundingDelegations storage
+ * @param {*} api
+ * @param {*} collatorWalletAddress
+ * @returns
+ */
+export const getAutocompoundDelegationsLength = async (
+  api,
+  collatorWalletAddress,
+) => {
+  const autoCompoundingDelegations =
+    await api.query.parachainStaking.autoCompoundingDelegations(
+      collatorWalletAddress,
+    );
+  return autoCompoundingDelegations.length;
+};
+
+/**
+ * Get the delegation count in delegatorDelegations storage
+ * @param {*} api
+ * @param {*} collatorWalletAddress
+ * @returns
+ */
+export const getCandidateDelegationCount = async (
+  api,
+  collatorWalletAddress,
+) => {
+  const candidateInfo = await api.query.parachainStaking.candidateInfo(
+    collatorWalletAddress,
+  );
+  if (candidateInfo.isNone) {
+    throw new Error(`The candidate(${collatorWalletAddress}) does not exist.`);
+  }
+  return candidateInfo.unwrap().delegationCount.toNumber();
+};
+
+/**
+ * Get the delegator state
+ * @param {*} api
+ * @param {*} delegatorWalletAddress
+ * @returns
+ */
+export const getDelegatorState = async (api, delegatorWalletAddress) => {
+  const delegatorState = await api.query.parachainStaking.delegatorState(
+    delegatorWalletAddress,
+  );
+  if (delegatorState.isNone) {
+    return undefined;
+  }
+  return delegatorState.unwrap();
+};

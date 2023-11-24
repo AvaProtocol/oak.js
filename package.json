@@ -5,6 +5,10 @@
   "author": "OAK Team <developer@oak.tech>",
   "license": "Apache-2.0",
   "private": true,
+  "engines": {
+    "node": ">=18.16.0",
+    "npm": ">=9.5.1"
+  },
   "scripts": {
     "build": "npm exec -- tsc --build tsconfig.build.json",
     "postbuild": "scripts/package-setup",

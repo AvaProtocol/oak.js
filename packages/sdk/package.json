@@ -2,5 +2,8 @@
   "name": "@oak-network/sdk",
   "version": "0.1.4",
   "license": "Apache-2.0",
-  "main": "./build/index.js"
+  "main": "./build/index.js",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
 }

@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "build"
+    "outDir": "build",
+    "module": "esnext"
   },
   "paths": {
       "@oak-network/api-augment/*": ["src/*"],

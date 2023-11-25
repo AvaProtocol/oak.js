@@ -213,7 +213,26 @@ export class OakAdapter extends ChainAdapter {
     return getDerivativeAccountV2(api, accountId, paraId, accountOptions);
   }
 
-  // Get delegator state
+  /**
+   * Ensure balance enough
+   * @param account
+   * @param amount
+   */
+  async ensureBalance(account: HexString, amount: BN): Promise<void> {
+    const api = this.getApi();
+    const balanceCodec = await api.query.system.account(account);
+    const balance = balanceCodec as unknown as any;
+    const freeBalance = balance.data.free.sub(balance.data.frozen);
+    if (freeBalance.lt(amount)) {
+      throw new Error("Balance is not enough");
+    }
+  }
+
+  /**
+   * Get delegator state
+   * @param delegator
+   * @returns
+   */
   async getDelegatorState(delegator: HexString): Promise<any> {
     const api = this.getApi();
     const delegatorStateCodec =
@@ -266,7 +285,7 @@ export class OakAdapter extends ChainAdapter {
    * Delegate to collator with auto-compounding
    * @param collator
    * @param amount
-   * @param percentage
+   * @param percentage, an integer between 0 and 100
    * @param keyringPair
    * @returns
    */
@@ -277,23 +296,24 @@ export class OakAdapter extends ChainAdapter {
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
+    this.ensureBalance(u8aToHex(keyringPair.addressRaw), amount);
     // Check if delegation exists
     const delegatorWalletAddress = u8aToHex(keyringPair.addressRaw);
     const delegatorState = await this.getDelegatorState(delegatorWalletAddress);
-    if (_.isUndefined(delegatorState)) {
-      throw new Error("Delegator state not found");
-    }
-    const { delegations } = delegatorState;
-    const foundDelegation = _.find(
-      delegations,
-      ({ owner }) => owner.toHex() === collator,
-    );
-    const { length: delegationsLength } = delegations;
-    if (!_.isUndefined(foundDelegation)) {
-      throw new Error("Delegation already exists");
+    let delegationsLength = 0;
+    if (!_.isUndefined(delegatorState)) {
+      const { delegations } = delegatorState;
+      const foundDelegation = _.find(
+        delegations,
+        ({ owner }) => owner.toHex() === collator,
+      );
+      delegationsLength = delegations.length;
+      if (!_.isUndefined(foundDelegation)) {
+        throw new Error("Delegation already exists");
+      }
     }
 
-    const { minDelegationCodec } = api.consts.parachainStaking;
+    const { minDelegation: minDelegationCodec } = api.consts.parachainStaking;
     const minDelegation = minDelegationCodec as u128;
     if (amount.lt(minDelegation)) {
       throw new Error(
@@ -304,14 +324,14 @@ export class OakAdapter extends ChainAdapter {
     const candidateInfoCodec =
       await api.query.parachainStaking.candidateInfo(collator);
     const candidateInfo = candidateInfoCodec as unknown as Option<any>;
-    if (candidateInfo.isSome) {
+    if (candidateInfo.isNone) {
       throw new Error("Candidate info not found");
     }
     const { delegationCount: candidateDelegationCount } =
       candidateInfo.unwrap();
 
     const autoCompoundingDelegationsLength =
-      this.getAutoCompoundingDelegationsLength(collator);
+      await this.getAutoCompoundingDelegationsLength(collator);
 
     // Delegate to collator
     const delegateExtrinsic = api.tx.parachainStaking.delegateWithAutoCompound(
@@ -334,22 +354,25 @@ export class OakAdapter extends ChainAdapter {
    * @returns
    */
   async getAutoCompoundingDelegationPercentage(
-    delegator: HexString,
     collator: HexString,
+    delegator: HexString,
   ): Promise<number> {
     const api = this.getApi();
     const autoCompoundingDelegationsCodec =
       await api.query.parachainStaking.autoCompoundingDelegations(collator);
     const autoCompoundingDelegations =
-      autoCompoundingDelegationsCodec as unknown as Option<any>;
-    const delegation = _.find(autoCompoundingDelegations, { delegator });
-    return _.isUndefined(delegation) ? 0 : delegation.percentage.toNumber();
+      autoCompoundingDelegationsCodec as unknown as any[];
+    const delegation = _.find(
+      autoCompoundingDelegations,
+      (item) => item.delegator.toHex() === delegator,
+    );
+    return _.isUndefined(delegation) ? 0 : delegation.value.toNumber();
   }
 
   /**
    * Set auto-compounding delegation percentage
    * @param collator
-   * @param percentage
+   * @param percentage, an integer between 0 and 100
    * @param keyringPair
    * @returns
    */
@@ -359,10 +382,24 @@ export class OakAdapter extends ChainAdapter {
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
-    // const delegatorWalletAddress = u8aToHex(keyringPair.addressRaw);
+
+    const autoCompoundingDelegationsLength =
+      await this.getAutoCompoundingDelegationsLength(collator);
+
+    const delegatorState = await this.getDelegatorState(
+      u8aToHex(keyringPair.addressRaw),
+    );
+    if (_.isUndefined(delegatorState)) {
+      throw new Error("Delegator state not found");
+    }
+    const { delegations } = delegatorState;
+    const { length: delegationsLength } = delegations;
+
     const setAutoCompoundExtrinsic = api.tx.parachainStaking.setAutoCompound(
       collator,
       percentage,
+      autoCompoundingDelegationsLength + 1,
+      delegationsLength + 1,
     );
     const result = await sendExtrinsic(
       api,
@@ -386,22 +423,11 @@ export class OakAdapter extends ChainAdapter {
   ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
 
-    const autoCompoundingDelegationsLength =
-      await this.getAutoCompoundingDelegationsLength(collator);
-
-    const delegatorState = await this.getDelegatorState(collator);
-    if (_.isUndefined(delegatorState)) {
-      throw new Error("Delegator state not found");
-    }
-    const { delegations } = delegatorState;
-    const { length: delegationsLength } = delegations;
-
+    this.ensureBalance(u8aToHex(keyringPair.addressRaw), amount);
     // Create bondMoreExtrinsic
     const bondMoreExtrinsic = api.tx.parachainStaking.delegatorBondMore(
       collator,
       amount,
-      autoCompoundingDelegationsLength + 1,
-      delegationsLength + 1,
     );
 
     const result = await sendExtrinsic(api, bondMoreExtrinsic, keyringPair);

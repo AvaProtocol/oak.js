@@ -272,13 +272,8 @@ export class OakAdapter extends ChainAdapter {
     const autoCompoundingDelegationsCodec =
       await api.query.parachainStaking.autoCompoundingDelegations(collator);
     const autoCompoundingDelegations =
-      autoCompoundingDelegationsCodec as unknown as Option<any>;
-    let autoCompoundingDelegationsLength = 0;
-    if (autoCompoundingDelegations.isSome) {
-      const { delegations } = autoCompoundingDelegations.unwrap();
-      autoCompoundingDelegationsLength = delegations.length;
-    }
-    return autoCompoundingDelegationsLength;
+      autoCompoundingDelegationsCodec as unknown as any[];
+    return autoCompoundingDelegations.length;
   }
 
   /**
@@ -330,8 +325,14 @@ export class OakAdapter extends ChainAdapter {
     const { delegationCount: candidateDelegationCount } =
       candidateInfo.unwrap();
 
+    console.log("collator: ", collator);
+
     const autoCompoundingDelegationsLength =
       await this.getAutoCompoundingDelegationsLength(collator);
+    console.log(
+      "autoCompoundingDelegationsLength: ",
+      autoCompoundingDelegationsLength,
+    );
 
     // Delegate to collator
     const delegateExtrinsic = api.tx.parachainStaking.delegateWithAutoCompound(

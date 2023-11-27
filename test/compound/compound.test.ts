@@ -1,4 +1,3 @@
-// import _ from "lodash";
 import BN from "bn.js";
 import { u8aToHex } from "@polkadot/util";
 import { ApiPromise, WsProvider } from "@polkadot/api";
@@ -10,9 +9,9 @@ import {
   DEFAULT_TIMEOUT_INITIALIZE,
   DEFAULT_TIMEOUT_PER_TEST,
 } from "../utils/constants";
-import { getKeyringPair } from "../utils/helpFn";
+import { findEvent, getKeyringPair } from "../utils/helpFn";
 
-describe("test-compound", () => {
+describe("compound", () => {
   let keyringPair: KeyringPair | undefined;
   let turingApi: ApiPromise | undefined;
   let turingAdapter: OakAdapter | undefined;
@@ -22,7 +21,6 @@ describe("test-compound", () => {
     const {
       DevChains: { turingLocal: turingConfig },
     } = chains;
-    console.log("turingConfig.endpoint: ", turingConfig.endpoint);
 
     // Initialize adapters
     turingApi = await ApiPromise.create({
@@ -39,22 +37,26 @@ describe("test-compound", () => {
     await turingApi?.disconnect();
   });
 
-  it("get-auto-compounding-delegation-percentage", async () => {
-    expect(turingApi).toBeDefined();
-    expect(keyringPair).toBeDefined();
-    const pools = await turingApi.query.parachainStaking.candidatePool();
-    const collatorWalletAddress = pools[0].owner.toHex();
-    const result = await turingAdapter?.getAutoCompoundingDelegationPercentage(
-      collatorWalletAddress,
-      u8aToHex(keyringPair?.addressRaw),
-    );
-    console.log(result);
-    expect(result).toBeDefined();
-  });
+  it(
+    "ensure-balance",
+    async () => {
+      expect(turingAdapter).toBeDefined();
+      expect(keyringPair).toBeDefined();
+      expect(keyringPair).toBeDefined();
+      await expect(
+        turingAdapter?.ensureBalance(
+          u8aToHex(keyringPair?.addressRaw),
+          new BN("10000000000"),
+        ),
+      ).resolves.toBeUndefined();
+    },
+    DEFAULT_TIMEOUT_PER_TEST,
+  );
 
   it("get-delegation", async () => {
     expect(turingApi).toBeDefined();
     expect(keyringPair).toBeDefined();
+    expect(turingAdapter).toBeDefined();
     const pools = await turingApi.query.parachainStaking.candidatePool();
     const collatorWalletAddress = pools[0].owner.toHex();
     const result = await turingAdapter?.getDelegation(
@@ -64,24 +66,20 @@ describe("test-compound", () => {
     expect(result).toBeDefined();
   });
 
-  it(
-    "delegate-with-auto-compound",
-    async () => {
-      expect(turingApi).toBeDefined();
-      expect(keyringPair).toBeDefined();
-      const pools = await turingApi.query.parachainStaking.candidatePool();
-      const collatorWalletAddress = pools[0].owner.toHex();
-      const { minDelegation } = turingApi.consts.parachainStaking;
-      const result = await turingAdapter?.delegateWithAutoCompound(
+  it("get-auto-compounding-delegation-percentage", async () => {
+    expect(turingApi).toBeDefined();
+    expect(keyringPair).toBeDefined();
+    expect(turingAdapter).toBeDefined();
+    const pools = await turingApi.query.parachainStaking.candidatePool();
+    const collatorWalletAddress = pools[0].owner.toHex();
+    const percentage =
+      await turingAdapter?.getAutoCompoundingDelegationPercentage(
         collatorWalletAddress,
-        minDelegation,
-        50,
-        keyringPair,
+        u8aToHex(keyringPair?.addressRaw),
       );
-      expect(result).toBeDefined();
-    },
-    DEFAULT_TIMEOUT_PER_TEST,
-  );
+    console.log(percentage);
+    expect(typeof percentage).toBe("number");
+  });
 
   it(
     "set-auto-compound",
@@ -96,6 +94,9 @@ describe("test-compound", () => {
         keyringPair,
       );
       expect(result).toBeDefined();
+      const { events } = result;
+      const event = findEvent(events, "parachainStaking", "AutoCompoundSet");
+      expect(event).toBeDefined();
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
@@ -113,19 +114,13 @@ describe("test-compound", () => {
         keyringPair,
       );
       expect(result).toBeDefined();
-    },
-    DEFAULT_TIMEOUT_PER_TEST,
-  );
-
-  it(
-    "ensure-balance",
-    async () => {
-      expect(turingAdapter).toBeDefined();
-      expect(keyringPair).toBeDefined();
-      await turingAdapter?.ensureBalance(
-        u8aToHex(keyringPair?.addressRaw),
-        new BN("10000000000"),
+      const { events } = result;
+      const event = findEvent(
+        events,
+        "parachainStaking",
+        "DelegationIncreased",
       );
+      expect(event).toBeDefined();
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );

@@ -162,7 +162,7 @@ describe("test-dynamic-dispatch-task", () => {
    * scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
    */
   it(
-    "dynamicDispatchTask.recurring with frequency that is not a multiply of 3600(3600*0.5) fails",
+    "dynamicDispatchTask.recurring with frequency that is not a multiply of a timeslot fails",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -215,10 +215,10 @@ describe("test-dynamic-dispatch-task", () => {
   );
 
   /**
-   * dynamicDispatchTask.recurring with frequency that is 0 fails
+   * Build dynamicDispatchTask.recurring task with frequency that is 0 fails will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with frequency that is 0 fails",
+    "build dynamicDispatchTask.recurring task with frequency that is 0 fails will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -235,16 +235,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("frequency must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with frequency that is negtive integer fails
+   * Build dynamicDispatchTask.recurring task with frequency that is negtive integer will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with frequency that is negtive integer fails",
+    "build dynamicDispatchTask.recurring task with frequency that is negtive integer will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -259,16 +259,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("frequency must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with frequency that is larger than Number.MAX_SAFE_INTEGER fails
+   * Build dynamicDispatchTask.recurring task with frequency that is larger than Number.MAX_SAFE_INTEGER will throw too large error
    */
   it(
-    "dynamicDispatchTask.recurring with frequency that is larger than Number.MAX_SAFE_INTEGER fails",
+    "build dynamicDispatchTask.recurring task with frequency that is larger than Number.MAX_SAFE_INTEGER will throw too large error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -283,16 +283,18 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow(
+        'createType(Call):: Call: failed decoding automationTime.scheduleDynamicDispatchTask:: Struct: failed on args: {"schedule":"{\\"_enum\\":{\\"Fixed\\":\\"{\\\\\\"executionTimes\\\\\\":\\\\\\"Vec<u64>\\\\\\"}\\",\\"Recurring\\":\\"{\\\\\\"nextExecutionTime\\\\\\":\\\\\\"u64\\\\\\",\\\\\\"frequency\\\\\\":\\\\\\"u64\\\\\\"}\\"}}","call":"Call"}:: Struct: failed on schedule: {"_enum":{"Fixed":"{\\"executionTimes\\":\\"Vec<u64>\\"}","Recurring":"{\\"nextExecutionTime\\":\\"u64\\",\\"frequency\\":\\"u64\\"}"}}:: Enum(recurring):: Struct: failed on frequency: u64:: Number needs to be an integer <= Number.MAX_SAFE_INTEGER, i.e. 2 ^ 53 - 1',
+      );
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with frequency that is string fails
+   * dynamicDispatchTask.recurring with frequency that is string will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with frequency that is string fails",
+    "dynamicDispatchTask.recurring with frequency that is string will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -307,16 +309,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("frequency must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with frequency that is object fails
+   * Build dynamicDispatchTask.recurring task with frequency that is object will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with frequency that is object fails",
+    "build dynamicDispatchTask.recurring task with frequency that is object will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -331,16 +333,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("frequency must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with frequency that is null fails
+   * Build dynamicDispatchTask.recurring with frequency that is null will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with frequency that is null fails",
+    "build dynamicDispatchTask.recurring with frequency that is null will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -355,16 +357,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("frequency must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with frequency that is undefined fails
+   * Build dynamicDispatchTask.recurring task with frequency that is undefined will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with frequency that is undefined fails",
+    "build dynamicDispatchTask.recurring task with frequency that is undefined will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -379,23 +381,23 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("frequency must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+5min) fails.
+   * build dynamicDispatchTask.recurring task with nextExecutionTime not on 10 minutes time slot(+5min) will throw automationTime.InvalidTime error.
    */
   it(
-    "dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+5min) fails",
+    "build dynamicDispatchTask.recurring task with nextExecutionTime not on 10 minutes time slot(+1min) will throw automationTime.InvalidTime error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
         "recurring",
       );
       const { schedule, call } = extrinsicParams;
-      schedule.recurring.nextExecutionTime += 5 * 60;
+      schedule.recurring.nextExecutionTime += 60 * 1;
 
       // automationTimeApi.buildScheduleDynamicDispatchTask will fail with invalid frequency
       const extrinsicHex =
@@ -412,17 +414,17 @@ describe("test-dynamic-dispatch-task", () => {
   );
 
   /**
-   * dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+30min) fails.
+   * Build dynamicDispatchTask.recurring task with nextExecutionTime not on non-o’clock(+7) will throw automationTime.InvalidTime error.
    */
   it(
-    "dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+30min) fails",
+    "build dynamicDispatchTask.recurring task with nextExecutionTime not on 10 minutes time slot(+5min) will throw automationTime.InvalidTime error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
         "recurring",
       );
       const { schedule, call } = extrinsicParams;
-      schedule.recurring.nextExecutionTime += 30 * 60;
+      schedule.recurring.nextExecutionTime += 30 * 5;
 
       // automationTimeApi.buildScheduleDynamicDispatchTask will fail with invalid frequency
       const extrinsicHex =
@@ -439,17 +441,17 @@ describe("test-dynamic-dispatch-task", () => {
   );
 
   /**
-   * dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+45min) fails.
+   * build dynamicDispatchTask.recurring task nextExecutionTime not on 10 minutes time slot(+5min) will throw automationTime.InvalidTime error.
    */
   it(
-    "dynamicDispatchTask.recurring nextExecutionTime on non-o’clock(+45min) fails",
+    "build dynamicDispatchTask.recurring task with nextExecutionTime not on 10 minutes time slot(+7min) will throw automationTime.InvalidTime error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
         "recurring",
       );
       const { schedule, call } = extrinsicParams;
-      schedule.recurring.nextExecutionTime += 30 * 60;
+      schedule.recurring.nextExecutionTime += 30 * 7;
 
       // automationTimeApi.buildScheduleDynamicDispatchTask will fail with invalid frequency
       const extrinsicHex =
@@ -466,10 +468,10 @@ describe("test-dynamic-dispatch-task", () => {
   );
 
   /**
-   * dynamicDispatchTask.recurring with nextExecutionTime that is 0 fails
+   * Build dynamicDispatchTask.recurring task with nextExecutionTime that is 0 will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with nextExecutionTime that is 0 fails",
+    "build dynamicDispatchTask.recurring task with nextExecutionTime that is 0 will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -485,16 +487,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("nextExecutionTime must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with nextExecutionTime that is negtive integer fails
+   * Build dynamicDispatchTask.recurring task with nextExecutionTime that is negtive integer fails
    */
   it(
-    "dynamicDispatchTask.recurring with nextExecutionTime that is negtive integer fails",
+    "build dynamicDispatchTask.recurring task with nextExecutionTime that is negtive integer will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -509,7 +511,7 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("nextExecutionTime must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
@@ -518,7 +520,7 @@ describe("test-dynamic-dispatch-task", () => {
    * dynamicDispatchTask.recurring with nextExecutionTime that is larger than Number.MAX_SAFE_INTEGER fails
    */
   it(
-    "dynamicDispatchTask.recurring with nextExecutionTime that is larger than Number.MAX_SAFE_INTEGER fails",
+    "dynamicDispatchTask.recurring with nextExecutionTime that is larger than Number.MAX_SAFE_INTEGER will throw too large error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -533,16 +535,18 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow(
+        'createType(Call):: Call: failed decoding automationTime.scheduleDynamicDispatchTask:: Struct: failed on args: {"schedule":"{\\"_enum\\":{\\"Fixed\\":\\"{\\\\\\"executionTimes\\\\\\":\\\\\\"Vec<u64>\\\\\\"}\\",\\"Recurring\\":\\"{\\\\\\"nextExecutionTime\\\\\\":\\\\\\"u64\\\\\\",\\\\\\"frequency\\\\\\":\\\\\\"u64\\\\\\"}\\"}}","call":"Call"}:: Struct: failed on schedule: {"_enum":{"Fixed":"{\\"executionTimes\\":\\"Vec<u64>\\"}","Recurring":"{\\"nextExecutionTime\\":\\"u64\\",\\"frequency\\":\\"u64\\"}"}}:: Enum(recurring):: Struct: failed on nextExecutionTime: u64:: Number needs to be an integer <= Number.MAX_SAFE_INTEGER, i.e. 2 ^ 53 - 1',
+      );
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with nextExecutionTime that is string fails
+   * Build dynamicDispatchTask.recurring task with nextExecutionTime that is string will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with nextExecutionTime that is string fails",
+    "build dynamicDispatchTask.recurring task with nextExecutionTime that is string will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -557,16 +561,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("nextExecutionTime must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with frequency that is object fails
+   * Build dynamicDispatchTask.recurring task with nextExecutionTime that is object will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with nextExecutionTime that is object fails",
+    "build dynamicDispatchTask.recurring task with nextExecutionTime that is object will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -581,16 +585,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("nextExecutionTime must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with nextExecutionTime that is null fails
+   * Build dynamicDispatchTask.recurring task with nextExecutionTime that is null will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with nextExecutionTime that is null fails",
+    "build dynamicDispatchTask.recurring task with nextExecutionTime that is null will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -605,16 +609,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("nextExecutionTime must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with nextExecutionTime that is undefined fails
+   * Build dynamicDispatchTask.recurring task with nextExecutionTime that is undefined will throw not a positive integer error
    */
   it(
-    "dynamicDispatchTask.recurring with nextExecutionTime that is undefined fails",
+    "build dynamicDispatchTask.recurring task with nextExecutionTime that is undefined will throw not a positive integer error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -629,16 +633,43 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("nextExecutionTime must be a positive integer");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+5min) fails
+   * Send dynamicDispatchTask.fixed task with execution time not on 10 minutes time slot(+5min) will throw automationTime.InvalidTime error
    */
   it(
-    "dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+5min) fails",
+    "send dynamicDispatchTask.fixed task with execution time not on 10 minutes time slot(+1min) will throw automationTime.InvalidTime error",
+    async () => {
+      const extrinsicParams = await getDynamicDispatchExtrinsicParams(
+        polkadotApi,
+        "fixed",
+      );
+      const { schedule, call } = extrinsicParams;
+      schedule.fixed.executionTimes[0] += 60 * 1;
+
+      // scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
+      const extrinsicHex =
+        await automationTimeApi.buildScheduleDynamicDispatchTask(
+          keyringPair,
+          schedule,
+          call,
+        );
+      await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(
+        `${SECTION_NAME}.InvalidTime`,
+      );
+    },
+    DEFAULT_TIMEOUT_PER_TEST,
+  );
+
+  /**
+   * Send dynamicDispatchTask.fixed task with execution time not on 10 minutes time slot(+5min) will throw automationTime.InvalidTime error
+   */
+  it(
+    "send dynamicDispatchTask.fixed task with execution time not on 10 minutes time slot(+5min) will throw automationTime.InvalidTime error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -662,44 +693,17 @@ describe("test-dynamic-dispatch-task", () => {
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+30min) fails
+   * Send dynamicDispatchTask.fixed task with execution time not on 10 minutes time slot(+7min) will throw automationTime.InvalidTime error
    */
   it(
-    "dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+30min) fails",
+    "send dynamicDispatchTask.fixed task with execution time not on 10 minutes time slot(+7min) will throw automationTime.InvalidTime error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
         "fixed",
       );
       const { schedule, call } = extrinsicParams;
-      schedule.fixed.executionTimes[0] += 60 * 30;
-
-      // scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
-      const extrinsicHex =
-        await automationTimeApi.buildScheduleDynamicDispatchTask(
-          keyringPair,
-          schedule,
-          call,
-        );
-      await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(
-        `${SECTION_NAME}.InvalidTime`,
-      );
-    },
-    DEFAULT_TIMEOUT_PER_TEST,
-  );
-
-  /**
-   * dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+45min) fails
-   */
-  it(
-    "dynamicDispatchTask.fixed schedule with execution time on non-o’clock(+45min) fails",
-    async () => {
-      const extrinsicParams = await getDynamicDispatchExtrinsicParams(
-        polkadotApi,
-        "fixed",
-      );
-      const { schedule, call } = extrinsicParams;
-      schedule.fixed.executionTimes[0] += 60 * 30;
+      schedule.fixed.executionTimes[0] += 60 * 7;
 
       const extrinsicHex =
         await automationTimeApi.buildScheduleDynamicDispatchTask(
@@ -715,10 +719,10 @@ describe("test-dynamic-dispatch-task", () => {
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with execution time that is string fails
+   * Build dynamicDispatchTask.fixed task with execution time that is string will throw not an array error
    */
   it(
-    "dynamicDispatchTask.fixed schedule with filling execution time string fails",
+    "build dynamicDispatchTask.fixed task with filling execution time string will throw not an array error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -733,16 +737,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("executionTimes is not an array");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with execution time that is  object fails
+   * Build dynamicDispatchTask.fixed task schedule with execution time that is  object will throw not an array error
    */
   it(
-    "dynamicDispatchTask.fixed schedule with filling execution time object fails",
+    "build dynamicDispatchTask.fixed task with filling execution time object will throw not an array error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -757,16 +761,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("executionTimes is not an array");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with execution time that is null fails
+   * Build dynamicDispatchTask.fixed task with execution time that is null will throw not an array error
    */
   it(
-    "dynamicDispatchTask.fixed schedule with filling execution time null fails",
+    "build dynamicDispatchTask.fixed task with filling execution time null will throw not an array error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -781,16 +785,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("executionTimes is not an array");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with execution time that is undefined fails
+   * Build dynamicDispatchTask.fixed task with execution time that is undefined will throw not an array error
    */
   it(
-    "dynamicDispatchTask.fixed schedule with filling execution time undefined fails",
+    "build dynamicDispatchTask.fixed task with filling execution time undefined will throw not an array error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -805,16 +809,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("executionTimes is not an array");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with empty execution times array fails
+   * Build dynamicDispatchTask.fixed task with empty execution times array will throw empty array error
    */
   it(
-    "dynamicDispatchTask.fixed schedule with empty execution times array fails",
+    "build dynamicDispatchTask.fixed task schedule with empty execution times array will throw empty array error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -829,16 +833,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("executionTimes is empty");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with execution times array that is string fails
+   * Build dynamicDispatchTask.fixed task with execution times array that is string will throw not an array error
    */
   it(
-    "dynamicDispatchTask.fixed schedule with execution times array that is string fails",
+    "build dynamicDispatchTask.fixed task schedule with execution times array that is string will throw not an array error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -853,16 +857,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("executionTimes is not an array");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with execution times array that is object fails
+   * Build dynamicDispatchTask.fixed task schedule with execution times array that is object fails
    */
   it(
-    "dynamicDispatchTask.fixed schedule with execution times array that is object fails",
+    "build dynamicDispatchTask.fixed task schedule with execution times array that is object will throw not an array",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -877,16 +881,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("executionTimes is not an array");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with execution times array that is null fails
+   * Build dynamicDispatchTask.fixed task with execution times array that is null will throw not an array task error
    */
   it(
-    "dynamicDispatchTask.fixed schedule with execution times array that is null fails",
+    "build dynamicDispatchTask.fixed task with execution times array that is null will throw not an array task error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -901,16 +905,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("executionTimes is not an array");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed schedule with execution times array that is undefined fails
+   * Build dynamicDispatchTask.fixed task with execution times array that is undefined will throw not an array error
    */
   it(
-    "dynamicDispatchTask.fixed schedule with execution times array that is undefined fails",
+    "build dynamicDispatchTask.fixed task with execution times array that is undefined will throw not an array error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -925,16 +929,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("executionTimes is not an array");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed with null call fails
+   * Build dynamicDispatchTask.fixed task with null call will throw null call error
    */
   it(
-    "dynamicDispatchTask.fixed with null call fails",
+    "build dynamicDispatchTask.fixed task with null  call will throw null call error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -948,16 +952,18 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           null,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow(
+        'createType(Call):: Call: failed decoding automationTime.scheduleDynamicDispatchTask:: Struct: failed on args: {"schedule":"{\\"_enum\\":{\\"Fixed\\":\\"{\\\\\\"executionTimes\\\\\\":\\\\\\"Vec<u64>\\\\\\"}\\",\\"Recurring\\":\\"{\\\\\\"nextExecutionTime\\\\\\":\\\\\\"u64\\\\\\",\\\\\\"frequency\\\\\\":\\\\\\"u64\\\\\\"}\\"}}","call":"Call"}:: Struct: failed on call: Call:: Call: Cannot decode value \'null\' of type object',
+      );
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed with undefined call fails
+   * Build dynamicDispatchTask.fixed task with undefined call will throw undefined call error
    */
   it(
-    "dynamicDispatchTask.fixed with undefined call fails",
+    "build dynamicDispatchTask.fixed task with undefined call will throw undefined call error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -971,16 +977,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           undefined,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("call is null or undefined");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with null call fails
+   * Build dynamicDispatchTask.recurring task with null call will throw null call error
    */
   it(
-    "dynamicDispatchTask.recurring with null call fails",
+    "build dynamicDispatchTask.recurring task with null call will throw null call error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -994,16 +1000,18 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           null,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow(
+        'createType(Call):: Call: failed decoding automationTime.scheduleDynamicDispatchTask:: Struct: failed on args: {"schedule":"{\\"_enum\\":{\\"Fixed\\":\\"{\\\\\\"executionTimes\\\\\\":\\\\\\"Vec<u64>\\\\\\"}\\",\\"Recurring\\":\\"{\\\\\\"nextExecutionTime\\\\\\":\\\\\\"u64\\\\\\",\\\\\\"frequency\\\\\\":\\\\\\"u64\\\\\\"}\\"}}","call":"Call"}:: Struct: failed on call: Call:: Call: Cannot decode value \'null\' of type object',
+      );
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with undefined call fails
+   * Build dynamicDispatchTask.recurring task with undefined call fails
    */
   it(
-    "dynamicDispatchTask.recurring with undefined call fails",
+    "build dynamicDispatchTask.recurrin task with undefined call will throw undefined call error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -1017,16 +1025,16 @@ describe("test-dynamic-dispatch-task", () => {
           schedule,
           undefined,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("call is null or undefined");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed with null schedule fails
+   * Build dynamicDispatchTask.fixed task with null schedule will throw null object error
    */
   it(
-    "dynamicDispatchTask.fixed with null schedule fails",
+    "build dynamicDispatchTask.fixed with null schedule will throw null object error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -1040,16 +1048,16 @@ describe("test-dynamic-dispatch-task", () => {
           null,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("Cannot read properties of null (reading 'recurring')");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.fixed with undefined schedule fails
+   * Build dynamicDispatchTask.fixed task with undefined schedule will throw undefined object error
    */
   it(
-    "dynamicDispatchTask.fixed with undefined schedule fails",
+    "build dynamicDispatchTask.fixed task with undefined schedule will throw undefined object error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -1063,16 +1071,18 @@ describe("test-dynamic-dispatch-task", () => {
           undefined,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow(
+        "Cannot read properties of undefined (reading 'recurring')",
+      );
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with null schedule fails
+   * Build dynamicDispatchTask.recurring task with null schedule fails will throw null object error
    */
   it(
-    "dynamicDispatchTask.recurring with null schedule fails",
+    "build dynamicDispatchTask.recurring task with null schedule fails will throw null object error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -1086,16 +1096,16 @@ describe("test-dynamic-dispatch-task", () => {
           null,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow("Cannot read properties of null (reading 'recurring')");
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
   /**
-   * dynamicDispatchTask.recurring with undefined schedule fails
+   * Build dynamicDispatchTask.recurring task with undefined schedule will throw undefind object error
    */
   it(
-    "dynamicDispatchTask.recurring with undefined schedule fails",
+    "build dynamicDispatchTask.recurring task with undefined schedule will throw undefind object error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
@@ -1109,7 +1119,9 @@ describe("test-dynamic-dispatch-task", () => {
           undefined,
           call,
         ),
-      ).rejects.toThrow(undefined);
+      ).rejects.toThrow(
+        "Cannot read properties of undefined (reading 'recurring')",
+      );
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );

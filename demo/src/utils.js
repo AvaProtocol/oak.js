@@ -40,7 +40,13 @@ export const sendExtrinsic = (api, extrinsic, keyPair) =>
 						unsub();
 
 						if (dispatchError) {
-							return reject(new Error(dispatchError));
+							if (dispatchError.isModule) {
+								const metaError = api.registry.findMetaError(dispatchError.asModule);
+								const { name, section } = metaError;
+								return reject(new Error(`${section}.${name}`));
+							}
+
+							return reject(new Error(dispatchError.toString()));
 						}
 
 						const event = _.find(events, ({ event: eventData }) => api.events.system.ExtrinsicSuccess.is(eventData));

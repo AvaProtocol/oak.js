@@ -28,36 +28,47 @@ export const getKeyringPair = async (ss58Format) => {
   return keyringPair;
 };
 
-export const sendExtrinsic = (extrinsic, api, keyringPair) =>
-  new Promise((resolve, reject) => {
-    const signAndSend = async () => {
-      const unsub = await extrinsic.signAndSend(keyringPair, (result) => {
-        const { status, events, dispatchError } = result;
-        console.log("status.type: ", status.type);
+export const sendExtrinsic = (api, extrinsic, keyPair) =>
+	new Promise((resolve, reject) => {
+		const signAndSend = async () => {
+			try {
+				const unsub = await extrinsic.signAndSend(keyPair, (result) => {
+					const { status, events, dispatchError } = result;
+					console.log("status.type: ", status.type);
 
-        if (status?.isFinalized) {
-          unsub();
-          if (!_.isNil(dispatchError)) {
-            reject(dispatchError);
-          }
+					if (status?.isFinalized) {
+						unsub();
 
-          const event = _.find(events, ({ event: eventData }) =>
-            api.events.system.ExtrinsicSuccess.is(eventData),
-          );
-          if (event) {
-            resolve({
-              blockHash: status?.asFinalized?.toString(),
-              events,
-              extrinsicHash: extrinsic.hash,
-            });
-          } else {
-            reject(new Error("The event.ExtrinsicSuccess is not found"));
-          }
-        }
-      });
-    };
-    signAndSend();
-  });
+						if (dispatchError) {
+							if (dispatchError.isModule) {
+								const metaError = api.registry.findMetaError(dispatchError.asModule);
+								const { name, section } = metaError;
+								return reject(new Error(`${section}.${name}`));
+							}
+
+							return reject(new Error(dispatchError.toString()));
+						}
+
+						const event = _.find(events, ({ event: eventData }) => api.events.system.ExtrinsicSuccess.is(eventData));
+						if (event) {
+							return resolve({
+								blockHash: status?.asFinalized?.toString(),
+								events,
+								extrinsicHash: extrinsic?.hash?.toString(),
+							});
+						} else {
+							return reject(new Error(events.toString()));
+						}
+					}
+				});
+			} catch (ex) {
+				// Handle signing error such as user manually cancel the transaction
+				return reject(ex);
+			}
+		};
+
+		signAndSend();
+	});
 
 export const findEvent = (events, section, method) =>
   events.find((e) => e.event.section === section && e.event.method === method);

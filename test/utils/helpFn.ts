@@ -420,3 +420,18 @@ export const getDynamicDispatchExtrinsicParams = async (
     schedule,
   };
 };
+
+/**
+ * Get a past time and ensure it's a multiple of the timeslot.
+ * @returns past time
+ */
+export const getPastTime = () => {
+  // Get the current timestamp
+  const currentTimeStampInSeconds = Math.floor(Date.now() / 1000);
+  // Adjust the current timestamp to be a multiple of the timeslot
+  const adjustedTime =
+    currentTimeStampInSeconds -
+    (currentTimeStampInSeconds % TIME_SLOT_IN_SECONDS);
+  // Adjust the time to a past moment
+  return adjustedTime - TIME_SLOT_IN_SECONDS;
+};

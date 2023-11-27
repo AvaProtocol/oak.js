@@ -9,6 +9,7 @@ import {
   getDynamicDispatchExtrinsicParams,
   SECTION_NAME,
   sendExtrinsic,
+  getPastTime,
 } from "../utils/helpFn";
 import { AutomationTimeApi } from "../utils";
 import {
@@ -103,19 +104,17 @@ describe("test-dynamic-dispatch-task", () => {
   );
 
   /**
-   * dynamicDispatchTask.recurring with nextExecutionTime that is is a past time fails
+   * Call dynamicDispatchTask.recurring task with nextExecutionTime that is is a past time will throw automationTime.PastTime error
    */
   it(
-    "dynamicDispatchTask.recurring with nextExecutionTime that is a past time fails",
+    "call dynamicDispatchTask.recurring task with nextExecutionTime that is a past time will throw automationTime.PastTime error",
     async () => {
       const extrinsicParams = await getDynamicDispatchExtrinsicParams(
         polkadotApi,
         "recurring",
       );
       const { schedule, call } = extrinsicParams;
-      schedule.recurring.nextExecutionTime = Math.floor(
-        new Date().valueOf() / 1000 - 1,
-      );
+      schedule.recurring.nextExecutionTime = getPastTime();
 
       // scheduler.buildScheduleDynamicDispatchTask will fail with invalid frequency
       const extrinsicHex =
@@ -125,7 +124,7 @@ describe("test-dynamic-dispatch-task", () => {
           call,
         );
       await expect(sendExtrinsic(polkadotApi, extrinsicHex)).rejects.toThrow(
-        `${SECTION_NAME}.InvalidTime`,
+        `${SECTION_NAME}.PastTime`,
       );
     },
     DEFAULT_TIMEOUT_PER_TEST,

@@ -15,7 +15,8 @@
     "clean": "npm exec -- tsc --build --clean tsconfig.build.json",
     "test": "npm run build && jest --verbose --forceExit --runInBand ./test/functional",
     "test:sdk": "npm run build && jest --verbose --runInBand ./test/sdk",
-    "test:compound": "npm run build && jest --verbose --runInBand ./test/compound",
+    "test:delegate": "npm run build && jest --verbose --runInBand ./test/compound/delegate",
+    "test:compound": "npm run build && jest --verbose --runInBand ./test/compound/compound",
     "changeset": "changeset",
     "lint": "eslint . --ext .ts",
     "prepare": "husky install"

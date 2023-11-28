@@ -153,6 +153,28 @@ Then, you'll need to specify a test suite since each suite executes tests for a 
 yarn run test:sdk -- -t test-mangata
 ```
 
+### Compound Tests
+
+If you wish to perform local testing, you'll need to launch the parachain test network yourself using the following command:
+
+```bash
+zombienet spawn zombienets/turing/single-chain.toml
+```
+
+If the account hasn't been delegated on-chain yet, you can execute the following command to test the `delegateWithAutoCompound` interface.
+
+```bash
+MNEMONIC="<MNEMONIC>" ENV="Turing Dev" yarn run test:delegate
+```
+
+If the account has already been delegated on-chain, or if you've previously tested the `delegateWithAutoCompound` interface, you can execute the following command to test the `delegatorBondMore`, `setAutoCompound`, `getDelegation`, and `getAutoCompoundingDelegationPercentage` interfaces.
+
+```bash
+MNEMONIC="<MNEMONIC>" ENV="Turing Dev" yarn test:compound
+```
+
+
+
 ## File structure
 
 ```

@@ -214,18 +214,18 @@ export class OakAdapter extends ChainAdapter {
   }
 
   /**
-   * Ensure balance enough
+   * Check if the account has enough free balance
+   * The calculation is based on the free balance and the existential deposit
    * @param account
    * @param amount
    */
-  async ensureBalance(account: HexString, amount: BN): Promise<void> {
+  async hasEnoughFreeBalance(account: HexString, amount: BN): Promise<boolean> {
     const api = this.getApi();
     const balanceCodec = await api.query.system.account(account);
     const balance = balanceCodec as unknown as any;
+    const { existentialDeposit } = api.consts.balances;
     const freeBalance = balance.data.free.sub(balance.data.frozen);
-    if (freeBalance.lt(amount)) {
-      throw new Error("Balance is not enough");
-    }
+    return freeBalance.gte(amount.add(existentialDeposit as u128));
   }
 
   /**
@@ -291,9 +291,11 @@ export class OakAdapter extends ChainAdapter {
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
-    this.ensureBalance(u8aToHex(keyringPair.addressRaw), amount);
     // Check if delegation exists
     const delegatorWalletAddress = u8aToHex(keyringPair.addressRaw);
+    if (!this.hasEnoughFreeBalance(delegatorWalletAddress, amount)) {
+      throw new Error("Insufficient balance");
+    }
     const delegatorState = await this.getDelegatorState(delegatorWalletAddress);
     let delegationsLength = 0;
     if (!_.isUndefined(delegatorState)) {
@@ -423,8 +425,9 @@ export class OakAdapter extends ChainAdapter {
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
-
-    this.ensureBalance(u8aToHex(keyringPair.addressRaw), amount);
+    if (!this.hasEnoughFreeBalance(u8aToHex(keyringPair.addressRaw), amount)) {
+      throw new Error("Insufficient balance");
+    }
     // Create bondMoreExtrinsic
     const bondMoreExtrinsic = api.tx.parachainStaking.delegatorBondMore(
       collator,

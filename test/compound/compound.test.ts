@@ -38,17 +38,17 @@ describe("compound", () => {
   });
 
   it(
-    "ensure-balance",
+    "call hasEnoughFreeBalance returns true when the account balance is sufficient",
     async () => {
       expect(turingAdapter).toBeDefined();
       expect(keyringPair).toBeDefined();
       expect(keyringPair).toBeDefined();
       await expect(
-        turingAdapter?.ensureBalance(
+        turingAdapter?.hasEnoughFreeBalance(
           u8aToHex(keyringPair?.addressRaw),
           new BN("10000000000"),
         ),
-      ).resolves.toBeUndefined();
+      ).resolves.toBeTruthy();
     },
     DEFAULT_TIMEOUT_PER_TEST,
   );

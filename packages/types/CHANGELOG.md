@@ -1,5 +1,11 @@
 # @oak-network/types
 
+## 2.1.0
+
+### Minor Changes
+
+- 9b97907: Added automationPrice pallet and upgraded polkadot core to 0.9.43
+
 ## 2.0.7
 
 ### Patch Changes

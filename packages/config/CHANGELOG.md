@@ -1,5 +1,11 @@
 # @oak-network/config
 
+## 1.0.0
+
+### Major Changes
+
+- 9b97907: Added automationPrice pallet and upgraded polkadot core to 0.9.43
+
 ## 0.1.2
 
 ### Patch Changes

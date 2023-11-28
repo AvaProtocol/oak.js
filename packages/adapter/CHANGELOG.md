@@ -1,5 +1,12 @@
 # @oak-network/adapter
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [9b97907]
+  - @oak-network/config@1.0.0
+
 ## 0.1.4
 
 ### Patch Changes

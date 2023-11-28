@@ -28,6 +28,7 @@ export const getKeyringPair = async (ss58Format) => {
   return keyringPair;
 };
 
+/* eslint-disable consistent-return */
 export const sendExtrinsic = (api, extrinsic, keyPair) =>
   new Promise((resolve, reject) => {
     const signAndSend = async () => {
@@ -45,31 +46,28 @@ export const sendExtrinsic = (api, extrinsic, keyPair) =>
                   dispatchError.asModule,
                 );
                 const { name, section } = metaError;
-                reject(new Error(`${section}.${name}`));
-                return;
+                return reject(new Error(`${section}.${name}`));
               }
 
-              reject(new Error(dispatchError.toString()));
-              return;
+              return reject(new Error(dispatchError.toString()));
             }
 
             const event = _.find(events, ({ event: eventData }) =>
               api.events.system.ExtrinsicSuccess.is(eventData),
             );
             if (event) {
-              resolve({
+              return resolve({
                 blockHash: status?.asFinalized?.toString(),
                 events,
                 extrinsicHash: extrinsic?.hash?.toString(),
               });
-              return;
             }
-            reject(new Error(events.toString()));
+            return reject(new Error(events.toString()));
           }
         });
       } catch (ex) {
         // Handle signing error such as user manually cancel the transaction
-        reject(ex);
+        return reject(ex);
       }
     };
 

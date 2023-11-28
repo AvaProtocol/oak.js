@@ -16,14 +16,11 @@ jobs:
       - name: 🤘 checkout
         uses: actions/checkout@v3
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3.0.0
-        with:
-          node-version: 18.x
-          cache: 'npm'
-      
-      - name: Install Dependencies
-        run: npm ci --ignore-scripts
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run build
+        run: yarn build
 
       - name: Create Release Pull Request
         uses: changesets/action@v1

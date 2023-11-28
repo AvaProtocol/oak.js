@@ -46,9 +46,11 @@ export const sendExtrinsic = (api, extrinsic, keyPair) =>
                 );
                 const { name, section } = metaError;
                 reject(new Error(`${section}.${name}`));
+                return;
               }
 
               reject(new Error(dispatchError.toString()));
+              return;
             }
 
             const event = _.find(events, ({ event: eventData }) =>
@@ -60,6 +62,7 @@ export const sendExtrinsic = (api, extrinsic, keyPair) =>
                 events,
                 extrinsicHash: extrinsic?.hash?.toString(),
               });
+              return;
             }
             reject(new Error(events.toString()));
           }

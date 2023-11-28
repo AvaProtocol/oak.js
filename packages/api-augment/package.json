@@ -1,20 +1,22 @@
 {
   "name": "@oak-network/api-augment",
-  "version": "2.0.6",
+  "version": "2.1.0",
   "main": "./build/index.js",
   "license": "Apache-2.0",
+  "type": "module",
   "scripts": {
     "generate": "npm run load:meta && npm run generate:defs && npm run generate:meta && npm run lint",
     "load:meta": "bash scripts/download-metadata",
-    "generate:defs": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-defs --package @oak-network/api-augment/interfaces --input ./src/interfaces --endpoint ./metadata.json",
-    "generate:meta": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-chain --package @oak-network/api-augment/interfaces --endpoint ./metadata.json --output ./src/interfaces",
+    "generate:defs": "node --experimental-specifier-resolution=node --loader ts-node/esm ../../node_modules/.bin/polkadot-types-from-defs --package @oak-network/api-augment/interfaces --input ./src/interfaces --endpoint ./metadata.json",
+    "generate:meta": "node --experimental-specifier-resolution=node --loader ts-node/esm ../../node_modules/.bin/polkadot-types-from-chain --package @oak-network/api-augment/interfaces --endpoint ./metadata.json --output ./src/interfaces",
     "lint": "tsc --noEmit --pretty",
     "clean:defs": "find ./src/interfaces ! -name 'definitions.ts' ! -name 'runtime.ts' -type f -exec rm {} +"
   },
   "dependencies": {
-    "@polkadot/types": "^9.9.4"
+    "@polkadot/types": "^10.9.1"
   },
   "devDependencies": {
-    "@polkadot/typegen": "^9.9.4"
+    "@polkadot/typegen": "^10.9.1",
+    "@types/node": "^20.9.5"
   }
 }

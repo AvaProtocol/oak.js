@@ -17,7 +17,6 @@ jobs:
           - types
           - config
           - adapter
-          - sdk-types
           - sdk
 
     steps:
@@ -39,23 +38,38 @@ jobs:
       - name: 🔐 Authenticate with NPM
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
-      - name: Get max published version from npm
-        id: get-max-version
+      - name: Get the current dev version from npm
+        id: get-current-dev-version
         run: |
-          all_versions=$(npm show @oak-network/${{ matrix.package }} versions --json)
-          all_versions=$(echo "$all_versions" | tr -d ' \t\n\r')
-          max_version=$(echo $all_versions | jq 'max' -r)
-          echo "::set-output name=max_version::$max_version"
+          # Get the dev tag version
+          tags=$(npm show @oak-network/${{ matrix.package }} dist-tags --json)
+          echo "Tag versions: $tags"          
+          current_dev_version=$(echo "$tags" | jq -r '.dev')
+          echo "Dev tag version: $current_dev_version"
+          echo "current_dev_version=$current_dev_version" >> "$GITHUB_ENV"
 
-      - name: 🚀 Publish ${{ matrix.package }} package
+          # Get the latest version;
+          all_versions=$(npm show @oak-network/${{ matrix.package }} versions --json)
+          echo "All versions: $all_versions"          
+          highest_version=$(echo "$all_versions" | tr -d ' \t\n\r' | jq 'max' -r)
+          echo "Highest version: $highest_version"
+          echo "highest_version=$highest_version" >> "$GITHUB_ENV"
+
+      - name: 🚀 Publish ${{ matrix.package }} package if newer than latest
         working-directory: ./packages/${{ matrix.package }}/build
         run: |
-          current_version=$(node -p "require('./package.json').version")
-          max_version="${{ steps.get-max-version.outputs.max_version }}"
-          if [ "$current_version" '>' "$max_version" ]; then
-            echo "Current version: $current_version"
-            echo "Max version: $max_version"
+          new_version=$(node -p "require('./package.json').version")
+          echo "New version from local build folder: $new_version"
+
+          # Debugging: Print the values of $highest_version and $current_dev_version
+          echo "Current Dev Version: $current_dev_version"
+          echo "Highest Version: $highest_version"
+
+          # Compare the new version with the current dev version and the highest version; If we publish a lower than the highest version, it will be rejected by npm.
+          # TODO: I was not able to check if the new version is higher than both the current dev version and the highest version yet, so the check is very simple here. Ideally, we should check if the new version is higher.
+          if [ "$new_version" != "$current_dev_version" ]; then
+            echo "New version $new_version is different from NPM dev tag version $current_dev_version; publishing..."
             npm publish --tag dev
           else
-            echo "Package is up to date."
+            echo "Skip publish since there’s no higher version number."
           fi

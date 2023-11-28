@@ -22,6 +22,14 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxBlockWeight: u64 & AugmentedConst<ApiType>;
       /**
+       * The maximum number of tasks across our entire system
+       **/
+      maxTasksOverall: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of tasks that a single user can schedule
+       **/
+      maxTasksPerAccount: u32 & AugmentedConst<ApiType>;
+      /**
        * The maximum number of tasks that can be scheduled for a time slot.
        **/
       maxTasksPerSlot: u32 & AugmentedConst<ApiType>;
@@ -61,6 +69,14 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxWeightPerSlot: u128 & AugmentedConst<ApiType>;
       /**
+       * Self chain location.
+       **/
+      selfLocation: XcmV3MultiLocation & AugmentedConst<ApiType>;
+      /**
+       * The minimum time interval tasks could schedule for. For example, if the value is 600, then only inputs that are multiples of 600 are allowed. In other words, tasks can only be scheduled at 0, 10, 20 ... minutes of each hour.
+       **/
+      slotSizeSeconds: u64 & AugmentedConst<ApiType>;
+      /**
        * The maximum percentage of weight per block used for scheduled tasks.
        **/
       updateQueueRatio: Perbill & AugmentedConst<ApiType>;
@@ -71,9 +87,24 @@ declare module '@polkadot/api-base/types/consts' {
     };
     balances: {
       /**
-       * The minimum amount required to keep an account open.
+       * The minimum amount required to keep an account open. MUST BE GREATER THAN ZERO!
+       * 
+       * If you *really* need it to be zero, you can enable the feature `insecure_zero_ed` for
+       * this pallet. However, you do so at your own risk: this will open up a major DoS vector.
+       * In case you have multiple sources of provider references, you may also get unexpected
+       * behaviour if you set this to zero.
+       * 
+       * Bottom line: Do yourself a favour and make it at least one!
        **/
       existentialDeposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of individual freeze locks that can exist on an account at any time.
+       **/
+      maxFreezes: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of holds that can exist on an account at any time.
+       **/
+      maxHolds: u32 & AugmentedConst<ApiType>;
       /**
        * The maximum number of locks that should exist on an account.
        * Not strictly enforced, but used for weight estimation.
@@ -130,6 +161,16 @@ declare module '@polkadot/api-base/types/consts' {
        * Benchmarks depend on this value, be sure to update weights file when changing this value
        **/
       maximumReasonLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
+    };
+    council: {
+      /**
+       * The maximum weight of a dispatch call that can be proposed and executed.
+       **/
+      maxProposalWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
       /**
        * Generic const
        **/
@@ -289,6 +330,10 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxBottomDelegationsPerCandidate: u32 & AugmentedConst<ApiType>;
       /**
+       * Maximum candidates
+       **/
+      maxCandidates: u32 & AugmentedConst<ApiType>;
+      /**
        * Maximum delegations per delegator
        **/
       maxDelegationsPerDelegator: u32 & AugmentedConst<ApiType>;
@@ -305,17 +350,9 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       minCandidateStk: u128 & AugmentedConst<ApiType>;
       /**
-       * Minimum stake required for any candidate to be in `SelectedCandidates` for the round
-       **/
-      minCollatorStk: u128 & AugmentedConst<ApiType>;
-      /**
        * Minimum stake for any registered on-chain account to delegate
        **/
       minDelegation: u128 & AugmentedConst<ApiType>;
-      /**
-       * Minimum stake for any registered on-chain account to be a delegator
-       **/
-      minDelegatorStk: u128 & AugmentedConst<ApiType>;
       /**
        * Minimum number of selected candidates every round
        **/
@@ -383,6 +420,10 @@ declare module '@polkadot/api-base/types/consts' {
       maximumWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
       /**
        * The maximum number of scheduled calls in the queue for a single block.
+       * 
+       * NOTE:
+       * + Dependent pallets' benchmarks might require a higher limit for the setting. Set a
+       * higher limit under `runtime-benchmarks` feature.
        **/
       maxScheduledPerBlock: u32 & AugmentedConst<ApiType>;
       /**
@@ -419,6 +460,16 @@ declare module '@polkadot/api-base/types/consts' {
        * Get the chain's current version.
        **/
       version: SpVersionRuntimeVersion & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
+    };
+    technicalCommittee: {
+      /**
+       * The maximum weight of a dispatch call that can be proposed and executed.
+       **/
+      maxProposalWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
       /**
        * Generic const
        **/
@@ -530,6 +581,10 @@ declare module '@polkadot/api-base/types/consts' {
        * The currencyId for the native currency.
        **/
       getNativeCurrencyId: u32 & AugmentedConst<ApiType>;
+      /**
+       * Self chain location.
+       **/
+      selfLocation: XcmV3MultiLocation & AugmentedConst<ApiType>;
       /**
        * Generic const
        **/

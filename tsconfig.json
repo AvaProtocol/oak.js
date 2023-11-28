@@ -14,7 +14,13 @@
       "@oak-network/api-augment": ["./packages/api-augment/src"],
       "@oak-network/api-augment/*": ["./packages/api-augment/src/*"],
       "@oak-network/types": ["./packages/types/src"],
-      "@oak-network/types/*": ["./packages/types/src/*"]
+      "@oak-network/types/*": ["./packages/types/src/*"],
+      "@oak-network/config": ["./packages/config/src"],
+      "@oak-network/config/*": ["./packages/config/src/*"],
+      "@oak-network/adapter": ["./packages/adapter/src"],
+      "@oak-network/adapter/*": ["./packages/adapter/src/*"],
+      "@oak-network/sdk": ["./packages/sdk/src"],
+      "@oak-network/sdk/*": ["./packages/sdk/src/*"]
     }
   }
 }

@@ -1,18 +1,21 @@
-import _ from 'lodash'
-import { ApiPromise } from '@polkadot/api'
-import { Signer, SubmittableExtrinsic, AddressOrPair } from '@polkadot/api/types'
-import { Balance } from '@polkadot/types/interfaces'
-import { ISubmittableResult } from '@polkadot/types/types'
-import { HexString } from '@polkadot/util/types'
+import _ from "lodash";
+import { ApiPromise } from "@polkadot/api";
+import {
+  Signer,
+  SubmittableExtrinsic,
+  AddressOrPair,
+} from "@polkadot/api/types";
+import { Balance } from "@polkadot/types/interfaces";
+import { ISubmittableResult } from "@polkadot/types/types";
+import { HexString } from "@polkadot/util/types";
 
 import {
   LOWEST_TRANSFERRABLE_AMOUNT,
   MIN_IN_HOUR,
   MS_IN_SEC,
-  OakChainSchedulingLimit,
   RECURRING_TASK_LIMIT,
   SEC_IN_MIN,
-} from '../constants'
+} from "../constants";
 
 /**
  * The constructor takes the input to create an API client to connect to the blockchain.
@@ -20,12 +23,13 @@ import {
  * @param chain: OakChains
  */
 export class AutomationTimeApi {
-  polkadotApi: ApiPromise
-  schedulingTimeLimit: number
+  polkadotApi: ApiPromise;
+
+  schedulingTimeLimit: number;
 
   /**
    * constructor
-   * @param chain 
+   * @param chain
    * @param options { providerUrl }, You can specify a custom provider url.
    */
   constructor(config: any, api: ApiPromise) {
@@ -48,10 +52,10 @@ export class AutomationTimeApi {
    */
   private convertToSeconds(startTimestamps: number[]): number[] {
     return _.map(startTimestamps, (startTimestamp: number) => {
-      const isMillisecond = startTimestamp > 100000000000
-      if (isMillisecond) return startTimestamp / MS_IN_SEC
-      return startTimestamp
-    })
+      const isMillisecond = startTimestamp > 100000000000;
+      if (isMillisecond) return startTimestamp / MS_IN_SEC;
+      return startTimestamp;
+    });
   }
 
   /**
@@ -62,11 +66,11 @@ export class AutomationTimeApi {
    * @returns fee
    */
   async getInclusionFees(
-    extrinsic: SubmittableExtrinsic<'promise', ISubmittableResult>,
-    address: string
+    extrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>,
+    address: string,
   ): Promise<Balance> {
-    const paymentInfo = await extrinsic.paymentInfo(address)
-    return paymentInfo.partialFee
+    const paymentInfo = await extrinsic.paymentInfo(address);
+    return paymentInfo.partialFee;
   }
 
   /**
@@ -77,10 +81,12 @@ export class AutomationTimeApi {
    * @returns accountId
    */
   async crossChainAccount(accountId: string): Promise<string> {
-    const polkadotApi = await this.getAPIClient()
+    const polkadotApi = await this.getAPIClient();
     // TODO: hack until we can merge correct types into polkadotAPI
-    const resultCodec = await (polkadotApi.rpc as any).xcmpHandler.crossChainAccount(accountId)
-    return resultCodec.toString()
+    const resultCodec = await (
+      polkadotApi.rpc as any
+    ).xcmpHandler.crossChainAccount(accountId);
+    return resultCodec.toString();
   }
 
   /**
@@ -91,10 +97,12 @@ export class AutomationTimeApi {
    * @returns fee
    */
   async fees(encodedXt: string): Promise<string> {
-    const polkadotApi = await this.getAPIClient()
+    const polkadotApi = await this.getAPIClient();
     // TODO: hack until we can merge correct types into polkadotAPI
-    const resultCodec = await (polkadotApi.rpc as any).xcmpHandler.fees(encodedXt)
-    return resultCodec.toPrimitive()
+    const resultCodec = await (polkadotApi.rpc as any).xcmpHandler.fees(
+      encodedXt,
+    );
+    return resultCodec.toPrimitive();
   }
 
   /**
@@ -111,16 +119,23 @@ export class AutomationTimeApi {
    */
   validateTimestamps(timestamps: number[]): void {
     if (timestamps.length > RECURRING_TASK_LIMIT)
-      throw new Error(`Recurring Task length cannot exceed ${RECURRING_TASK_LIMIT}`)
-    const currentTime = Date.now()
+      throw new Error(
+        `Recurring Task length cannot exceed ${RECURRING_TASK_LIMIT}`,
+      );
+    const currentTime = Date.now();
     const nextAvailableHour =
-      (currentTime - (currentTime % (SEC_IN_MIN * MIN_IN_HOUR * MS_IN_SEC)) + SEC_IN_MIN * MIN_IN_HOUR * MS_IN_SEC) /
-      1000
+      (currentTime -
+        (currentTime % (SEC_IN_MIN * MIN_IN_HOUR * MS_IN_SEC)) +
+        SEC_IN_MIN * MIN_IN_HOUR * MS_IN_SEC) /
+      1000;
     _.forEach(timestamps, (timestamp) => {
-      if (timestamp < nextAvailableHour) throw new Error('Scheduled timestamp in the past')
-      if (timestamp % (SEC_IN_MIN * MIN_IN_HOUR) !== 0) throw new Error('Timestamp is not an hour timestamp')
-      if (timestamp > currentTime + this.schedulingTimeLimit) throw new Error('Timestamp too far in future')
-    })
+      if (timestamp < nextAvailableHour)
+        throw new Error("Scheduled timestamp in the past");
+      if (timestamp % (SEC_IN_MIN * MIN_IN_HOUR) !== 0)
+        throw new Error("Timestamp is not an hour timestamp");
+      if (timestamp > currentTime + this.schedulingTimeLimit)
+        throw new Error("Timestamp too far in future");
+    });
   }
 
   /**
@@ -135,16 +150,24 @@ export class AutomationTimeApi {
    * @param sendingAddress
    * @param receivingAddress
    */
-  validateTransferParams(amount: number, sendingAddress: AddressOrPair, receivingAddress: string): void {
-    if (amount < LOWEST_TRANSFERRABLE_AMOUNT) throw new Error(`Amount too low`)
-    if (sendingAddress === receivingAddress) throw new Error(`Cannot send to self`)
+  validateTransferParams(
+    amount: number,
+    sendingAddress: AddressOrPair,
+    receivingAddress: string,
+  ): void {
+    if (amount < LOWEST_TRANSFERRABLE_AMOUNT) throw new Error(`Amount too low`);
+    if (sendingAddress === receivingAddress)
+      throw new Error(`Cannot send to self`);
   }
 
   async buildScheduleDynamicDispatchTask(
     address: AddressOrPair,
-    schedule: { recurring: { frequency: number, nextExecutionTime: number }, fixed: { executionTimes: Array<number> } },
+    schedule: {
+      recurring: { frequency: number; nextExecutionTime: number };
+      fixed: { executionTimes: Array<number> };
+    },
     call: object,
-    signer?: Signer
+    signer?: Signer,
   ): Promise<HexString> {
     const polkadotApi = await this.getAPIClient();
 
@@ -160,22 +183,25 @@ export class AutomationTimeApi {
       const { executionTimes } = schedule.fixed;
       if (!_.isArray(executionTimes)) {
         throw new Error("executionTimes is not an array");
-      } 
+      }
       if (_.isEmpty(executionTimes)) {
         throw new Error("executionTimes is empty");
-      } 
+      }
     }
 
-    if (_.isNil(call)) {
+    if (_.isUndefined(call)) {
       throw new Error("call is null or undefined");
     }
 
-    const extrinsic = polkadotApi.tx['automationTime']['scheduleDynamicDispatchTask'](schedule, call)
+    const extrinsic = polkadotApi.tx.automationTime.scheduleDynamicDispatchTask(
+      schedule,
+      call,
+    );
     const signedExtrinsic = await extrinsic.signAsync(address, {
       signer,
       nonce: -1,
-    })
-    return signedExtrinsic.toHex()
+    });
+    return signedExtrinsic.toHex();
   }
 
   /**
@@ -185,10 +211,17 @@ export class AutomationTimeApi {
    * @param taskID
    * @returns extrinsic hex, format: `0x${string}`
    */
-  async buildCancelTaskExtrinsic(address: AddressOrPair, taskID: string, signer?: Signer): Promise<HexString> {
+  async buildCancelTaskExtrinsic(
+    address: AddressOrPair,
+    taskID: string,
+    signer?: Signer,
+  ): Promise<HexString> {
     const polkadotApi = await this.getAPIClient();
-    const extrinsic = polkadotApi.tx['automationTime']['cancelTask'](taskID);
-    const signedExtrinsic = await extrinsic.signAsync(address, { signer, nonce: -1});
+    const extrinsic = polkadotApi.tx.automationTime.cancelTask(taskID);
+    const signedExtrinsic = await extrinsic.signAsync(address, {
+      signer,
+      nonce: -1,
+    });
     return signedExtrinsic.toHex();
   }
 
@@ -196,10 +229,10 @@ export class AutomationTimeApi {
    * Gets Last Time Slots for AutomationTime pallet on chain
    * @returns (number, number)
    */
-   async getAutomationTimeLastTimeSlot(): Promise<number[]> {
-    const polkadotApi = await this.getAPIClient()
-    const resultCodec = await polkadotApi.query['automationTime']['lastTimeSlot']()
-    return resultCodec.toJSON() as number[]
+  async getAutomationTimeLastTimeSlot(): Promise<number[]> {
+    const polkadotApi = await this.getAPIClient();
+    const resultCodec = await polkadotApi.query.automationTime.lastTimeSlot();
+    return resultCodec.toJSON() as number[];
   }
 
   /**
@@ -210,9 +243,9 @@ export class AutomationTimeApi {
    * @returns { task_id: 0xstring, execution_time: number }[]
    */
   async getAutomationTimeMissedQueue(): Promise<MissedTask[][]> {
-    const polkadotApi = await this.getAPIClient()
-    const resultCodec = await polkadotApi.query['automationTime']['missedQueueV2']()
-    return resultCodec.toJSON() as unknown as MissedTask[][]
+    const polkadotApi = await this.getAPIClient();
+    const resultCodec = await polkadotApi.query.automationTime.missedQueueV2();
+    return resultCodec.toJSON() as unknown as MissedTask[][];
   }
 
   /**
@@ -221,9 +254,9 @@ export class AutomationTimeApi {
    * @returns 0xstring[]
    */
   async getAutomationTimeTaskQueue(): Promise<string[][]> {
-    const polkadotApi = await this.getAPIClient()
-    const resultCodec = await polkadotApi.query['automationTime']['taskQueueV2']()
-    return resultCodec.toJSON() as string[][]
+    const polkadotApi = await this.getAPIClient();
+    const resultCodec = await polkadotApi.query.automationTime.taskQueueV2();
+    return resultCodec.toJSON() as string[][];
   }
 
   /**
@@ -232,12 +265,15 @@ export class AutomationTimeApi {
    * @param inputTime
    * @returns 0xstring[]
    */
-  async getAutomationTimeScheduledTasks(inputTime: number): Promise<string[][]> {
-    const polkadotApi = await this.getAPIClient()
-    const resultCodec = await polkadotApi.query['automationTime']['scheduledTasksV3'](inputTime)
-    const tasksAfterCanceled = resultCodec.toJSON() as { tasks: string[][] }
-    const tasks = tasksAfterCanceled ? tasksAfterCanceled.tasks : []
-    return tasks
+  async getAutomationTimeScheduledTasks(
+    inputTime: number,
+  ): Promise<string[][]> {
+    const polkadotApi = await this.getAPIClient();
+    const resultCodec =
+      await polkadotApi.query.automationTime.scheduledTasksV3(inputTime);
+    const tasksAfterCanceled = resultCodec.toJSON() as { tasks: string[][] };
+    const tasks = tasksAfterCanceled ? tasksAfterCanceled.tasks : [];
+    return tasks;
   }
 
   /**
@@ -246,9 +282,15 @@ export class AutomationTimeApi {
    * @param taskID
    * @returns AutomationTask
    */
-  async getAutomationTimeTasks(accountID: string, taskID: HexString): Promise<AutomationTask> {
-    const polkadotApi = await this.getAPIClient()
-    const resultCodec = await polkadotApi.query['automationTime']['accountTasks'](accountID, taskID)
-    return resultCodec.toJSON() as unknown as AutomationTask
+  async getAutomationTimeTasks(
+    accountID: string,
+    taskID: HexString,
+  ): Promise<AutomationTask> {
+    const polkadotApi = await this.getAPIClient();
+    const resultCodec = await polkadotApi.query.automationTime.accountTasks(
+      accountID,
+      taskID,
+    );
+    return resultCodec.toJSON() as unknown as AutomationTask;
   }
 }

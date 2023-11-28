@@ -1,13 +1,20 @@
 # oak.js OAK Network JavaScript SDK
 
-The `oak.js` library is a JavaScript extension of `polkadot.js` that provides type decorations for OAK Network functions. It requires the installation of the following packages:
+The `oak.js` library is a JavaScript extension of `polkadot.js`.
 
+It provides type decorations for OAK Network functions. It requires the installation of the following packages:
 - `@oak-network/api-augment`, available at [npmjs.com/@oak-network/api-augment](https://www.npmjs.com/package/@oak-network/api-augment)
 - `@oak-network/types`, available at [npmjs.com/@oak-network/types](https://www.npmjs.com/package/@oak-network/types)
 
 JavaScript and TypeScript developers can leverage this library to make OAK-specific API calls, such as `timeAutomation.scheduleXcmpTask`. For more information on OAK's unique API, refer to the [Time Automation Explained in Documentation](https://docs.oak.tech/docs/time-automation-explained/) guide.
 
-## Usage
+In addition, it provides an SDK to help developers simplify the use of automation. It includes the following packages:
+- `@oak-network/sdk-types`, available at [npmjs.com/@oak-network/sdk-types](https://www.npmjs.com/package/@oak-network/sdk-types)
+- `@oak-network/config`, available at [npmjs.com/@oak-network/config](https://www.npmjs.com/package/@oak-network/config)
+- `@oak-network/adapter`, available at [npmjs.com/@oak-network/adapter](https://www.npmjs.com/package/@oak-network/adapter)
+- `@oak-network/sdk`, available at [npmjs.com/@oak-network/sdk](https://www.npmjs.com/package/@oak-network/sdk)
+
+## Usage for the Foundational library 
 
 ### Installation
 
@@ -32,6 +39,65 @@ const { rpc, types } = require('@oak-network/types');
 const { ApiPromise, WsProvider, Keyring } = require('@polkadot/api');
 ```
 
+## Usage of the SDK Library
+
+### Installation
+
+Run the following commands to install the required packages:
+
+```bash
+npm i @oak-network/sdk-types@latest
+npm i @oak-network/config@latest
+npm i @oak-network/adapter@latest
+npm i @oak-network/sdk@latest
+```
+
+### Developing Applications with the SDK
+
+To develop applications using the SDK, you can refer to the test code as an example. Here's a step-by-step guide:
+
+- Start by exporting configurations from @oak-network/config.
+
+- Construct a Polkadot API.
+
+- Build and initialize an adapter. Utilize the methods provided by the adapter for standard operations. 
+
+- For more complex operations that involve data exchange between multiple adapters, such as `scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow`, you can leverage the functions provided by the SDK package.
+
+For example:
+
+```
+// Create keyringPair
+keyringPair = await getKeyringPair();
+
+// Get configs
+const turingConfig = getOakConfig();
+const mangataConfig = getMangataConfig();
+
+// Initialize adapters
+turingApi = await ApiPromise.create({ provider: new WsProvider(turingConfig.endpoint), rpc, types, runtime });
+turingAdapter = new OakAdapter(turingApi, turingConfig);
+await turingAdapter.initialize();
+
+mangataSdk = Mangata.getInstance([mangataConfig.endpoint]);
+mangataApi = await mangataSdk.getApi();
+mangataAdapter = new MangataAdapter(mangataApi, mangataConfig);
+await mangataAdapter.initialize();
+
+// Make task payload extrinsic
+const taskPayloadExtrinsic = mangataApi.tx.system.remarkWithEvent('hello!');
+
+// Schedule task with sdk
+const executionTimes = [getHourlyTimestamp(1)/1000];
+await Sdk().scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
+	oakAdapter: turingAdapter,
+	destinationChainAdapter: mangataAdapter,
+	taskPayloadExtrinsic,
+	schedule: { Fixed: { executionTimes } },
+	keyringPair,
+});
+```
+
 ## Development
 If you would like to develop or test the code in this repository, please follow the guidelines below.
 
@@ -39,10 +105,10 @@ If you would like to develop or test the code in this repository, please follow 
 Run the following command to install the necessary dependencies:
 
 ```bash
-npm i
+yarn # Please use yarn to install dependencies due to the use of Yarn Workspace
 ```
 
-### Running Tests
+### Running Foundational Tests
 By default, the tests are configured to target your local development environment. Before running any commands, please follow the steps in the [Quickstart: run Local Network with Zombienet](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9946#/accounts) guide to build and run a local relay chain and parachain.
 
 Once the Turing Dev network is running, you should be able to see it on [polkadot.js.org/apps](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9946#/accounts).
@@ -51,19 +117,76 @@ The default WebSocket endpoint is `ws://127.0.0.1:9946` and  the default test wa
 
 You can start the tests by running the following command:
 ```bash
-npm run test
+yarn run test
 ```
 
 Please note that the tests are not meant to be repeatedly run against live networks. However, you can run them against the Turing Staging environment using the following command:
 ```bash
-ENV="Turing Staging" MNEMONIC="<MNEMONIC>" npm run test
+ENV="Turing Staging" MNEMONIC="<MNEMONIC>" yarn run test
 ```
 
 You can also specify the endpoint in the Turing Dev environment:
 
 ```bash
-MNEMONIC="<MNEMONIC>" ENDPOINT="ws://127.0.0.1:9944" npm run test
+MNEMONIC="<MNEMONIC>" ENDPOINT="ws://127.0.0.1:9944" yarn run test
 ```
+
+### SDK Tests
+
+You can start the tests by running the following command:
+
+```bash
+MNEMONIC="<MNEMONIC>" ENV="Turing Staging" yarn run test:sdk
+```
+
+If you wish to perform local testing, you'll need to launch the parachain test network yourself using the following command:
+
+```bash
+zombienet spawn zombienets/turing/moonbase.toml
+```
+
+This command will initiate the test network for parachains.
+
+Then, you'll need to specify a test suite since each suite executes tests for a single parachains.
+
+```bash
+yarn run test:sdk -- -t test-mangata
+```
+
+## File structure
+
+```
+.
+├── LICENSE
+├── README.md
+├── babel.config.js
+├── demo
+├── jest.config.js
+├── media
+├── package.json
+├── packages
+│   ├── adapter
+│   ├── api-augment
+│   ├── config
+│   ├── sdk
+│   ├── sdk-types
+│   └── types
+├── scripts
+│   └── package-setup
+├── templates
+│   └── index.cjs
+├── test
+│   ├── functional
+│   ├── sdk
+│   └── utils
+├── tsconfig.build.json
+├── tsconfig.json
+```
+
+- `packages`: It store individual code libraries for various parts of the project.
+- `scripts/package-setup`:  It is a script used for building packages. It utilizes templates/index.cjs as a script.
+- `test`: The `test` folder contains test programs. `test/functional` is used for testing the Foundational library, while `test/sdk` is used for testing the SDK library.
+- `demo`: It contains example code for developers to learn from.
 
 ## Updating the packages
 To update the code of both packages in this repository, you will first need to run a local version of the Turing Network. Then, using a script and leveraging the chain's API, you can automatically update the TypeScript code in the packages.
@@ -80,10 +203,10 @@ zombienet spawn zombienets/turing/single-chain.toml
 You are now ready to update the packages' code in this oak.js project. From the root of this project, run the following commands:
 
 ```bash
-npm install
+yarn
 cd packages/api-augment
-npm run clean:defs
-npm run generate
+yarn run clean:defs
+yarn run generate
 ```
 
 ## 3. Rebuilding packages
@@ -91,8 +214,8 @@ npm run generate
 The last step is to build the packages' source code in preparation for publishing. Navigate back to the root of the oak.js directory and run the following commands:
 
 ```bash
-npm run clean
-npm run build
+yarn run clean
+yarn run build
 ```
 
 The build command will generate distribution files under `packages/api-augment/build`.

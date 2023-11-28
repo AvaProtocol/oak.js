@@ -1,5 +1,17 @@
 # @oak-network/api-augment
 
+## 2.1.0
+
+### Minor Changes
+
+- 9b97907: Added automationPrice pallet and upgraded polkadot core to 0.9.43
+
+## 2.0.7
+
+### Patch Changes
+
+- 1b8e337: Deprecate the concept of rc version number by bumping up to 2.0.7
+
 ## 2.0.6
 
 ### Patch Changes

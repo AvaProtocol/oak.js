@@ -4,14 +4,6 @@ export const runtime: DefinitionsCall = {
   AutomationTimeApi: [
     {
       methods: {
-        get_time_automation_fees: {
-          description: 'Retrieve automation fees',
-          params: [
-            { name: 'action', type: 'AutomationAction' },
-            { name: 'executions', type: 'u32' },
-          ],
-          type: 'Balance',
-        },
         calculate_optimal_autostaking: {
           description: 'Calculate the optimal period to restake',
           params: [

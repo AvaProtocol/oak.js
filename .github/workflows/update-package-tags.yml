@@ -17,7 +17,6 @@ jobs:
           - types
           - config
           - adapter
-          - sdk-types
           - sdk
 
     steps:

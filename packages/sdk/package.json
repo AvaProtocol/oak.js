@@ -1,0 +1,13 @@
+{
+  "name": "@oak-network/sdk",
+  "version": "0.1.5",
+  "license": "Apache-2.0",
+  "main": "./build/index.js",
+  "dependencies": {
+    "@polkadot/util": "^12.6.1",
+    "bn.js": "^5.2.1",
+    "lodash": "^4.17.21",
+    "@oak-network/config": "workspace:*",
+    "@oak-network/adapter": "workspace:*"
+  }
+}

@@ -15,6 +15,8 @@
     "clean": "npm exec -- tsc --build --clean tsconfig.build.json",
     "test": "npm run build && jest --verbose --forceExit --runInBand ./test/functional",
     "test:sdk": "npm run build && jest --verbose --runInBand ./test/sdk",
+    "test:delegate": "npm run build && jest --verbose --runInBand ./test/compound/delegate",
+    "test:compound": "npm run build && jest --verbose --runInBand ./test/compound/compound",
     "changeset": "changeset",
     "lint": "eslint . --ext .ts",
     "prepare": "husky install"
@@ -35,7 +37,7 @@
     "eslint-plugin-jest": "^27.4.0",
     "eslint-plugin-prettier": "^5.0.0",
     "husky": "^8.0.3",
-    "jest": "26.6.3",
+    "jest": "29.7.0",
     "lint-staged": "^14.0.1",
     "prettier": "^3.0.3",
     "ts-node": "^10.9.1",

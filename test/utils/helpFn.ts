@@ -4,7 +4,7 @@ import { hexToU8a } from "@polkadot/util";
 import type { HexString } from "@polkadot/util/types";
 import type { Extrinsic } from "@polkadot/types/interfaces/extrinsics";
 import type { KeyringPair } from "@polkadot/keyring/types";
-import type { BalanceOf } from "@polkadot/types/interfaces";
+import type { BalanceOf, EventRecord } from "@polkadot/types/interfaces";
 import { waitReady } from "@polkadot/wasm-crypto";
 import { ISubmittableResult } from "@polkadot/types/types";
 import BN from "bn.js";
@@ -372,7 +372,6 @@ export const scheduleDynamicDispatchTaskAndVerify = async (
   const taskID = Buffer.from(taskScheduledEvent.event.data.taskId).toString();
   const tasks =
     await automationTimeApi.getAutomationTimeScheduledTasks(firstExecutionTime);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   expect(
     _.find(
       tasks,
@@ -435,3 +434,22 @@ export const getPastTime = () => {
   // Adjust the time to a past moment
   return adjustedTime - TIME_SLOT_IN_SECONDS;
 };
+
+/**
+ * Find event in events
+ * @param events
+ * @param section
+ * @param method
+ * @returns
+ */
+export const findEvent = (
+  events: any[],
+  section: string,
+  method: string,
+): EventRecord =>
+  _.find(events, (event) => {
+    const {
+      event: { section: sectionItem, method: methodItem },
+    } = event;
+    return sectionItem === section && methodItem === method;
+  });

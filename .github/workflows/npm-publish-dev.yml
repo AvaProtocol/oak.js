@@ -38,14 +38,14 @@ jobs:
           # Get the dev tag version
           tags=$(yarn info @oak-network/${{ matrix.package }} dist-tags --json)
           echo "Tag versions: $tags"
-          current_dev_version=$(echo "$tags" | jq -r '.dev')
+          current_dev_version=$(echo $tags | jq -r '.data.dev')
           echo "Dev tag version: $current_dev_version"
           echo "current_dev_version=$current_dev_version" >> "$GITHUB_ENV"
 
           # Get the latest version;
           all_versions=$(yarn info @oak-network/${{ matrix.package }} versions --json)
           echo "All versions: $all_versions"          
-          highest_version=$(echo "$all_versions" | tr -d ' \t\n\r' | jq 'max' -r)
+          highest_version=$(echo "$all_versions" | jq -r '.data[]' | sort -V | tail -n1)
           echo "Highest version: $highest_version"
           echo "highest_version=$highest_version" >> "$GITHUB_ENV"
 

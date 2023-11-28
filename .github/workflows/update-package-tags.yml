@@ -29,8 +29,10 @@ jobs:
       - name: Get dev version of ${{ matrix.package }}
         id: get-version
         run: |
-          dev_version=$(yarn info @oak-network/${{ matrix.package }}@dev version)
-          echo "Dev version: $dev_version"
+          tags=$(yarn info @oak-network/${{ matrix.package }} dist-tags --json)
+          echo "Tag versions: $tags"
+          dev_version=$(echo $tags | jq -r '.data.dev')
+          echo "Dev tag version: $dev_version"
           echo "::set-output name=dev_version::$dev_version"
       
       - name: Point latest tag to ${{ steps.get-version.outputs.dev_version }}

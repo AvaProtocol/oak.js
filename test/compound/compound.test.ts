@@ -11,7 +11,8 @@ import {
 } from "../utils/constants";
 import { findEvent, getKeyringPair } from "../utils/helpFn";
 
-describe("compound", () => {
+// Test compound with a exsisiting delegation
+describe("test compound with a exsisiting delegation", () => {
   let keyringPair: KeyringPair | undefined;
   let turingApi: ApiPromise | undefined;
   let turingAdapter: OakAdapter | undefined;
@@ -53,7 +54,7 @@ describe("compound", () => {
     DEFAULT_TIMEOUT_PER_TEST,
   );
 
-  it("get-delegation", async () => {
+  it("get a delegation success", async () => {
     expect(turingApi).toBeDefined();
     expect(keyringPair).toBeDefined();
     expect(turingAdapter).toBeDefined();
@@ -66,7 +67,7 @@ describe("compound", () => {
     expect(result).toBeDefined();
   });
 
-  it("get-auto-compounding-delegation-percentage", async () => {
+  it("get auto-compounding delegation percentage success", async () => {
     expect(turingApi).toBeDefined();
     expect(keyringPair).toBeDefined();
     expect(turingAdapter).toBeDefined();
@@ -82,7 +83,7 @@ describe("compound", () => {
   });
 
   it(
-    "set-auto-compound",
+    "set auto-compound percentage to delegation success",
     async () => {
       expect(turingApi).toBeDefined();
       expect(keyringPair).toBeDefined();
@@ -102,7 +103,7 @@ describe("compound", () => {
   );
 
   it(
-    "bond-more",
+    "bone more to delegation success",
     async () => {
       expect(turingApi).toBeDefined();
       expect(keyringPair).toBeDefined();

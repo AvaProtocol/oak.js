@@ -37,7 +37,7 @@ describe("delegate-with-auto-compound", () => {
   });
 
   it(
-    "delegate-with-auto-compound",
+    "call delegateWithAutoCompound success",
     async () => {
       expect(turingApi).toBeDefined();
       expect(keyringPair).toBeDefined();

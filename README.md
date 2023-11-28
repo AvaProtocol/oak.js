@@ -9,7 +9,6 @@ It provides type decorations for OAK Network functions. It requires the installa
 JavaScript and TypeScript developers can leverage this library to make OAK-specific API calls, such as `timeAutomation.scheduleXcmpTask`. For more information on OAK's unique API, refer to the [Time Automation Explained in Documentation](https://docs.oak.tech/docs/time-automation-explained/) guide.
 
 In addition, it provides an SDK to help developers simplify the use of automation. It includes the following packages:
-- `@oak-network/sdk-types`, available at [npmjs.com/@oak-network/sdk-types](https://www.npmjs.com/package/@oak-network/sdk-types)
 - `@oak-network/config`, available at [npmjs.com/@oak-network/config](https://www.npmjs.com/package/@oak-network/config)
 - `@oak-network/adapter`, available at [npmjs.com/@oak-network/adapter](https://www.npmjs.com/package/@oak-network/adapter)
 - `@oak-network/sdk`, available at [npmjs.com/@oak-network/sdk](https://www.npmjs.com/package/@oak-network/sdk)
@@ -46,7 +45,6 @@ const { ApiPromise, WsProvider, Keyring } = require('@polkadot/api');
 Run the following commands to install the required packages:
 
 ```bash
-npm i @oak-network/sdk-types@latest
 npm i @oak-network/config@latest
 npm i @oak-network/adapter@latest
 npm i @oak-network/sdk@latest
@@ -169,7 +167,6 @@ yarn run test:sdk -- -t test-mangata
 │   ├── api-augment
 │   ├── config
 │   ├── sdk
-│   ├── sdk-types
 │   └── types
 ├── scripts
 │   └── package-setup
@@ -218,7 +215,7 @@ yarn run clean
 yarn run build
 ```
 
-The build command will generate distribution files under `packages/api-augment/build`.
+The build command will generate distribution files under `packages/*/build`.
 
 ## Publishing the Packages
 
@@ -227,7 +224,7 @@ The release creation and publishing process is managed by GitHub Actions. It's i
 To publish packages, please follow the steps outlined below:
 
 1. **Generate Changeset Marking File:**
-   To initiate a version update, start by running the command `npm run changeset` locally. This action will create a marking file in the `./changeset` directory. An example of such a change can be found in this PR: [example PR link](https://github.com/OAK-Foundation/oak.js/commit/c35050eb16bb73251fb05dd9010ab577f2adf5d6).
+   To initiate a version update, start by running the command `yarn run changeset` locally. This action will create a marking file in the `./changeset` directory. An example of such a change can be found in this PR: [example PR link](https://github.com/OAK-Foundation/oak.js/commit/c35050eb16bb73251fb05dd9010ab577f2adf5d6).
 
 2. **Automated Package Version Update:**
    After the aforementioned PR is merged into the `main` branch, a GitHub Action will be triggered by the created marking file. This action will automatically generate a new PR, updating the versions of all packages simultaneously. You can observe this process in action with this PR: [example PR link](https://github.com/OAK-Foundation/oak.js/pull/42). Should you need to add additional changes to the same version, simply repeat step 1 to create another marking file and merge it into the `main` branch. The original PR associated with the `main` branch will be updated automatically. Furthermore, a corresponding **git tag** will be generated for each package as part of this process.

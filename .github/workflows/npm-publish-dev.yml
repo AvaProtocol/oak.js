@@ -23,33 +23,27 @@ jobs:
       - name: 🤘 checkout
         uses: actions/checkout@v3
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3.0.0
-        with:
-          node-version: 18.x
-          cache: 'npm'
+     - name: Install dependencies
+        run: yarn install
 
-      - name: Install Dependencies
-        run: npm ci --ignore-scripts
-
-      - name: 🛠️ Build
-        run: npm run build
+      - name: Run build
+        run: yarn build
 
       - name: 🔐 Authenticate with NPM
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
-      - name: Get the current dev version from npm
+      - name: Get the current dev version of packages
         id: get-current-dev-version
         run: |
           # Get the dev tag version
-          tags=$(npm show @oak-network/${{ matrix.package }} dist-tags --json)
-          echo "Tag versions: $tags"          
+          tags=$(yarn info @oak-network/${{ matrix.package }} dist-tags --json)
+          echo "Tag versions: $tags"
           current_dev_version=$(echo "$tags" | jq -r '.dev')
           echo "Dev tag version: $current_dev_version"
           echo "current_dev_version=$current_dev_version" >> "$GITHUB_ENV"
 
           # Get the latest version;
-          all_versions=$(npm show @oak-network/${{ matrix.package }} versions --json)
+          all_versions=$(yarn info @oak-network/${{ matrix.package }} versions --json)
           echo "All versions: $all_versions"          
           highest_version=$(echo "$all_versions" | tr -d ' \t\n\r' | jq 'max' -r)
           echo "Highest version: $highest_version"
@@ -65,7 +59,7 @@ jobs:
           echo "Current Dev Version: $current_dev_version"
           echo "Highest Version: $highest_version"
 
-          # Compare the new version with the current dev version and the highest version; If we publish a lower than the highest version, it will be rejected by npm.
+          # Compare the new version with the current dev version and the highest version; If we publish a lower than the highest version, it will be rejected by npm.js.
           # TODO: I was not able to check if the new version is higher than both the current dev version and the highest version yet, so the check is very simple here. Ideally, we should check if the new version is higher.
           if [ "$new_version" != "$current_dev_version" ]; then
             echo "New version $new_version is different from NPM dev tag version $current_dev_version; publishing..."

@@ -28,34 +28,48 @@ export const getKeyringPair = async (ss58Format) => {
   return keyringPair;
 };
 
-export const sendExtrinsic = (extrinsic, api, keyringPair) =>
+export const sendExtrinsic = (api, extrinsic, keyPair) =>
   new Promise((resolve, reject) => {
     const signAndSend = async () => {
-      const unsub = await extrinsic.signAndSend(keyringPair, (result) => {
-        const { status, events, dispatchError } = result;
-        console.log("status.type: ", status.type);
+      try {
+        const unsub = await extrinsic.signAndSend(keyPair, (result) => {
+          const { status, events, dispatchError } = result;
+          console.log("status.type: ", status.type);
 
-        if (status?.isFinalized) {
-          unsub();
-          if (!_.isNil(dispatchError)) {
-            reject(dispatchError);
-          }
+          if (status?.isFinalized) {
+            unsub();
 
-          const event = _.find(events, ({ event: eventData }) =>
-            api.events.system.ExtrinsicSuccess.is(eventData),
-          );
-          if (event) {
-            resolve({
-              blockHash: status?.asFinalized?.toString(),
-              events,
-              extrinsicHash: extrinsic.hash,
-            });
-          } else {
-            reject(new Error("The event.ExtrinsicSuccess is not found"));
+            if (dispatchError) {
+              if (dispatchError.isModule) {
+                const metaError = api.registry.findMetaError(
+                  dispatchError.asModule,
+                );
+                const { name, section } = metaError;
+                reject(new Error(`${section}.${name}`));
+              }
+
+              reject(new Error(dispatchError.toString()));
+            }
+
+            const event = _.find(events, ({ event: eventData }) =>
+              api.events.system.ExtrinsicSuccess.is(eventData),
+            );
+            if (event) {
+              resolve({
+                blockHash: status?.asFinalized?.toString(),
+                events,
+                extrinsicHash: extrinsic?.hash?.toString(),
+              });
+            }
+            reject(new Error(events.toString()));
           }
-        }
-      });
+        });
+      } catch (ex) {
+        // Handle signing error such as user manually cancel the transaction
+        reject(ex);
+      }
     };
+
     signAndSend();
   });
 

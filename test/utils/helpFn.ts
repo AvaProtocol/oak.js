@@ -21,7 +21,8 @@ export const MIN_RUNNING_TEST_BALANCE = 20000000000;
 export const TRANSFER_AMOUNT = 1000000000;
 export const RECEIVER_ADDRESS =
   "66fhJwYLiK87UDXYDQP9TfYdHpeEyMvQ3MK8Z6GgWAdyyCL3";
-const RECURRING_FREQUENCY = 3600;
+export const TIME_SLOT_IN_SECONDS = 600;
+const RECURRING_FREQUENCY = TIME_SLOT_IN_SECONDS;
 // This is a Moonbeam test account private key. Please do not use it for any other purpose.
 // https://github.com/moonbeam-foundation/moonbeam/blob/2ea0db7c18d907ddeda1a5f4d3f68262e10560e7/README.md?plain=1#L65
 const ALITH_PRIVATE_KEY =
@@ -371,13 +372,12 @@ export const scheduleDynamicDispatchTaskAndVerify = async (
   const taskID = Buffer.from(taskScheduledEvent.event.data.taskId).toString();
   const tasks =
     await automationTimeApi.getAutomationTimeScheduledTasks(firstExecutionTime);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   expect(
     _.find(
       tasks,
       (task) =>
         !_.isUndefined(
-          _.find(task, ([scheduledTaskId]) => scheduledTaskId === taskID),
+          _.find(task, ([, scheduledTaskId]) => scheduledTaskId === taskID),
         ),
     ),
   ).toBeUndefined();
@@ -420,6 +420,28 @@ export const getDynamicDispatchExtrinsicParams = async (
   };
 };
 
+/**
+ * Get a past time and ensure it's a multiple of the timeslot.
+ * @returns past time
+ */
+export const getPastTime = () => {
+  // Get the current timestamp
+  const currentTimeStampInSeconds = Math.floor(Date.now() / 1000);
+  // Adjust the current timestamp to be a multiple of the timeslot
+  const adjustedTime =
+    currentTimeStampInSeconds -
+    (currentTimeStampInSeconds % TIME_SLOT_IN_SECONDS);
+  // Adjust the time to a past moment
+  return adjustedTime - TIME_SLOT_IN_SECONDS;
+};
+
+/**
+ * Find event in events
+ * @param events
+ * @param section
+ * @param method
+ * @returns
+ */
 export const findEvent = (
   events: any[],
   section: string,

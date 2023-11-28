@@ -352,6 +352,7 @@ export class OakAdapter extends ChainAdapter {
 
   /**
    * Get auto-compounding delegation percentage
+   * If the delegation does not exist, return undefined
    * @param delegator
    * @param collator
    * @returns
@@ -359,7 +360,7 @@ export class OakAdapter extends ChainAdapter {
   async getAutoCompoundingDelegationPercentage(
     collator: HexString,
     delegator: HexString,
-  ): Promise<number> {
+  ): Promise<number | undefined> {
     const api = this.getApi();
     const autoCompoundingDelegationsCodec =
       await api.query.parachainStaking.autoCompoundingDelegations(collator);
@@ -369,7 +370,7 @@ export class OakAdapter extends ChainAdapter {
       autoCompoundingDelegations,
       (item) => item.delegator.toHex() === delegator,
     );
-    return _.isUndefined(delegation) ? 0 : delegation.value.toNumber();
+    return delegation?.value?.toNumber();
   }
 
   /**

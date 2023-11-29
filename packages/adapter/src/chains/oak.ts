@@ -12,7 +12,10 @@ import { getDerivativeAccountV2, sendExtrinsic } from "../util";
 import { SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 
-const TRANSACT_XCM_INSTRUCTION_COUNT = 4;
+export enum OakAdapterTransactType {
+  PayThroughRemoteDerivativeAccount,
+  PayThroughSoverignAccount,
+}
 
 // OakAdapter implements ChainAdapter
 export class OakAdapter extends ChainAdapter {
@@ -140,10 +143,18 @@ export class OakAdapter extends ChainAdapter {
 
   /**
    * Get the instruction number of XCM instructions for transact
+   * In the xcmp-handler, there are two processes for sending XCM instructions.
+   * PayThroughRemoteDerivativeAccount requires 4 XCM instructions,
+   * PayThroughSovereignAccount requires 6 instructions.
+   * @param transactType
+   * @returns The instruction number of XCM instructions
    */
   // eslint-disable-next-line class-methods-use-this
-  getTransactXcmInstructionCount() {
-    return TRANSACT_XCM_INSTRUCTION_COUNT;
+  getTransactXcmInstructionCount(transactType: OakAdapterTransactType) {
+    return transactType ===
+      OakAdapterTransactType.PayThroughRemoteDerivativeAccount
+      ? 4
+      : 6;
   }
 
   /**

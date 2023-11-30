@@ -10,6 +10,7 @@ import {
   OakAdapter,
   TaskSchedulerChainAdapter,
   SendExtrinsicResult,
+  OakAdapterTransactType,
 } from "@oak-network/adapter";
 import { Weight } from "@oak-network/config";
 
@@ -124,7 +125,10 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
   const destination = { V3: destinationChainAdapter.getLocation() };
   const encodedCall = taskPayloadExtrinsic.method.toHex();
   const oakTransactXcmInstructionCount =
-    xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount();
+    xcmOptions?.instructionCount ||
+    oakAdapter.getTransactXcmInstructionCount(
+      OakAdapterTransactType.PayThroughRemoteDerivativeAccount,
+    );
   const taskPayloadEncodedCallWeight =
     await destinationChainAdapter.getExtrinsicWeight(
       taskPayloadExtrinsic,
@@ -339,7 +343,9 @@ export function Sdk() {
       const encodedCall = taskPayloadExtrinsic.method.toHex();
       const oakTransactXcmInstructionCount =
         xcmOptions?.instructionCount ||
-        oakAdapter.getTransactXcmInstructionCount();
+        oakAdapter.getTransactXcmInstructionCount(
+          OakAdapterTransactType.PayThroughSoverignAccount,
+        );
       const taskPayloadEncodedCallWeight =
         await destinationChainAdapter.getExtrinsicWeight(
           taskPayloadExtrinsic,

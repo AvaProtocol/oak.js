@@ -1,8 +1,40 @@
 import { createToken } from "./types/Token";
 
-const tur = createToken({ key: "tur", symbol: "TUR", decimals: 10, network: "moonbase", parachainId: 2114 });
-const sby = createToken({ key: "shibuya", symbol: "SBY", decimals: 18, network: "moonbase", parachainId: 2000 });
-const moonbaseLocal = createToken({ key: "unit", symbol: "UNIT", decimals: 18, network: "moonbase", parachainId: 1000, palletInstance: 3 });
-const mgr = createToken({ key: "mgr", symbol: "MGR", decimals: 18, network: "mangata", parachainId: 2110 });
+const tur = createToken({
+  decimals: 10,
+  key: "tur",
+  network: "moonbase",
+  parachainId: 2114,
+  symbol: "TUR",
+});
+const sby = createToken({
+  decimals: 18,
+  key: "shibuya",
+  network: "moonbase",
+  parachainId: 2000,
+  symbol: "SBY",
+});
+const moonbaseLocal = createToken({
+  decimals: 18,
+  key: "unit",
+  network: "moonbase",
+  parachainId: 1000,
+  symbol: "UNIT",
+  x2Params: { palletInstance: 3 },
+});
+const mgr = createToken({
+  decimals: 18,
+  key: "mgr",
+  network: "mangata",
+  parachainId: 2110,
+  symbol: "MGR",
+  x2Params: {
+    GeneralKey: {
+      data: "0x0000000000000000000000000000000000000000000000000000000000000000",
+      length: 4,
+    },
+  },
+});
 
-export default { tur, sby, moonbaseLocal, mgr };
+// eslint-disable-next-line import/no-default-export
+export default { mgr, moonbaseLocal, sby, tur };

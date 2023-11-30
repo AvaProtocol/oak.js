@@ -1,7 +1,7 @@
 import _ from "lodash";
 import BN from "bn.js";
 import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
-import type { u32, u64, u128, Option } from "@polkadot/types";
+import type { u32, u128, Option } from "@polkadot/types";
 import type { WeightV2 } from "@polkadot/types/interfaces";
 import type { HexString } from "@polkadot/util/types";
 import type { KeyringPair } from "@polkadot/keyring/types";
@@ -12,7 +12,11 @@ import {
   getDerivativeAccountV2,
   sendExtrinsic,
 } from "../util";
-import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
+import {
+  WEIGHT_REF_TIME_PER_NANOS,
+  WEIGHT_REF_TIME_PER_SECOND,
+  WEIGHT_PROOF_SIZE_PER_MB,
+} from "../constants";
 import { SendExtrinsicResult } from "../types";
 
 // MangataAdapter implements ChainAdapter
@@ -71,10 +75,19 @@ export class MangataAdapter extends ChainAdapter {
 
     const api = this.getApi();
     if (_.isEqual(defaultAsset.location, assetLocation)) {
-      const fee = (await api.call.transactionPaymentApi.queryWeightToFee(
-        weight,
-      )) as u64;
-      return fee;
+      const UNIT = new BN("1000000000000000000");
+      // ExtrinsicBaseWeight benchmark value: 114756 nano seconds
+      const extrinsicBaseWeight = WEIGHT_REF_TIME_PER_NANOS.mul(new BN(114756));
+      const feePerSecond = WEIGHT_REF_TIME_PER_SECOND.mul(
+        UNIT.div(extrinsicBaseWeight),
+      );
+      const refTimeFee = weight.refTime
+        .mul(feePerSecond)
+        .div(WEIGHT_REF_TIME_PER_SECOND);
+      const proofSizeFee = weight.proofSize
+        .mul(feePerSecond)
+        .div(WEIGHT_PROOF_SIZE_PER_MB);
+      return refTimeFee.add(proofSizeFee);
     }
     const storageValue =
       await api.query.assetRegistry.locationToAssetId(assetLocation);

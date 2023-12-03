@@ -1,9 +1,12 @@
 {
-  "name": "@oak-network/types",
-  "version": "2.1.0",
-  "main": "./build/index.js",
-  "license": "Apache-2.0",
-  "dependencies": {
-    "@open-web3/orml-type-definitions": "^2.0.1"
-  }
+	"name": "@oak-network/types",
+	"version": "2.1.0",
+	"main": "./build/index.js",
+	"license": "Apache-2.0",
+	"scripts": {
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@open-web3/orml-type-definitions": "^2.0.1"
+	}
 }

@@ -1,6 +1,6 @@
 {
   "name": "oak.js",
-  "version": "2.0.0-rc.1",
+  "version": "2.1.0",
   "repository": "https://github.com/oak-foundation/oak.js",
   "author": "OAK Team <developer@oak.tech>",
   "license": "Apache-2.0",
@@ -15,7 +15,7 @@
     "build:rest": "yarn workspace @oak-network/types build && yarn workspace @oak-network/api-augment build && yarn workspace @oak-network/sdk build",
     "build": "yarn run build:config && yarn run build:adapter && yarn run build:rest",
     "postbuild": "scripts/package-setup",
-    "clean": "yarn tsc --build --clean tsconfig.build.json",
+    "clean": "yarn workspaces foreach --all run clean",
     "test": "yarn build && jest --verbose --forceExit --runInBand ./test/functional",
     "test:sdk": "yarn build && jest --verbose --runInBand ./test/sdk",
     "test:delegate": "yarn build && jest --verbose --runInBand ./test/compound/delegate",

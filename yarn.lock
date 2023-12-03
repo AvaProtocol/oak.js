@@ -2141,25 +2141,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oak-network/adapter@workspace:*":
-  version: 0.1.4
-  resolution: "@oak-network/adapter@npm:0.1.4"
-  dependencies:
-    "@polkadot/api": "npm:^10.9.1"
-  checksum: 30f6ff22147d99325ba33a92e6298753a02fb2e3729b8a8966d709947b3597aa8362782f0c95c3cec0743a2f7bc024365551c8b89f58d3db4e08579993336759
-  languageName: node
-  linkType: hard
-
-"@oak-network/adapter@workspace:packages/adapter":
+"@oak-network/adapter@workspace:^0.1.5, @oak-network/adapter@workspace:packages/adapter":
   version: 0.0.0-use.local
   resolution: "@oak-network/adapter@workspace:packages/adapter"
   dependencies:
-    "@oak-network/config": "workspace:*"
+    "@oak-network/config": "workspace:^1.0.0"
     "@polkadot/api": "npm:^10.9.1"
     "@polkadot/types": "npm:^10.11.1"
     "@polkadot/util": "npm:^12.6.1"
     bn.js: "npm:^5.2.1"
     lodash: "npm:^4.17.21"
+    typescript: "npm:^5.3.2"
     web3-validator: "npm:^2.0.3"
   languageName: unknown
   linkType: soft
@@ -2171,19 +2163,15 @@ __metadata:
     "@polkadot/typegen": "npm:^10.9.1"
     "@polkadot/types": "npm:^10.9.1"
     "@types/node": "npm:^20.9.5"
+    typescript: "npm:^5.3.2"
   languageName: unknown
   linkType: soft
 
-"@oak-network/config@workspace:*":
-  version: 0.1.2
-  resolution: "@oak-network/config@npm:0.1.2"
-  checksum: 1f478af6616a5c8d3dd785b3b5221cbbdc09a6304761cc7a483c28833248b79a74e7a2b657c6feabcfb9307417cc64f5d38f80a28641985499ab5ff0d0a0ca92
-  languageName: node
-  linkType: hard
-
-"@oak-network/config@workspace:packages/config":
+"@oak-network/config@workspace:^1.0.0, @oak-network/config@workspace:packages/config":
   version: 0.0.0-use.local
   resolution: "@oak-network/config@workspace:packages/config"
+  dependencies:
+    typescript: "npm:^5.3.2"
   languageName: unknown
   linkType: soft
 
@@ -2191,11 +2179,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@oak-network/sdk@workspace:packages/sdk"
   dependencies:
-    "@oak-network/adapter": "workspace:*"
-    "@oak-network/config": "workspace:*"
+    "@oak-network/adapter": "workspace:^0.1.5"
+    "@oak-network/config": "workspace:^1.0.0"
     "@polkadot/util": "npm:^12.6.1"
     bn.js: "npm:^5.2.1"
     lodash: "npm:^4.17.21"
+    typescript: "npm:^5.3.2"
   languageName: unknown
   linkType: soft
 
@@ -2204,6 +2193,7 @@ __metadata:
   resolution: "@oak-network/types@workspace:packages/types"
   dependencies:
     "@open-web3/orml-type-definitions": "npm:^2.0.1"
+    typescript: "npm:^5.3.2"
   languageName: unknown
   linkType: soft
 
@@ -8516,6 +8506,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:^5.3.2":
+  version: 5.3.2
+  resolution: "typescript@npm:5.3.2"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: d7dbe1fbe19039e36a65468ea64b5d338c976550394ba576b7af9c68ed40c0bc5d12ecce390e4b94b287a09a71bd3229f19c2d5680611f35b7c53a3898791159
+  languageName: node
+  linkType: hard
+
 "typescript@patch:typescript@npm%3A^4.8.2#optional!builtin<compat/typescript>":
   version: 4.9.5
   resolution: "typescript@patch:typescript@npm%3A4.9.5#optional!builtin<compat/typescript>::version=4.9.5&hash=289587"
@@ -8523,6 +8523,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: e3333f887c6829dfe0ab6c1dbe0dd1e3e2aeb56c66460cb85c5440c566f900c833d370ca34eb47558c0c69e78ced4bfe09b8f4f98b6de7afed9b84b8d1dd06a1
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A^5.3.2#optional!builtin<compat/typescript>":
+  version: 5.3.2
+  resolution: "typescript@patch:typescript@npm%3A5.3.2#optional!builtin<compat/typescript>::version=5.3.2&hash=e012d7"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 73c8bad74e732d93211c9d77f28b03307e2f5fc6a0afc73f4b783261ab567686a16d6ae958bdaef383a00be1b0b8c8b6741dd6ca3d13af4963fa7e47456d49c7
   languageName: node
   linkType: hard
 

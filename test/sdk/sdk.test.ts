@@ -22,7 +22,7 @@ const getChainPairConfig = (env: string, chainFamily: string) : ChainPairConfig 
   return chainPairConfig;
 }
 
-export const getHourlyTimestamp = (hour: number) => (moment().add(hour, 'hour').startOf('hour')).valueOf();
+const getHourlyTimestamp = (hour: number) => (moment().add(hour, 'hour').startOf('hour')).valueOf();
 
 describe('test-basic', () => {
   test('test-sdk-types', async () => {
@@ -81,7 +81,7 @@ describe('test-moonbeam', () => {
     const overallWeight = await moonbaseAdapter.calculateXcmOverallWeight(encodedCallWeight, 6);
     console.log('encodedCallWeight: ', encodedCallWeight);
     console.log('overallWeight: ', overallWeight);
-    const { defaultAsset } = moonbaseAdapter.getChainData();
+    const { defaultAsset } = moonbaseAdapter.getChainConfig();
     if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
     const executionFee = await moonbaseAdapter.weightToFee(overallWeight, defaultAsset.location);
     console.log('executionFee: ', executionFee.toString());
@@ -93,7 +93,7 @@ describe('test-moonbeam', () => {
     const taskPayloadExtrinsic = moonbaseApi.tx.system.remarkWithEvent('hello!');
   
     // Schedule task with sdk
-    const { defaultAsset } = moonbaseAdapter.getChainData();
+    const { defaultAsset } = moonbaseAdapter.getChainConfig();
     if (_.isUndefined(defaultAsset)) throw new Error('chainData.defaultAsset not set');
     const executionTimes = [getHourlyTimestamp(1)/1000];
     await Sdk().scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
@@ -114,7 +114,7 @@ describe('test-moonbeam', () => {
     const taskPayloadExtrinsic = moonbaseApi.tx.system.remarkWithEvent('hello!');
   
     // Schedule task with sdk
-    const { defaultAsset } = moonbaseAdapter.getChainData();
+    const { defaultAsset } = moonbaseAdapter.getChainConfig();
     if (_.isUndefined(defaultAsset)) throw new Error('chainData.defaultAsset not set');
     const executionTimes = [getHourlyTimestamp(1)/1000];
     await Sdk().scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
@@ -134,7 +134,7 @@ describe('test-moonbeam', () => {
   test('test-moonbeam-transfer', async () => {
     if (_.isUndefined(turingAdapter) || _.isUndefined(moonbaseApi) || _.isUndefined(moonbaseAdapter) || _.isUndefined(keyringPair) || _.isUndefined(moonbaseKeyringPair)) throw new Error("Not initialized yet");
     // Calculate Moonbase derive account on Turing
-    const { defaultAsset, paraId } = moonbaseAdapter.getChainData();
+    const { defaultAsset, paraId } = moonbaseAdapter.getChainConfig();
     if (_.isUndefined(defaultAsset)) throw new Error("defaultAsset not set");
     if (_.isUndefined(paraId)) throw new Error("paraId not set");
     
@@ -188,7 +188,7 @@ describe('test-astar', () => {
     const overallWeight = await astarAdapter.calculateXcmOverallWeight(encodedCallWeight, 6);
     console.log('encodedCallWeight: ', encodedCallWeight);
     console.log('overallWeight: ', overallWeight);
-    const { defaultAsset } = astarAdapter.getChainData();
+    const { defaultAsset } = astarAdapter.getChainConfig();
     if (_.isUndefined(defaultAsset)) throw new Error('chainData.defaultAsset not set');
     const executionFee = await astarAdapter.weightToFee(overallWeight, defaultAsset.location);
     console.log('executionFee: ', executionFee.toString());
@@ -202,7 +202,7 @@ describe('test-astar', () => {
     const taskPayloadExtrinsic = moonbeamApi.tx.system.remarkWithEvent('hello!');
   
     // Schedule task with sdk
-    const { defaultAsset } = astarAdapter.getChainData();
+    const { defaultAsset } = astarAdapter.getChainConfig();
     if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
     const executionTimes = [getHourlyTimestamp(1)/1000];
     await Sdk().scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow({
@@ -220,7 +220,7 @@ describe('test-astar', () => {
   test('test-astar-transfer', async () => {
     if (_.isUndefined(astarApi) || _.isUndefined(turingAdapter) || _.isUndefined(astarAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
     // Calculate Astar derive account on Turing
-    const { defaultAsset, paraId } = astarAdapter.getChainData();
+    const { defaultAsset, paraId } = astarAdapter.getChainConfig();
     if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
     if (_.isUndefined(paraId)) throw new Error("chainData.paraId not set");
     
@@ -276,7 +276,7 @@ describe('test-mangata', () => {
     const overallWeight = await turingAdapter.calculateXcmOverallWeight(encodedCallWeight, 4);
     console.log('encodedCallWeight: ', encodedCallWeight);
     console.log('overallWeight: ', overallWeight);
-    const { defaultAsset } = turingAdapter.getChainData();
+    const { defaultAsset } = turingAdapter.getChainConfig();
     if (_.isUndefined(defaultAsset)) throw new Error("chainData.defaultAsset not set");
     const executionFee = await turingAdapter.weightToFee(overallWeight, defaultAsset.location);
     console.log('executionFee: ', executionFee.toString());
@@ -311,7 +311,7 @@ describe('test-mangata', () => {
 
   test('test-oak-adapter-transfer', async () => {
     if (_.isUndefined(mangataApi) || _.isUndefined(mangataAdapter) || _.isUndefined(turingAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
-    const { defaultAsset: oakAsset } = turingAdapter.getChainData();
+    const { defaultAsset: oakAsset } = turingAdapter.getChainConfig();
     if (_.isUndefined(oakAsset)) throw new Error("chainData.defaultAsset not set");
   
     // Transfer
@@ -326,7 +326,7 @@ describe('test-mangata', () => {
   
   test('test-mangat-adapter-transfer', async () => {
     if (_.isUndefined(mangataApi) || _.isUndefined(mangataAdapter) || _.isUndefined(turingAdapter) || _.isUndefined(keyringPair)) throw new Error("Not initialized yet");
-    const { defaultAsset: oakAsset } = turingAdapter.getChainData();
+    const { defaultAsset: oakAsset } = turingAdapter.getChainConfig();
     if (_.isUndefined(oakAsset)) throw new Error("chainData.defaultAsset not set");
   
     // Transfer

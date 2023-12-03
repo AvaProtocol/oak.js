@@ -50,8 +50,8 @@ export class MangataAdapter extends ChainAdapter {
     transactCallWeight: Weight,
     instructionCount: number,
   ): Promise<Weight> {
-    const { xcm } = this.chainData;
-    if (_.isUndefined(xcm)) throw new Error("chainData.xcm not set");
+    const { xcm } = this.chainConfig;
+    if (_.isUndefined(xcm)) throw new Error("chainConfig.xcm not set");
     const overallWeight = transactCallWeight.add(
       xcm.instructionWeight.muln(instructionCount),
     );
@@ -65,9 +65,9 @@ export class MangataAdapter extends ChainAdapter {
    * @returns XCM execution fee
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-    const [defaultAsset] = this.chainData.assets;
+    const [defaultAsset] = this.chainConfig.assets;
     if (_.isUndefined(defaultAsset))
-      throw new Error("chainData.defaultAsset not set");
+      throw new Error("chainConfig.defaultAsset not set");
 
     const api = this.getApi();
     if (_.isEqual(defaultAsset.location, assetLocation)) {
@@ -113,7 +113,7 @@ export class MangataAdapter extends ChainAdapter {
    * @returns A bool value indicating whether it is a native asset
    */
   isNativeAsset(assetLocation: any): boolean {
-    const { assets } = this.chainData;
+    const { assets } = this.chainConfig;
     const foundAsset = _.find(assets, { location: assetLocation });
     return !_.isUndefined(foundAsset) && foundAsset.isNative;
   }
@@ -134,8 +134,8 @@ export class MangataAdapter extends ChainAdapter {
     assetAmount: BN,
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
-    const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error("chainData.key not set");
+    const { key } = this.chainConfig;
+    if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
 
     const transferAssetLocation = this.isNativeAsset(assetLocation)
       ? convertAbsoluteLocationToRelative(assetLocation)

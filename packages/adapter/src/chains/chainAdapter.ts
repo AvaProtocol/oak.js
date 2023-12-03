@@ -12,7 +12,7 @@ import { SendExtrinsicResult } from "../types";
 export abstract class ChainAdapter {
   api: ApiPromise | undefined;
 
-  protected chainData: Chain;
+  protected chainConfig: Chain;
 
   /**
    * Constructor
@@ -21,7 +21,7 @@ export abstract class ChainAdapter {
    */
   constructor(api: ApiPromise, config: Chain) {
     this.api = api;
-    this.chainData = config;
+    this.chainConfig = config;
   }
 
   /**
@@ -103,19 +103,19 @@ export abstract class ChainAdapter {
    */
   public async fetchAndUpdateConfigs(): Promise<void> {
     const api = this.getApi();
-    this.chainData.ss58Prefix = (
+    this.chainConfig.ss58Prefix = (
       api.consts.system.ss58Prefix as unknown as u32
     ).toNumber();
     const storageValue = await api.query.parachainInfo.parachainId();
-    this.chainData.paraId = (storageValue as unknown as u32).toNumber();
+    this.chainConfig.paraId = (storageValue as unknown as u32).toNumber();
   }
 
   /**
    * Get chain data
    * @returns Chain data
    */
-  public getChainData(): Chain {
-    return this.chainData;
+  public getChainConfig(): Chain {
+    return this.chainConfig;
   }
 
   /**
@@ -123,8 +123,8 @@ export abstract class ChainAdapter {
    * @returns The absolute location of the chain
    */
   public getLocation(): any {
-    const { paraId } = this.chainData;
-    if (_.isUndefined(paraId)) throw new Error("chainData.paraId not set");
+    const { paraId } = this.chainConfig;
+    if (_.isUndefined(paraId)) throw new Error("chainConfig.paraId not set");
     return { interior: { X1: { Parachain: paraId } }, parents: 1 };
   }
 }

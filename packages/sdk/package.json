@@ -7,10 +7,10 @@
 		"build": "tsc"
 	},
 	"dependencies": {
+		"@oak-network/adapter": "workspace:*",
+		"@oak-network/config": "workspace:*",
 		"@polkadot/util": "^12.6.1",
 		"bn.js": "^5.2.1",
-		"lodash": "^4.17.21",
-		"@oak-network/config": "workspace:*",
-		"@oak-network/adapter": "workspace:*"
+		"lodash": "^4.17.21"
 	}
 }

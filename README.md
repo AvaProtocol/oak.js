@@ -17,17 +17,11 @@ In addition, it provides an SDK to help developers simplify the use of automatio
 
 ### Installation
 
-To begin, determine the runtime version of the blockchain your code is connecting to. You can find the runtime version in the top-right corner of the [Polkadot.js app](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.turing.oak.tech).
-
-![Runtime version in Polkadot.js](/media/runtime-version.png)
-
-Next, locate the version number of the blockchain from the [OAK-blockchain Releases](https://github.com/OAK-Foundation/OAK-blockchain/releases) page. For example, in the "293 runtime & v1.9.0" release, "1.9.0" is the version number.
-
-Run the following commands to install the required packages:
+Run the following commands to install the latest packages:
 
 ```bash
-npm i @oak-network/api-augment@latest
-npm i @oak-network/types@latest
+npm i @oak-network/api-augment
+npm i @oak-network/types
 ```
 
 ### Including the Library in Your Code
@@ -98,6 +92,17 @@ await Sdk().scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
 
 ## Development
 If you would like to develop or test the code in this repository, please follow the guidelines below.
+
+### Pre-requisites
+Yarn version needs to be equal to or higher than 2 to use Yarn Workspace feature of this monorepo. First run the following command to check the version of Yarn:
+```
+yarn --version
+```
+
+Then if yarn version is lower than 2, run the following command to upgrade:
+```
+yarn set version berry
+```
 
 ### Installation
 Run the following command to install the necessary dependencies:

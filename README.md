@@ -111,7 +111,14 @@ Run the following command to install the necessary dependencies:
 yarn # Please use yarn to install dependencies due to the use of Yarn Workspace
 ```
 
-### Running Foundational Tests
+### Maintaining dependencies across packages
+The packages are referring each other by source code, so when one is updated, the new version will be used by other packages. For example, ./packages/sdk/package.json has the following dependency:
+```
+"@oak-network/adapter": "../adapter",
+"@oak-network/config": "../config"
+```
+
+### Running Functional Tests
 By default, the tests are configured to target your local development environment. Before running any commands, please follow the steps in the [Quickstart: run Local Network with Zombienet](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9946#/accounts) guide to build and run a local relay chain and parachain.
 
 Once the Turing Dev network is running, you should be able to see it on [polkadot.js.org/apps](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9946#/accounts).

@@ -2141,11 +2141,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oak-network/adapter@workspace:^0.1.5, @oak-network/adapter@workspace:packages/adapter":
+"@oak-network/adapter@file:../adapter::locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk":
+  version: 0.1.5
+  resolution: "@oak-network/adapter@file:../adapter#../adapter::hash=9da53f&locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk"
+  dependencies:
+    "@oak-network/config": ../config
+    "@polkadot/api": "npm:^10.9.1"
+    "@polkadot/types": "npm:^10.11.1"
+    "@polkadot/util": "npm:^12.6.1"
+    bn.js: "npm:^5.2.1"
+    lodash: "npm:^4.17.21"
+    web3-validator: "npm:^2.0.3"
+  checksum: 1750796fc9b3dad8468ca7b22f3b627dad72d6a08082c270b9712b003434d798317b51f4f0df824cc3852588775c2d1845877f2fa13f5f0b825b15fe91703f8e
+  languageName: node
+  linkType: hard
+
+"@oak-network/adapter@workspace:packages/adapter":
   version: 0.0.0-use.local
   resolution: "@oak-network/adapter@workspace:packages/adapter"
   dependencies:
-    "@oak-network/config": "workspace:^1.0.0"
+    "@oak-network/config": ../config
     "@polkadot/api": "npm:^10.9.1"
     "@polkadot/types": "npm:^10.11.1"
     "@polkadot/util": "npm:^12.6.1"
@@ -2167,7 +2182,28 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@oak-network/config@workspace:^1.0.0, @oak-network/config@workspace:packages/config":
+"@oak-network/config@file:../config::locator=%40oak-network%2Fadapter%40file%3A..%2Fadapter%23..%2Fadapter%3A%3Ahash%3D9da53f%26locator%3D%2540oak-network%252Fsdk%2540workspace%253Apackages%252Fsdk":
+  version: 1.0.0
+  resolution: "@oak-network/config@file:../config#../config::hash=fe2672&locator=%40oak-network%2Fadapter%40file%3A..%2Fadapter%23..%2Fadapter%3A%3Ahash%3D9da53f%26locator%3D%2540oak-network%252Fsdk%2540workspace%253Apackages%252Fsdk"
+  checksum: c5df72dbd4c1ad880f32aa68c94caa0872ce59dbdb1be78f9e1def6547a6f47674eaa7fd3fd85c20b73acd19914ef7400ae5a1ca4afa3e35cf45d816b6be61a7
+  languageName: node
+  linkType: hard
+
+"@oak-network/config@file:../config::locator=%40oak-network%2Fadapter%40workspace%3Apackages%2Fadapter":
+  version: 1.0.0
+  resolution: "@oak-network/config@file:../config#../config::hash=fe2672&locator=%40oak-network%2Fadapter%40workspace%3Apackages%2Fadapter"
+  checksum: c5df72dbd4c1ad880f32aa68c94caa0872ce59dbdb1be78f9e1def6547a6f47674eaa7fd3fd85c20b73acd19914ef7400ae5a1ca4afa3e35cf45d816b6be61a7
+  languageName: node
+  linkType: hard
+
+"@oak-network/config@file:../config::locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk":
+  version: 1.0.0
+  resolution: "@oak-network/config@file:../config#../config::hash=fe2672&locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk"
+  checksum: c5df72dbd4c1ad880f32aa68c94caa0872ce59dbdb1be78f9e1def6547a6f47674eaa7fd3fd85c20b73acd19914ef7400ae5a1ca4afa3e35cf45d816b6be61a7
+  languageName: node
+  linkType: hard
+
+"@oak-network/config@workspace:packages/config":
   version: 0.0.0-use.local
   resolution: "@oak-network/config@workspace:packages/config"
   dependencies:
@@ -2179,8 +2215,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@oak-network/sdk@workspace:packages/sdk"
   dependencies:
-    "@oak-network/adapter": "workspace:^0.1.5"
-    "@oak-network/config": "workspace:^1.0.0"
+    "@oak-network/adapter": ../adapter
+    "@oak-network/config": ../config
     "@polkadot/util": "npm:^12.6.1"
     bn.js: "npm:^5.2.1"
     lodash: "npm:^4.17.21"

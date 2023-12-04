@@ -234,7 +234,7 @@ export class OakAdapter extends ChainAdapter {
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
-    const { key } = this.chainData;
+    const { key } = this.chainConfig;
     if (_.isUndefined(key)) throw new Error("chainData.key not set");
 
     const extrinsic = api.tx.automationPrice.scheduleXcmpTask(

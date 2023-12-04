@@ -363,7 +363,7 @@ export function Sdk() {
         keyringPair,
         xcmOptions,
       } = scheduleXcmpTaskParams;
-      const [defaultAsset] = oakAdapter.getChainData().assets;
+      const [defaultAsset] = oakAdapter.getChainConfig().assets;
       if (_.isUndefined(defaultAsset)) {
         throw new Error("chainData.defaultAsset not set");
       }

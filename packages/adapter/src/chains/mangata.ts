@@ -7,11 +7,7 @@ import type { HexString } from "@polkadot/util/types";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight } from "@oak-network/config";
 import { ChainAdapter } from "./chainAdapter";
-import {
-  convertAbsoluteLocationToRelative,
-  getDerivativeAccountV2,
-  sendExtrinsic,
-} from "../util";
+import { getDerivativeAccountV2, sendExtrinsic } from "../util";
 import {
   WEIGHT_REF_TIME_PER_NANOS,
   WEIGHT_REF_TIME_PER_SECOND,
@@ -149,16 +145,12 @@ export class MangataAdapter extends ChainAdapter {
     const { key } = this.chainConfig;
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
 
-    const transferAssetLocation = this.isNativeAsset(assetLocation)
-      ? convertAbsoluteLocationToRelative(assetLocation)
-      : assetLocation;
-
     const api = this.getApi();
     const extrinsic = api.tx.xTokens.transferMultiasset(
       {
         V3: {
           fun: { Fungible: assetAmount },
-          id: { Concrete: transferAssetLocation },
+          id: { Concrete: assetLocation },
         },
       },
       {

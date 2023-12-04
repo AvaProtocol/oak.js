@@ -23,7 +23,13 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
    * Initialize adapter
    */
   async initialize() {
-    await this.fetchAndUpdateConfigs();
+    // As of 12/02/2023, api.consts and api.query both return {} from all Moonriver endpoints.
+    // Maybe additional calls are required prior to fetch api.consts
+
+    // await this.fetchAndUpdateConfigs();
+
+    this.chainConfig.ss58Prefix = 1285;
+    this.chainConfig.paraId = 2023;
   }
 
   /**
@@ -87,8 +93,8 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     transactCallWeight: Weight,
     instructionCount: number,
   ): Promise<Weight> {
-    const { xcm } = this.chainData;
-    if (_.isUndefined(xcm)) throw new Error("chainData.xcm not set");
+    const { xcm } = this.chainConfig;
+    if (_.isUndefined(xcm)) throw new Error("chainConfig.xcm not set");
     const overallWeight = transactCallWeight.add(
       xcm.instructionWeight.muln(instructionCount),
     );
@@ -102,9 +108,9 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
    * @returns XCM overall weight
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-    const [defaultAsset] = this.chainData.assets;
+    const [defaultAsset] = this.chainConfig.assets;
     if (_.isUndefined(defaultAsset))
-      throw new Error("chainData.defaultAsset not set");
+      throw new Error("chainConfig.defaultAsset not set");
     const api = this.getApi();
     if (_.isEqual(defaultAsset.location, assetLocation)) {
       const fee = (await api.call.transactionPaymentApi.queryWeightToFee(
@@ -149,12 +155,12 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
-    const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error("chainData.key not set");
+    const { key } = this.chainConfig;
+    if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
 
-    const [defaultAsset] = this.chainData.assets;
+    const [defaultAsset] = this.chainConfig.assets;
     if (_.isUndefined(defaultAsset))
-      throw new Error("chainData.defaultAsset not set");
+      throw new Error("chainConfig.defaultAsset not set");
     const currency = _.isEqual(feeLocation, defaultAsset.location)
       ? { AsCurrencyId: "SelfReserve" }
       : { AsMultiLocation: { V3: feeLocation } };
@@ -191,7 +197,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
    * @returns A bool value indicating whether it is a native asset
    */
   isNativeAsset(assetLocation: any): boolean {
-    const { assets } = this.chainData;
+    const { assets } = this.chainConfig;
     const foundAsset = _.find(assets, { location: assetLocation });
     return !_.isUndefined(foundAsset) && foundAsset.isNative;
   }
@@ -212,8 +218,8 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     assetAmount: BN,
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
-    const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error("chainData.key not set");
+    const { key } = this.chainConfig;
+    if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
 
     const transferAssetLocation = this.isNativeAsset(assetLocation)
       ? convertAbsoluteLocationToRelative(assetLocation)

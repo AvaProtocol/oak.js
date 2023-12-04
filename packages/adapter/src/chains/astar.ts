@@ -32,7 +32,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    */
   public async fetchAndUpdateConfigs(): Promise<void> {
     await super.fetchAndUpdateConfigs();
-    this.chainData.xcm.instructionNetworkType =
+    this.chainConfig.xcm.instructionNetworkType =
       XcmInstructionNetworkType.Concrete;
   }
 
@@ -62,8 +62,8 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     transactCallWeight: Weight,
     instructionCount: number,
   ): Promise<Weight> {
-    const { xcm } = this.chainData;
-    if (_.isUndefined(xcm)) throw new Error("chainData.xcm not set");
+    const { xcm } = this.chainConfig;
+    if (_.isUndefined(xcm)) throw new Error("chainConfig.xcm not set");
     const overallWeight = transactCallWeight.add(
       xcm.instructionWeight.muln(instructionCount),
     );
@@ -77,9 +77,9 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * @returns XCM execution fee
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-    const [defaultAsset] = this.chainData.assets;
+    const [defaultAsset] = this.chainConfig.assets;
     if (_.isUndefined(defaultAsset))
-      throw new Error("chainData.defaultAsset not set");
+      throw new Error("chainConfig.defaultAsset not set");
 
     const api = this.getApi();
     if (_.isEqual(defaultAsset.location, assetLocation)) {
@@ -137,8 +137,8 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
-    const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error("chainData.key not set.");
+    const { key } = this.chainConfig;
+    if (_.isUndefined(key)) throw new Error("chainConfig.key not set.");
 
     const extrinsic = api.tx.polkadotXcm.send(
       { V3: destination },
@@ -205,7 +205,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * @returns A bool value indicating whether it is a native asset
    */
   isNativeAsset(assetLocation: any): boolean {
-    const { assets } = this.chainData;
+    const { assets } = this.chainConfig;
     const foundAsset = _.find(assets, { location: assetLocation });
     return !_.isUndefined(foundAsset) && foundAsset.isNative;
   }
@@ -225,8 +225,8 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     assetAmount: BN,
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
-    const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error("chainData.key not set");
+    const { key } = this.chainConfig;
+    if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
     const api = this.getApi();
 
     const transferAssetLocation = this.isNativeAsset(assetLocation)

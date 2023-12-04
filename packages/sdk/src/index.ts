@@ -67,17 +67,17 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
     xcmOptions,
   } = params;
 
-  const [defaultAsset] = oakAdapter.getChainData().assets;
+  const [defaultAsset] = oakAdapter.getChainConfig().assets;
   if (_.isUndefined(defaultAsset)) {
-    throw new Error("chainData.defaultAsset not set");
+    throw new Error("chainConfig.defaultAsset not set");
   }
 
-  const { paraId, xcm } = destinationChainAdapter.getChainData();
+  const { paraId, xcm } = destinationChainAdapter.getChainConfig();
   if (_.isUndefined(paraId)) {
-    throw new Error("chainData.paraId not set");
+    throw new Error("chainConfig.paraId not set");
   }
   if (_.isUndefined(xcm)) {
-    throw new Error("chainData.xcm not set");
+    throw new Error("chainConfig.xcm not set");
   }
 
   // Caluculate weight and fee for task
@@ -236,10 +236,9 @@ export function Sdk() {
         keyringPair,
         xcmOptions,
       } = params;
-
-      const [defaultAsset] = oakAdapter.getChainData().assets;
+      const [defaultAsset] = oakAdapter.getChainConfig().assets;
       if (_.isUndefined(defaultAsset)) {
-        throw new Error("chainData.defaultAsset not set");
+        throw new Error("chainConfig.defaultAsset not set");
       }
 
       // Caluculate weight and fee for task

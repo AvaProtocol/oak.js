@@ -2141,14 +2141,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oak-network/adapter@workspace:^0.1.5, @oak-network/adapter@workspace:packages/adapter":
-  version: 0.0.0-use.local
-  resolution: "@oak-network/adapter@workspace:packages/adapter"
+"@oak-network/adapter@file:../adapter::locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk":
+  version: 0.1.5
+  resolution: "@oak-network/adapter@file:../adapter#../adapter::hash=ecc28a&locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk"
   dependencies:
-    "@oak-network/config": "workspace:^1.0.0"
+    "@oak-network/config": ../config
     "@polkadot/api": "npm:^10.9.1"
     "@polkadot/types": "npm:^10.11.1"
     "@polkadot/util": "npm:^12.6.1"
+    bn.js: "npm:^5.2.1"
+    lodash: "npm:^4.17.21"
+    web3-validator: "npm:^2.0.3"
+  checksum: a1afde68adb00eb0de2475634bf8c8bdd20e29b7d3393919bf2d5eeba65678286299f590c8f9880cc20ed491a60136a5da00b886d2a1a329b7405a8386f17492
+  languageName: node
+  linkType: hard
+
+"@oak-network/adapter@workspace:packages/adapter":
+  version: 0.0.0-use.local
+  resolution: "@oak-network/adapter@workspace:packages/adapter"
+  dependencies:
+    "@oak-network/config": ../config
+    "@polkadot/api": "npm:^10.9.1"
+    "@polkadot/keyring": "npm:^12.6.1"
+    "@polkadot/types": "npm:^10.11.1"
+    "@polkadot/util": "npm:^12.6.1"
+    "@polkadot/util-crypto": "npm:^12.6.1"
     bn.js: "npm:^5.2.1"
     lodash: "npm:^4.17.21"
     typescript: "npm:^5.3.2"
@@ -2167,10 +2184,39 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@oak-network/config@workspace:^1.0.0, @oak-network/config@workspace:packages/config":
+"@oak-network/config@file:../config::locator=%40oak-network%2Fadapter%40file%3A..%2Fadapter%23..%2Fadapter%3A%3Ahash%3Decc28a%26locator%3D%2540oak-network%252Fsdk%2540workspace%253Apackages%252Fsdk":
+  version: 1.0.0
+  resolution: "@oak-network/config@file:../config#../config::hash=3e308e&locator=%40oak-network%2Fadapter%40file%3A..%2Fadapter%23..%2Fadapter%3A%3Ahash%3Decc28a%26locator%3D%2540oak-network%252Fsdk%2540workspace%253Apackages%252Fsdk"
+  dependencies:
+    bn.js: "npm:^5.2.1"
+  checksum: f7cadb8234522b04f8f9cf2196236059cc806ac74b923e052d9aae4adf3d1e14338ec0fdc529c07f647d711836e3913cd26416bbaa040872e972da2887ea7b85
+  languageName: node
+  linkType: hard
+
+"@oak-network/config@file:../config::locator=%40oak-network%2Fadapter%40workspace%3Apackages%2Fadapter":
+  version: 1.0.0
+  resolution: "@oak-network/config@file:../config#../config::hash=3e308e&locator=%40oak-network%2Fadapter%40workspace%3Apackages%2Fadapter"
+  dependencies:
+    bn.js: "npm:^5.2.1"
+  checksum: f7cadb8234522b04f8f9cf2196236059cc806ac74b923e052d9aae4adf3d1e14338ec0fdc529c07f647d711836e3913cd26416bbaa040872e972da2887ea7b85
+  languageName: node
+  linkType: hard
+
+"@oak-network/config@file:../config::locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk":
+  version: 1.0.0
+  resolution: "@oak-network/config@file:../config#../config::hash=3e308e&locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk"
+  dependencies:
+    bn.js: "npm:^5.2.1"
+  checksum: f7cadb8234522b04f8f9cf2196236059cc806ac74b923e052d9aae4adf3d1e14338ec0fdc529c07f647d711836e3913cd26416bbaa040872e972da2887ea7b85
+  languageName: node
+  linkType: hard
+
+"@oak-network/config@workspace:packages/config":
   version: 0.0.0-use.local
   resolution: "@oak-network/config@workspace:packages/config"
   dependencies:
+    "@types/bn.js": "npm:^5"
+    bn.js: "npm:^5.2.1"
     typescript: "npm:^5.3.2"
   languageName: unknown
   linkType: soft
@@ -2179,8 +2225,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@oak-network/sdk@workspace:packages/sdk"
   dependencies:
-    "@oak-network/adapter": "workspace:^0.1.5"
-    "@oak-network/config": "workspace:^1.0.0"
+    "@oak-network/adapter": ../adapter
+    "@oak-network/config": ../config
     "@polkadot/util": "npm:^12.6.1"
     bn.js: "npm:^5.2.1"
     lodash: "npm:^4.17.21"
@@ -2812,7 +2858,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bn.js@npm:^5.1.5":
+"@types/bn.js@npm:^5, @types/bn.js@npm:^5.1.5":
   version: 5.1.5
   resolution: "@types/bn.js@npm:5.1.5"
   dependencies:

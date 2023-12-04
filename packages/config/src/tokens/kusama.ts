@@ -7,10 +7,17 @@ const tur = createToken({
   parachainId: 2114,
   symbol: "TUR",
 });
+const xcTur = createToken({
+  decimals: 10,
+  key: "xcTur",
+  network: "kusama",
+  parachainId: 2114,
+  symbol: "xcTUR",
+});
 
 // TODO: movr is not defined in the original file; need to double check its value
 const movr = createToken({
-  decimals: 10,
+  decimals: 18,
   key: "movr",
   network: "kusama",
   parachainId: 2023,
@@ -39,4 +46,4 @@ const mgx = createToken({
 });
 
 // eslint-disable-next-line import/no-default-export
-export default { mgx, movr, sdn, tur };
+export default { mgx, movr, sdn, tur, xcTur };

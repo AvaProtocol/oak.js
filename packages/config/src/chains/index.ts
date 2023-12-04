@@ -14,4 +14,5 @@ export {
   PolkadotChains,
   Weight,
 };
+
 export type { Chain, XcmConfig };

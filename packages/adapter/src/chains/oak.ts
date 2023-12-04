@@ -6,11 +6,23 @@ import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
 import type { u32, u128, Option } from "@polkadot/types";
 import type { WeightV2 } from "@polkadot/types/interfaces";
 import type { KeyringPair } from "@polkadot/keyring/types";
-import { Weight, XcmInstructionNetworkType } from "@oak-network/config";
+import {
+  Weight,
+  XcmInstructionNetworkType,
+  Chain,
+  XToken,
+} from "@oak-network/config";
+import { ISubmittableResult } from "@polkadot/types/types";
 import { ChainAdapter } from "./chainAdapter";
-import { getDerivativeAccountV2, sendExtrinsic } from "../util";
-import { SendExtrinsicResult } from "../types";
+import {
+  getDerivativeAccountV2,
+  isValidAddress,
+  sendExtrinsic,
+  getDecimalBN,
+} from "../util";
+import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
+import { InvalidAddress } from "../errors";
 
 export interface AutomationPriceTriggerParams {
   chain: string;
@@ -106,6 +118,61 @@ export class OakAdapter extends ChainAdapter {
   }
 
   /**
+   *
+   * @param destConfig
+   * @param token The key of the Asset such as "tur", or "sdn"
+   * @param recipient
+   * @param amount
+   * @returns
+   */
+  public transferMultiasset(
+    destConfig: Chain,
+    token: string,
+    recipient: string,
+    amount: string | number,
+  ):
+    | SubmittableExtrinsic<"promise", ISubmittableResult>
+    | SubmittableExtrinsic<"rxjs", ISubmittableResult>
+    | undefined {
+    const asset = _.find(this.chainConfig.assets, (item) => item.key === token);
+    if (_.isUndefined(asset)) throw new Error(`Asset ${token} not found`);
+
+    const amountBN = new BN(amount).mul(getDecimalBN(asset.decimals));
+
+    const accountId = destConfig.isEthereum
+      ? { [AccountType.AccountKey20]: { key: recipient, network: null } }
+      : { [AccountType.AccountId32]: { id: recipient, network: null } };
+
+    if (!isValidAddress(recipient, destConfig.isEthereum)) {
+      throw new InvalidAddress(recipient);
+    }
+
+    // const weightLimit: XcmV3WeightLimit = { isUnlimited: true };
+
+    return this.api?.tx.xTokens.transferMultiasset(
+      {
+        V3: {
+          fun: { Fungible: amountBN },
+          id: { Concrete: asset.location },
+        },
+      },
+      {
+        V3: {
+          interior: {
+            X2: [{ Parachain: destConfig.paraId }, accountId],
+          },
+          parents: 1,
+        },
+      },
+      "Unlimited",
+    );
+  }
+
+  public getAssetBySymbol(symbol: string): XToken | undefined {
+    return _.find(this.chainConfig.assets, (asset) => asset.symbol === symbol);
+  }
+
+  /**
    * Execute a cross-chain transfer
    * @param destination The location of the destination chain
    * @param recipient recipient account
@@ -124,6 +191,11 @@ export class OakAdapter extends ChainAdapter {
     const { key } = this.chainConfig;
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
     const api = this.getApi();
+
+    // if isEthereum accountId20: {key: recipient, network: null}
+    //	if (!validateAddress(address, useAccountKey20 ? "ethereum" : "substract")) {
+    // throw new InvalidAddress(address);
+    // }
 
     const extrinsic = api.tx.xTokens.transferMultiasset(
       {

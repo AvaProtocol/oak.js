@@ -75,12 +75,11 @@ export class MangataAdapter extends ChainAdapter {
 
     const api = this.getApi();
     if (_.isEqual(defaultAsset.location, assetLocation)) {
-      const UNIT = new BN("1000000000000000000");
+      const unit = new BN(10).pow(new BN(defaultAsset.decimals));
       // ExtrinsicBaseWeight benchmark value: 114756 nano seconds
       const extrinsicBaseWeight = WEIGHT_REF_TIME_PER_NANOS.mul(new BN(114756));
-      const feePerSecond = WEIGHT_REF_TIME_PER_SECOND.mul(
-        UNIT.div(extrinsicBaseWeight),
-      );
+      const feePerSecond =
+        WEIGHT_REF_TIME_PER_SECOND.div(extrinsicBaseWeight).mul(unit);
       const refTimeFee = weight.refTime
         .mul(feePerSecond)
         .div(WEIGHT_REF_TIME_PER_SECOND);

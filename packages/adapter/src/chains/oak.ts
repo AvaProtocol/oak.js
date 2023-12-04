@@ -6,11 +6,13 @@ import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
 import type { u32, u128, Option } from "@polkadot/types";
 import type { WeightV2 } from "@polkadot/types/interfaces";
 import type { KeyringPair } from "@polkadot/keyring/types";
-import { Weight, XcmInstructionNetworkType } from "@oak-network/config";
+import { Weight, XcmInstructionNetworkType, Chain, XToken } from "@oak-network/config";
+import { ISubmittableResult } from "@polkadot/types/types";
 import { ChainAdapter } from "./chainAdapter";
-import { getDerivativeAccountV2, sendExtrinsic } from "../util";
-import { SendExtrinsicResult } from "../types";
+import { getDerivativeAccountV2, isValidAddress, sendExtrinsic, getDecimalBN } from "../util";
+import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
+import { InvalidAddress } from "../errors";
 
 export enum OakAdapterTransactType {
   PayThroughRemoteDerivativeAccount,
@@ -33,12 +35,8 @@ export class OakAdapter extends ChainAdapter {
    * @returns Extrinsic weight
    */
   // eslint-disable-next-line class-methods-use-this
-  async getExtrinsicWeight(
-    extrinsic: SubmittableExtrinsic<"promise">,
-    account: AddressOrPair,
-  ): Promise<Weight> {
-    const { refTime, proofSize } = (await extrinsic.paymentInfo(account))
-      .weight as unknown as WeightV2;
+  async getExtrinsicWeight(extrinsic: SubmittableExtrinsic<"promise">, account: AddressOrPair): Promise<Weight> {
+    const { refTime, proofSize } = (await extrinsic.paymentInfo(account)).weight as unknown as WeightV2;
     return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
@@ -48,15 +46,10 @@ export class OakAdapter extends ChainAdapter {
    * @param instructionCount The number of XCM instructions
    * @returns XCM overall weight
    */
-  async calculateXcmOverallWeight(
-    transactCallWeight: Weight,
-    instructionCount: number,
-  ): Promise<Weight> {
+  async calculateXcmOverallWeight(transactCallWeight: Weight, instructionCount: number): Promise<Weight> {
     const { xcm } = this.chainConfig;
     if (_.isUndefined(xcm)) throw new Error("chainConfig.xcm not set");
-    const overallWeight = transactCallWeight.add(
-      xcm.instructionWeight.muln(instructionCount),
-    );
+    const overallWeight = transactCallWeight.add(xcm.instructionWeight.muln(instructionCount));
     return overallWeight;
   }
 
@@ -68,21 +61,16 @@ export class OakAdapter extends ChainAdapter {
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
     const [defaultAsset] = this.chainConfig.assets;
-    if (_.isUndefined(defaultAsset))
-      throw new Error("chainConfig.defaultAsset not set");
+    if (_.isUndefined(defaultAsset)) throw new Error("chainConfig.defaultAsset not set");
 
     const api = this.getApi();
-    const location = _.isEqual(assetLocation, defaultAsset.location)
-      ? { interior: "Here", parents: 0 }
-      : assetLocation;
-    const storageValue =
-      await api.query.assetRegistry.locationToAssetId(location);
+    const location = _.isEqual(assetLocation, defaultAsset.location) ? { interior: "Here", parents: 0 } : assetLocation;
+    const storageValue = await api.query.assetRegistry.locationToAssetId(location);
     const item = storageValue as unknown as Option<u32>;
     if (item.isNone) throw new Error("AssetId not set");
 
     const assetId = item.unwrap();
-    const metadataStorageValue =
-      await api.query.assetRegistry.metadata(assetId);
+    const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
     const metadataItem = metadataStorageValue as unknown as Option<any>;
     if (metadataItem.isNone) throw new Error("Metadata not set");
 
@@ -90,9 +78,59 @@ export class OakAdapter extends ChainAdapter {
     const feePerSecond = additional.feePerSecond as unknown as Option<u128>;
     if (feePerSecond.isNone) throw new Error("feePerSecond is null");
 
-    return weight.refTime
-      .mul(feePerSecond.unwrap())
-      .div(WEIGHT_REF_TIME_PER_SECOND);
+    return weight.refTime.mul(feePerSecond.unwrap()).div(WEIGHT_REF_TIME_PER_SECOND);
+  }
+
+  /**
+   *
+   * @param destConfig
+   * @param token The key of the Asset such as "tur", or "sdn"
+   * @param recipient
+   * @param amount
+   * @returns
+   */
+  public transferMultiasset(
+    destConfig: Chain,
+    token: string,
+    recipient: string,
+    amount: string | number,
+  ): SubmittableExtrinsic<"promise", ISubmittableResult> | SubmittableExtrinsic<"rxjs", ISubmittableResult> | undefined {
+    const asset = _.find(this.chainConfig.assets, (item) => item.key === token);
+    if (_.isUndefined(asset)) throw new Error(`Asset ${token} not found`);
+
+    const amountBN = new BN(amount).mul(getDecimalBN(asset.decimals));
+
+    const accountId = destConfig.isEthereum
+      ? { [AccountType.AccountKey20]: { key: recipient, network: null } }
+      : { [AccountType.AccountId32]: { id: recipient, network: null } };
+
+    if (!isValidAddress(recipient, destConfig.isEthereum)) {
+      throw new InvalidAddress(recipient);
+    }
+
+    // const weightLimit: XcmV3WeightLimit = { isUnlimited: true };
+
+    return this.api?.tx.xTokens.transferMultiasset(
+      {
+        V3: {
+          fun: { Fungible: amountBN },
+          id: { Concrete: asset.location },
+        },
+      },
+      {
+        V3: {
+          interior: {
+            X2: [{ Parachain: destConfig.paraId }, accountId],
+          },
+          parents: 1,
+        },
+      },
+      "Unlimited",
+    );
+  }
+
+  public getAssetBySymbol(symbol: string): XToken | undefined {
+    return _.find(this.chainConfig.assets, (asset) => asset.symbol === symbol);
   }
 
   /**
@@ -115,6 +153,11 @@ export class OakAdapter extends ChainAdapter {
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
     const api = this.getApi();
 
+    // if isEthereum accountId20: {key: recipient, network: null}
+    //	if (!validateAddress(address, useAccountKey20 ? "ethereum" : "substract")) {
+    // throw new InvalidAddress(address);
+    // }
+
     const extrinsic = api.tx.xTokens.transferMultiasset(
       {
         V3: {
@@ -125,10 +168,7 @@ export class OakAdapter extends ChainAdapter {
       {
         V3: {
           interior: {
-            X2: [
-              destination.interior.X1,
-              { AccountId32: { id: recipient, network: null } },
-            ],
+            X2: [destination.interior.X1, { AccountId32: { id: recipient, network: null } }],
           },
           parents: 1,
         },
@@ -151,10 +191,7 @@ export class OakAdapter extends ChainAdapter {
    */
   // eslint-disable-next-line class-methods-use-this
   getTransactXcmInstructionCount(transactType: OakAdapterTransactType) {
-    return transactType ===
-      OakAdapterTransactType.PayThroughRemoteDerivativeAccount
-      ? 4
-      : 6;
+    return transactType === OakAdapterTransactType.PayThroughRemoteDerivativeAccount ? 4 : 6;
   }
 
   /**
@@ -193,10 +230,7 @@ export class OakAdapter extends ChainAdapter {
       overallWeight,
     );
 
-    console.log(
-      `Send extrinsic from ${key} to schedule task. extrinsic:`,
-      extrinsic.method.toHex(),
-    );
+    console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
     const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
   }
@@ -246,8 +280,7 @@ export class OakAdapter extends ChainAdapter {
    */
   async getDelegatorState(delegator: HexString): Promise<any> {
     const api = this.getApi();
-    const delegatorStateCodec =
-      await api.query.parachainStaking.delegatorState(delegator);
+    const delegatorStateCodec = await api.query.parachainStaking.delegatorState(delegator);
     const delegatorState = delegatorStateCodec as unknown as Option<any>;
     return delegatorState.isSome ? delegatorState.unwrap() : undefined;
   }
@@ -264,10 +297,7 @@ export class OakAdapter extends ChainAdapter {
       return undefined;
     }
     const { delegations } = delegatorState;
-    const foundDelegation = _.find(
-      delegations,
-      ({ owner }) => owner.toHex() === collator,
-    );
+    const foundDelegation = _.find(delegations, ({ owner }) => owner.toHex() === collator);
     return foundDelegation;
   }
 
@@ -276,14 +306,10 @@ export class OakAdapter extends ChainAdapter {
    * @param collator
    * @returns
    */
-  async getAutoCompoundingDelegationsLength(
-    collator: HexString,
-  ): Promise<number> {
+  async getAutoCompoundingDelegationsLength(collator: HexString): Promise<number> {
     const api = this.getApi();
-    const autoCompoundingDelegationsCodec =
-      await api.query.parachainStaking.autoCompoundingDelegations(collator);
-    const autoCompoundingDelegations =
-      autoCompoundingDelegationsCodec as unknown as any[];
+    const autoCompoundingDelegationsCodec = await api.query.parachainStaking.autoCompoundingDelegations(collator);
+    const autoCompoundingDelegations = autoCompoundingDelegationsCodec as unknown as any[];
     return autoCompoundingDelegations.length;
   }
 
@@ -295,12 +321,7 @@ export class OakAdapter extends ChainAdapter {
    * @param keyringPair
    * @returns
    */
-  async delegateWithAutoCompound(
-    collator: HexString,
-    amount: BN,
-    percentage: number,
-    keyringPair: KeyringPair,
-  ): Promise<SendExtrinsicResult> {
+  async delegateWithAutoCompound(collator: HexString, amount: BN, percentage: number, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const api = this.getApi();
     // Check if delegation exists
     const delegatorWalletAddress = u8aToHex(keyringPair.addressRaw);
@@ -311,10 +332,7 @@ export class OakAdapter extends ChainAdapter {
     let delegationsLength = 0;
     if (!_.isUndefined(delegatorState)) {
       const { delegations } = delegatorState;
-      const foundDelegation = _.find(
-        delegations,
-        ({ owner }) => owner.toHex() === collator,
-      );
+      const foundDelegation = _.find(delegations, ({ owner }) => owner.toHex() === collator);
       delegationsLength = delegations.length;
       if (!_.isUndefined(foundDelegation)) {
         throw new Error("Delegation already exists");
@@ -324,28 +342,20 @@ export class OakAdapter extends ChainAdapter {
     const { minDelegation: minDelegationCodec } = api.consts.parachainStaking;
     const minDelegation = minDelegationCodec as u128;
     if (amount.lt(minDelegation)) {
-      throw new Error(
-        `Amount must be greater than or equal to ${minDelegation}`,
-      );
+      throw new Error(`Amount must be greater than or equal to ${minDelegation}`);
     }
 
-    const candidateInfoCodec =
-      await api.query.parachainStaking.candidateInfo(collator);
+    const candidateInfoCodec = await api.query.parachainStaking.candidateInfo(collator);
     const candidateInfo = candidateInfoCodec as unknown as Option<any>;
     if (candidateInfo.isNone) {
       throw new Error("Candidate info not found");
     }
-    const { delegationCount: candidateDelegationCount } =
-      candidateInfo.unwrap();
+    const { delegationCount: candidateDelegationCount } = candidateInfo.unwrap();
 
     console.log("collator: ", collator);
 
-    const autoCompoundingDelegationsLength =
-      await this.getAutoCompoundingDelegationsLength(collator);
-    console.log(
-      "autoCompoundingDelegationsLength: ",
-      autoCompoundingDelegationsLength,
-    );
+    const autoCompoundingDelegationsLength = await this.getAutoCompoundingDelegationsLength(collator);
+    console.log("autoCompoundingDelegationsLength: ", autoCompoundingDelegationsLength);
 
     // Delegate to collator
     const delegateExtrinsic = api.tx.parachainStaking.delegateWithAutoCompound(
@@ -368,19 +378,11 @@ export class OakAdapter extends ChainAdapter {
    * @param collator
    * @returns
    */
-  async getAutoCompoundingDelegationPercentage(
-    collator: HexString,
-    delegator: HexString,
-  ): Promise<number | undefined> {
+  async getAutoCompoundingDelegationPercentage(collator: HexString, delegator: HexString): Promise<number | undefined> {
     const api = this.getApi();
-    const autoCompoundingDelegationsCodec =
-      await api.query.parachainStaking.autoCompoundingDelegations(collator);
-    const autoCompoundingDelegations =
-      autoCompoundingDelegationsCodec as unknown as any[];
-    const delegation = _.find(
-      autoCompoundingDelegations,
-      (item) => item.delegator.toHex() === delegator,
-    );
+    const autoCompoundingDelegationsCodec = await api.query.parachainStaking.autoCompoundingDelegations(collator);
+    const autoCompoundingDelegations = autoCompoundingDelegationsCodec as unknown as any[];
+    const delegation = _.find(autoCompoundingDelegations, (item) => item.delegator.toHex() === delegator);
     return delegation?.value?.toNumber();
   }
 
@@ -391,19 +393,12 @@ export class OakAdapter extends ChainAdapter {
    * @param keyringPair
    * @returns
    */
-  async setAutoCompound(
-    collator: HexString,
-    percentage: number,
-    keyringPair: KeyringPair,
-  ): Promise<SendExtrinsicResult> {
+  async setAutoCompound(collator: HexString, percentage: number, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const api = this.getApi();
 
-    const autoCompoundingDelegationsLength =
-      await this.getAutoCompoundingDelegationsLength(collator);
+    const autoCompoundingDelegationsLength = await this.getAutoCompoundingDelegationsLength(collator);
 
-    const delegatorState = await this.getDelegatorState(
-      u8aToHex(keyringPair.addressRaw),
-    );
+    const delegatorState = await this.getDelegatorState(u8aToHex(keyringPair.addressRaw));
     if (_.isUndefined(delegatorState)) {
       throw new Error("Delegator state not found");
     }
@@ -416,11 +411,7 @@ export class OakAdapter extends ChainAdapter {
       autoCompoundingDelegationsLength + 1,
       delegationsLength + 1,
     );
-    const result = await sendExtrinsic(
-      api,
-      setAutoCompoundExtrinsic,
-      keyringPair,
-    );
+    const result = await sendExtrinsic(api, setAutoCompoundExtrinsic, keyringPair);
     return result;
   }
 
@@ -431,20 +422,13 @@ export class OakAdapter extends ChainAdapter {
    * @param keyringPair
    * @returns
    */
-  async bondMore(
-    collator: HexString,
-    amount: BN,
-    keyringPair: KeyringPair,
-  ): Promise<SendExtrinsicResult> {
+  async bondMore(collator: HexString, amount: BN, keyringPair: KeyringPair): Promise<SendExtrinsicResult> {
     const api = this.getApi();
     if (!this.hasEnoughFreeBalance(u8aToHex(keyringPair.addressRaw), amount)) {
       throw new Error("Insufficient balance");
     }
     // Create bondMoreExtrinsic
-    const bondMoreExtrinsic = api.tx.parachainStaking.delegatorBondMore(
-      collator,
-      amount,
-    );
+    const bondMoreExtrinsic = api.tx.parachainStaking.delegatorBondMore(collator, amount);
 
     const result = await sendExtrinsic(api, bondMoreExtrinsic, keyringPair);
     return result;

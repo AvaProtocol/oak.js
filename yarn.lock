@@ -2143,7 +2143,7 @@ __metadata:
 
 "@oak-network/adapter@file:../adapter::locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk":
   version: 0.1.5
-  resolution: "@oak-network/adapter@file:../adapter#../adapter::hash=9da53f&locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk"
+  resolution: "@oak-network/adapter@file:../adapter#../adapter::hash=ecc28a&locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk"
   dependencies:
     "@oak-network/config": ../config
     "@polkadot/api": "npm:^10.9.1"
@@ -2152,7 +2152,7 @@ __metadata:
     bn.js: "npm:^5.2.1"
     lodash: "npm:^4.17.21"
     web3-validator: "npm:^2.0.3"
-  checksum: 1750796fc9b3dad8468ca7b22f3b627dad72d6a08082c270b9712b003434d798317b51f4f0df824cc3852588775c2d1845877f2fa13f5f0b825b15fe91703f8e
+  checksum: a1afde68adb00eb0de2475634bf8c8bdd20e29b7d3393919bf2d5eeba65678286299f590c8f9880cc20ed491a60136a5da00b886d2a1a329b7405a8386f17492
   languageName: node
   linkType: hard
 
@@ -2162,8 +2162,10 @@ __metadata:
   dependencies:
     "@oak-network/config": ../config
     "@polkadot/api": "npm:^10.9.1"
+    "@polkadot/keyring": "npm:^12.6.1"
     "@polkadot/types": "npm:^10.11.1"
     "@polkadot/util": "npm:^12.6.1"
+    "@polkadot/util-crypto": "npm:^12.6.1"
     bn.js: "npm:^5.2.1"
     lodash: "npm:^4.17.21"
     typescript: "npm:^5.3.2"
@@ -2182,24 +2184,30 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@oak-network/config@file:../config::locator=%40oak-network%2Fadapter%40file%3A..%2Fadapter%23..%2Fadapter%3A%3Ahash%3D9da53f%26locator%3D%2540oak-network%252Fsdk%2540workspace%253Apackages%252Fsdk":
+"@oak-network/config@file:../config::locator=%40oak-network%2Fadapter%40file%3A..%2Fadapter%23..%2Fadapter%3A%3Ahash%3Decc28a%26locator%3D%2540oak-network%252Fsdk%2540workspace%253Apackages%252Fsdk":
   version: 1.0.0
-  resolution: "@oak-network/config@file:../config#../config::hash=fe2672&locator=%40oak-network%2Fadapter%40file%3A..%2Fadapter%23..%2Fadapter%3A%3Ahash%3D9da53f%26locator%3D%2540oak-network%252Fsdk%2540workspace%253Apackages%252Fsdk"
-  checksum: c5df72dbd4c1ad880f32aa68c94caa0872ce59dbdb1be78f9e1def6547a6f47674eaa7fd3fd85c20b73acd19914ef7400ae5a1ca4afa3e35cf45d816b6be61a7
+  resolution: "@oak-network/config@file:../config#../config::hash=3e308e&locator=%40oak-network%2Fadapter%40file%3A..%2Fadapter%23..%2Fadapter%3A%3Ahash%3Decc28a%26locator%3D%2540oak-network%252Fsdk%2540workspace%253Apackages%252Fsdk"
+  dependencies:
+    bn.js: "npm:^5.2.1"
+  checksum: f7cadb8234522b04f8f9cf2196236059cc806ac74b923e052d9aae4adf3d1e14338ec0fdc529c07f647d711836e3913cd26416bbaa040872e972da2887ea7b85
   languageName: node
   linkType: hard
 
 "@oak-network/config@file:../config::locator=%40oak-network%2Fadapter%40workspace%3Apackages%2Fadapter":
   version: 1.0.0
-  resolution: "@oak-network/config@file:../config#../config::hash=fe2672&locator=%40oak-network%2Fadapter%40workspace%3Apackages%2Fadapter"
-  checksum: c5df72dbd4c1ad880f32aa68c94caa0872ce59dbdb1be78f9e1def6547a6f47674eaa7fd3fd85c20b73acd19914ef7400ae5a1ca4afa3e35cf45d816b6be61a7
+  resolution: "@oak-network/config@file:../config#../config::hash=3e308e&locator=%40oak-network%2Fadapter%40workspace%3Apackages%2Fadapter"
+  dependencies:
+    bn.js: "npm:^5.2.1"
+  checksum: f7cadb8234522b04f8f9cf2196236059cc806ac74b923e052d9aae4adf3d1e14338ec0fdc529c07f647d711836e3913cd26416bbaa040872e972da2887ea7b85
   languageName: node
   linkType: hard
 
 "@oak-network/config@file:../config::locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk":
   version: 1.0.0
-  resolution: "@oak-network/config@file:../config#../config::hash=fe2672&locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk"
-  checksum: c5df72dbd4c1ad880f32aa68c94caa0872ce59dbdb1be78f9e1def6547a6f47674eaa7fd3fd85c20b73acd19914ef7400ae5a1ca4afa3e35cf45d816b6be61a7
+  resolution: "@oak-network/config@file:../config#../config::hash=3e308e&locator=%40oak-network%2Fsdk%40workspace%3Apackages%2Fsdk"
+  dependencies:
+    bn.js: "npm:^5.2.1"
+  checksum: f7cadb8234522b04f8f9cf2196236059cc806ac74b923e052d9aae4adf3d1e14338ec0fdc529c07f647d711836e3913cd26416bbaa040872e972da2887ea7b85
   languageName: node
   linkType: hard
 

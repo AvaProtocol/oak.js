@@ -8,6 +8,7 @@ import { TypeRegistry } from "@polkadot/types";
 import { blake2AsU8a, encodeAddress, decodeAddress } from "@polkadot/util-crypto";
 import { isAddress as isEthereumAddress } from "web3-validator";
 import BN from "bn.js";
+import { MultiLocationV2 } from "@polkadot/types/interfaces";
 import { AccountType, SendExtrinsicResult } from "./types";
 
 /**
@@ -81,8 +82,20 @@ export const getDerivativeAccountV2 = (
     interior: { X2: [{ Parachain: paraId }, account] },
     parents: 1,
   };
-  const multilocation = api.createType(locationType, location);
-  const toHash = new Uint8Array([...new Uint8Array([32]), ...new TextEncoder().encode("multiloc"), ...multilocation.toU8a()]);
+
+  const multiLocation = api.createType(locationType, location) as MultiLocationV2;
+
+  if (!multiLocation) {
+    throw new Error("multiLocation is undefined");
+  }
+
+  // Convert Uint8Array to an array before spreading
+  const prefixArray = Array.from(new Uint8Array([32]));
+  const multilocArray = Array.from(new TextEncoder().encode("multiloc"));
+  const multiLocationArray = Array.from(multiLocation.toU8a());
+
+  // Concatenate arrays without using spread syntax on Uint8Array
+  const toHash = new Uint8Array([...prefixArray, ...multilocArray, ...multiLocationArray]);
 
   return u8aToHex(api.registry.hash(toHash).slice(0, 32));
 };
@@ -100,13 +113,15 @@ export const getDerivativeAccountV3 = (accountId: HexString, paraId: number, der
 
   // Calculate Hash Component
   const registry = new TypeRegistry();
-  const toHash = new Uint8Array([
-    ...new TextEncoder().encode("SiblingChain"),
-    ...registry.createType("Compact<u32>", paraId).toU8a(),
-    ...registry.createType("Compact<u32>", accountType.length + hexToU8a(accountId).length).toU8a(),
-    ...new TextEncoder().encode(accountType),
-    ...decodedAddress,
-  ]);
+
+  // Convert Uint8Array to regular arrays before using spread syntax
+  const encodedSiblingChain = Array.from(new TextEncoder().encode("SiblingChain"));
+  const encodedParaId = Array.from(registry.createType("Compact<u32>", paraId).toU8a());
+  const encodedAccountLength = Array.from(registry.createType("Compact<u32>", accountType.length + decodedAddress.length).toU8a());
+  const encodedAccountType = Array.from(new TextEncoder().encode(accountType));
+  const encodedAddress = Array.from(decodedAddress);
+
+  const toHash = new Uint8Array([...encodedSiblingChain, ...encodedParaId, ...encodedAccountLength, ...encodedAccountType, ...encodedAddress]);
 
   return u8aToHex(blake2AsU8a(toHash).slice(0, deriveAccountType === AccountType.AccountKey20 ? 20 : 32));
 };

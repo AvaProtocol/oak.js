@@ -16,9 +16,13 @@ class XToken extends Token {
   public id: any; // Consider specifying a more precise type if possible.
 
   public isNative: boolean;
+
   public contractAddress?: string;
+
   public otherSymbol?: string;
+
   public unitPerSecond?: number;
+
   public existentialDeposit?: number;
 
   constructor(params: XTokenConstructorParams) {
@@ -33,4 +37,6 @@ class XToken extends Token {
   }
 }
 
-export { XToken, XTokenConstructorParams };
+export { XToken };
+
+export type { TokenConstructorParams };

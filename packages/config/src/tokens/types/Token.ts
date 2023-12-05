@@ -62,4 +62,6 @@ function createToken(params: TokenParams): Token {
   return new Token({ decimals, key, location, network, symbol });
 }
 
-export { createToken, Token, TokenConstructorParams };
+export { createToken, Token };
+
+export type { TokenConstructorParams };

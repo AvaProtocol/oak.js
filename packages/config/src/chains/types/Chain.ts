@@ -84,4 +84,6 @@ function createChain(config: {
   });
 }
 
-export { createChain, Chain, XcmConfig, ChainConstructorParams };
+export { createChain };
+
+export type { Chain, XcmConfig, ChainConstructorParams };

@@ -14,6 +14,16 @@ import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 import { InvalidAddress } from "../errors";
 
+export interface AutomationPriceTriggerParams {
+  chain: string;
+  exchange: string;
+  asset1: string;
+  asset2: string;
+  submittedAt: number;
+  triggerFunction: "lt" | "gt";
+  triggerParam: number[];
+}
+
 export enum OakAdapterTransactType {
   PayThroughRemoteDerivativeAccount,
   PayThroughSoverignAccount,
@@ -231,6 +241,53 @@ export class OakAdapter extends ChainAdapter {
     );
 
     console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
+    const result = await sendExtrinsic(api, extrinsic, keyringPair);
+    return result;
+  }
+
+  /**
+   * Schedule XCMP task
+   * @param destination The location of the destination chain
+   * @param schedule Schedule setting
+   * @param scheduleFee Schedule fee
+   * @param executionFee Execution fee
+   * @param encodedCall Encoded call
+   * @param encodedCallWeight The encoded call weight weight of the XCM instructions
+   * @param overallWeight The overall weight of the XCM instructions
+   * @param keyringPair Operator's keyring pair
+   * @returns SendExtrinsicResult
+   */
+  async scheduleXcmpPriceTask(
+    automationPriceTriggerParams: AutomationPriceTriggerParams,
+    destination: any,
+    scheduleFee: any,
+    executionFee: any,
+    encodedCall: HexString,
+    encodedCallWeight: Weight,
+    overallWeight: Weight,
+    keyringPair: KeyringPair,
+  ): Promise<SendExtrinsicResult> {
+    const api = this.getApi();
+    const { key } = this.chainConfig;
+    if (_.isUndefined(key)) throw new Error("chainData.key not set");
+
+    const extrinsic = api.tx.automationPrice.scheduleXcmpTask(
+      automationPriceTriggerParams.chain,
+      automationPriceTriggerParams.exchange,
+      automationPriceTriggerParams.asset1,
+      automationPriceTriggerParams.asset2,
+      automationPriceTriggerParams.submittedAt,
+      automationPriceTriggerParams.triggerFunction,
+      automationPriceTriggerParams.triggerParam,
+      destination,
+      scheduleFee,
+      executionFee,
+      encodedCall,
+      encodedCallWeight,
+      overallWeight,
+    );
+
+    console.log(`Send extrinsic from ${key} to schedule price task. extrinsic:`, extrinsic.method.toHex());
     const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
   }

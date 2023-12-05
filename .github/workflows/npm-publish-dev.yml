@@ -23,6 +23,14 @@ jobs:
       - name: 🤘 checkout
         uses: actions/checkout@v3
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Yarn v2
+        run: npm install -g yarn@berry
+
       - name: Install dependencies
         run: yarn install
 
@@ -36,16 +44,16 @@ jobs:
         id: get-current-dev-version
         run: |
           # Get the dev tag version
-          tags=$(yarn info @oak-network/${{ matrix.package }} dist-tags --json)
+          tags=$(yarn npm info @oak-network/${{ matrix.package }} --fields dist-tags --json)
           echo "Tag versions: $tags"
-          current_dev_version=$(echo $tags | jq -r '.data.dev')
+          current_dev_version=$(echo $tags | jq -r '.["dist-tags"].dev')
           echo "Dev tag version: $current_dev_version"
           echo "current_dev_version=$current_dev_version" >> "$GITHUB_ENV"
 
-          # Get the latest version;
-          all_versions=$(yarn info @oak-network/${{ matrix.package }} versions --json)
-          echo "All versions: $all_versions"          
-          highest_version=$(echo "$all_versions" | jq -r '.data[]' | sort -V | tail -n1)
+          # Get the latest version
+          all_versions=$(yarn npm info @oak-network/${{ matrix.package }} --fields versions --json)
+          echo "All versions: $all_versions"
+          highest_version=$(echo "$all_versions" | jq -r '.versions[]' | sort -V | tail -n1)
           echo "Highest version: $highest_version"
           echo "highest_version=$highest_version" >> "$GITHUB_ENV"
 

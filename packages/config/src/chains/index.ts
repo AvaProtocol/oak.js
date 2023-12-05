@@ -6,13 +6,6 @@ import RococoChains from "./rococo";
 import KusamaChains from "./kusama";
 import PolkadotChains from "./polkadot";
 
-export {
-  DevChains,
-  MoonbaseChains,
-  RococoChains,
-  KusamaChains,
-  PolkadotChains,
-  Weight,
-};
+export { DevChains, MoonbaseChains, RococoChains, KusamaChains, PolkadotChains, Weight };
 
 export type { Chain, XcmConfig };

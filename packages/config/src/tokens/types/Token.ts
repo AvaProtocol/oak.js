@@ -46,9 +46,7 @@ interface TokenParams {
 
 // Function to construct the 'location' object based on the parameters.
 function constructLocation(parachainId: number, interior?: any): Location {
-  const interiorObj = interior
-    ? { X2: [{ Parachain: parachainId }, interior] }
-    : { X1: { Parachain: parachainId } };
+  const interiorObj = interior ? { X2: [{ Parachain: parachainId }, interior] } : { X1: { Parachain: parachainId } };
 
   return {
     interior: interiorObj,

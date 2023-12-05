@@ -8,11 +8,7 @@ import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight } from "@oak-network/config";
 import { ChainAdapter } from "./chainAdapter";
 import { getDerivativeAccountV2, sendExtrinsic } from "../util";
-import {
-  WEIGHT_REF_TIME_PER_NANOS,
-  WEIGHT_REF_TIME_PER_SECOND,
-  WEIGHT_PROOF_SIZE_PER_MB,
-} from "../constants";
+import { WEIGHT_REF_TIME_PER_NANOS, WEIGHT_REF_TIME_PER_SECOND, WEIGHT_PROOF_SIZE_PER_MB } from "../constants";
 import { SendExtrinsicResult } from "../types";
 
 // MangataAdapter implements ChainAdapter
@@ -31,12 +27,8 @@ export class MangataAdapter extends ChainAdapter {
    * @returns Extrinsic weight
    */
   // eslint-disable-next-line class-methods-use-this
-  async getExtrinsicWeight(
-    extrinsic: SubmittableExtrinsic<"promise">,
-    account: AddressOrPair,
-  ): Promise<Weight> {
-    const { refTime, proofSize } = (await extrinsic.paymentInfo(account))
-      .weight as unknown as WeightV2;
+  async getExtrinsicWeight(extrinsic: SubmittableExtrinsic<"promise">, account: AddressOrPair): Promise<Weight> {
+    const { refTime, proofSize } = (await extrinsic.paymentInfo(account)).weight as unknown as WeightV2;
     return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
@@ -46,15 +38,10 @@ export class MangataAdapter extends ChainAdapter {
    * @param instructionCount The number of XCM instructions
    * @returns XCM overall weight
    */
-  async calculateXcmOverallWeight(
-    transactCallWeight: Weight,
-    instructionCount: number,
-  ): Promise<Weight> {
+  async calculateXcmOverallWeight(transactCallWeight: Weight, instructionCount: number): Promise<Weight> {
     const { xcm } = this.chainConfig;
     if (_.isUndefined(xcm)) throw new Error("chainConfig.xcm not set");
-    const overallWeight = transactCallWeight.add(
-      xcm.instructionWeight.muln(instructionCount),
-    );
+    const overallWeight = transactCallWeight.add(xcm.instructionWeight.muln(instructionCount));
     return overallWeight;
   }
 
@@ -66,32 +53,24 @@ export class MangataAdapter extends ChainAdapter {
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
     const [defaultAsset] = this.chainConfig.assets;
-    if (_.isUndefined(defaultAsset))
-      throw new Error("chainConfig.defaultAsset not set");
+    if (_.isUndefined(defaultAsset)) throw new Error("chainConfig.defaultAsset not set");
 
     const api = this.getApi();
     if (_.isEqual(defaultAsset.location, assetLocation)) {
       const unit = new BN(10).pow(new BN(defaultAsset.decimals));
       // ExtrinsicBaseWeight benchmark value: 114756 nano seconds
       const extrinsicBaseWeight = WEIGHT_REF_TIME_PER_NANOS.mul(new BN(114756));
-      const feePerSecond =
-        WEIGHT_REF_TIME_PER_SECOND.div(extrinsicBaseWeight).mul(unit);
-      const refTimeFee = weight.refTime
-        .mul(feePerSecond)
-        .div(WEIGHT_REF_TIME_PER_SECOND);
-      const proofSizeFee = weight.proofSize
-        .mul(feePerSecond)
-        .div(WEIGHT_PROOF_SIZE_PER_MB);
+      const feePerSecond = WEIGHT_REF_TIME_PER_SECOND.div(extrinsicBaseWeight).mul(unit);
+      const refTimeFee = weight.refTime.mul(feePerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
+      const proofSizeFee = weight.proofSize.mul(feePerSecond).div(WEIGHT_PROOF_SIZE_PER_MB);
       return refTimeFee.add(proofSizeFee);
     }
-    const storageValue =
-      await api.query.assetRegistry.locationToAssetId(assetLocation);
+    const storageValue = await api.query.assetRegistry.locationToAssetId(assetLocation);
     const item = storageValue as unknown as Option<u32>;
     if (item.isNone) throw new Error("AssetTypeUnitsPerSecond is null");
 
     const assetId = item.unwrap();
-    const metadataStorageValue =
-      await api.query.assetRegistry.metadata(assetId);
+    const metadataStorageValue = await api.query.assetRegistry.metadata(assetId);
     const metadataItem = metadataStorageValue as unknown as Option<any>;
     if (metadataItem.isNone) throw new Error("Metadata is null");
 
@@ -156,10 +135,7 @@ export class MangataAdapter extends ChainAdapter {
       {
         V3: {
           interior: {
-            X2: [
-              destination.interior.X1,
-              { AccountId32: { id: recipient, network: null } },
-            ],
+            X2: [destination.interior.X1, { AccountId32: { id: recipient, network: null } }],
           },
           parents: 1,
         },

@@ -5,11 +5,7 @@ import { KeyringPair } from "@polkadot/keyring/types";
 import type { SubmittableExtrinsic } from "@polkadot/api/types";
 import type { HexString } from "@polkadot/util/types";
 import { TypeRegistry } from "@polkadot/types";
-import {
-  blake2AsU8a,
-  encodeAddress,
-  decodeAddress,
-} from "@polkadot/util-crypto";
+import { blake2AsU8a, encodeAddress, decodeAddress } from "@polkadot/util-crypto";
 import { isAddress as isEthereumAddress } from "web3-validator";
 import BN from "bn.js";
 import { AccountType, SendExtrinsicResult } from "./types";
@@ -30,45 +26,39 @@ export const sendExtrinsic = async (
 ): Promise<SendExtrinsicResult> =>
   new Promise<SendExtrinsicResult>((resolve) => {
     const newExtrinsic = isSudo ? api.tx.sudo.sudo(extrinsic) : extrinsic;
-    newExtrinsic.signAndSend(
-      keyringPair,
-      { nonce: -1 },
-      ({ status, events }: any) => {
-        console.log("status.type", status.type);
-        if (status.isInBlock || status.isFinalized) {
-          events
-            // find/filter for failed events
-            .filter(({ event }: any) =>
-              api.events.system.ExtrinsicFailed.is(event),
-            )
-            // we know that data for system.ExtrinsicFailed is
-            // (DispatchError, DispatchInfo)
-            .forEach(
-              ({
-                event: {
-                  data: [error],
-                },
-              }: {
-                event: any;
-              }) => {
-                if (error.isModule) {
-                  // for module errors, we have the section indexed, lookup
-                  const decoded = api.registry.findMetaError(error.asModule);
-                  const { docs, method, section } = decoded;
-                  console.log(`${section}.${method}: ${docs.join(" ")}`);
-                } else {
-                  // Other, CannotLookup, BadOrigin, no extra info
-                  console.log(error.toString());
-                }
+    newExtrinsic.signAndSend(keyringPair, { nonce: -1 }, ({ status, events }: any) => {
+      console.log("status.type", status.type);
+      if (status.isInBlock || status.isFinalized) {
+        events
+          // find/filter for failed events
+          .filter(({ event }: any) => api.events.system.ExtrinsicFailed.is(event))
+          // we know that data for system.ExtrinsicFailed is
+          // (DispatchError, DispatchInfo)
+          .forEach(
+            ({
+              event: {
+                data: [error],
               },
-            );
+            }: {
+              event: any;
+            }) => {
+              if (error.isModule) {
+                // for module errors, we have the section indexed, lookup
+                const decoded = api.registry.findMetaError(error.asModule);
+                const { docs, method, section } = decoded;
+                console.log(`${section}.${method}: ${docs.join(" ")}`);
+              } else {
+                // Other, CannotLookup, BadOrigin, no extra info
+                console.log(error.toString());
+              }
+            },
+          );
 
-          if (status.isFinalized) {
-            resolve({ blockHash: status.asFinalized.toString(), events });
-          }
+        if (status.isFinalized) {
+          resolve({ blockHash: status.asFinalized.toString(), events });
         }
-      },
-    );
+      }
+    });
   });
 
 /**
@@ -85,21 +75,14 @@ export const getDerivativeAccountV2 = (
   paraId: number,
   { locationType = "XcmV2MultiLocation", network = "Any" } = {},
 ): HexString => {
-  const account =
-    hexToU8a(accountId).length === 20
-      ? { AccountKey20: { key: accountId, network } }
-      : { AccountId32: { id: accountId, network } };
+  const account = hexToU8a(accountId).length === 20 ? { AccountKey20: { key: accountId, network } } : { AccountId32: { id: accountId, network } };
 
   const location = {
     interior: { X2: [{ Parachain: paraId }, account] },
     parents: 1,
   };
   const multilocation = api.createType(locationType, location);
-  const toHash = new Uint8Array([
-    ...new Uint8Array([32]),
-    ...new TextEncoder().encode("multiloc"),
-    ...multilocation.toU8a(),
-  ]);
+  const toHash = new Uint8Array([...new Uint8Array([32]), ...new TextEncoder().encode("multiloc"), ...multilocation.toU8a()]);
 
   return u8aToHex(api.registry.hash(toHash).slice(0, 32));
 };
@@ -111,13 +94,8 @@ export const getDerivativeAccountV2 = (
  * @param deriveAccountType Specify the derive account type returned by the function
  * @returns Derivative account
  */
-export const getDerivativeAccountV3 = (
-  accountId: HexString,
-  paraId: number,
-  deriveAccountType: AccountType = AccountType.AccountId32,
-): HexString => {
-  const accountType =
-    hexToU8a(accountId).length === 20 ? "AccountKey20" : "AccountId32";
+export const getDerivativeAccountV3 = (accountId: HexString, paraId: number, deriveAccountType: AccountType = AccountType.AccountId32): HexString => {
+  const accountType = hexToU8a(accountId).length === 20 ? "AccountKey20" : "AccountId32";
   const decodedAddress = hexToU8a(accountId);
 
   // Calculate Hash Component
@@ -125,22 +103,12 @@ export const getDerivativeAccountV3 = (
   const toHash = new Uint8Array([
     ...new TextEncoder().encode("SiblingChain"),
     ...registry.createType("Compact<u32>", paraId).toU8a(),
-    ...registry
-      .createType(
-        "Compact<u32>",
-        accountType.length + hexToU8a(accountId).length,
-      )
-      .toU8a(),
+    ...registry.createType("Compact<u32>", accountType.length + hexToU8a(accountId).length).toU8a(),
     ...new TextEncoder().encode(accountType),
     ...decodedAddress,
   ]);
 
-  return u8aToHex(
-    blake2AsU8a(toHash).slice(
-      0,
-      deriveAccountType === AccountType.AccountKey20 ? 20 : 32,
-    ),
-  );
+  return u8aToHex(blake2AsU8a(toHash).slice(0, deriveAccountType === AccountType.AccountKey20 ? 20 : 32));
 };
 
 /**
@@ -159,9 +127,7 @@ export function convertAbsoluteLocationToRelative(absoluteLocation: any): any {
     return { interior: "Here", parents: 0 };
   }
   const newInterior: Record<string, any> = {};
-  const newArray = interior[key].filter(
-    (item: any) => !_.has(item, "Parachain"),
-  );
+  const newArray = interior[key].filter((item: any) => !_.has(item, "Parachain"));
   if (newArray.length > 0) {
     const newXKey = `X${newArray.length}`;
     newInterior[newXKey] = newArray.length === 1 ? newArray[0] : newArray;

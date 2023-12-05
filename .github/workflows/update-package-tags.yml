@@ -23,15 +23,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Yarn v2
+        run: npm install -g yarn@berry
+
       - name: 🔐 Authenticate with NPM
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTOMATION_TOKEN_CHRIS }}" > ~/.npmrc
 
       - name: Get dev version of ${{ matrix.package }}
         id: get-version
         run: |
-          tags=$(yarn info @oak-network/${{ matrix.package }} dist-tags --json)
+          tags=$(yarn npm info @oak-network/${{ matrix.package }} --fields dist-tags --json)
           echo "Tag versions: $tags"
-          dev_version=$(echo $tags | jq -r '.data.dev')
+          dev_version=$(echo $tags | jq -r '.["dist-tags"].dev')
           echo "Dev tag version: $dev_version"
           echo "::set-output name=dev_version::$dev_version"
       

@@ -17,16 +17,16 @@ const rstr = createToken({
 });
 const mgr = createToken({
   decimals: 18,
-  key: "mangata-rococo",
-  network: "rococo",
-  parachainId: 2110,
-  symbol: "MGR",
-  x2Params: {
+  interior: {
     GeneralKey: {
       data: "0x0000000000000000000000000000000000000000000000000000000000000000",
       length: 4,
     },
   },
+  key: "mangata-rococo",
+  network: "rococo",
+  parachainId: 2110,
+  symbol: "MGR",
 });
 
 // eslint-disable-next-line import/no-default-export

@@ -41,25 +41,25 @@ interface TokenParams {
   decimals: number;
   network: string;
   parachainId: number;
-  x2Params?: any;
+  interior?: any;
 }
 
 // Function to construct the 'location' object based on the parameters.
-function constructLocation(parachainId: number, x2Params?: any): Location {
-  const interior = x2Params
-    ? { X2: [{ Parachain: parachainId }, { ...x2Params }] }
+function constructLocation(parachainId: number, interior?: any): Location {
+  const interiorObj = interior
+    ? { X2: [{ Parachain: parachainId }, interior] }
     : { X1: { Parachain: parachainId } };
 
   return {
-    interior,
+    interior: interiorObj,
     parents: 1,
   };
 }
 
 // Simplify the asset creation function.
 function createToken(params: TokenParams): Token {
-  const { key, symbol, decimals, network, parachainId, x2Params } = params;
-  const location = constructLocation(parachainId, x2Params);
+  const { key, symbol, decimals, network, parachainId, interior } = params;
+  const location = constructLocation(parachainId, interior);
 
   return new Token({ decimals, key, location, network, symbol });
 }

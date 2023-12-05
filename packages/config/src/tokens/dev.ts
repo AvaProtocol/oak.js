@@ -16,24 +16,24 @@ const sby = createToken({
 });
 const moonbaseLocal = createToken({
   decimals: 18,
+  interior: { palletInstance: 3 },
   key: "unit",
   network: "moonbase",
   parachainId: 1000,
   symbol: "UNIT",
-  x2Params: { palletInstance: 3 },
 });
 const mgr = createToken({
   decimals: 18,
-  key: "mgr",
-  network: "mangata",
-  parachainId: 2110,
-  symbol: "MGR",
-  x2Params: {
+  interior: {
     GeneralKey: {
       data: "0x0000000000000000000000000000000000000000000000000000000000000000",
       length: 4,
     },
   },
+  key: "mgr",
+  network: "mangata",
+  parachainId: 2110,
+  symbol: "MGR",
 });
 
 // eslint-disable-next-line import/no-default-export

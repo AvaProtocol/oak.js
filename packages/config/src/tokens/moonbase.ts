@@ -10,11 +10,11 @@ const tur = createToken({
 
 const dev = createToken({
   decimals: 10,
+  interior: { palletInstance: 3 },
   key: "dev",
   network: "moonbase",
   parachainId: 1000,
   symbol: "DEV",
-  x2Params: { palletInstance: 3 },
 });
 
 // eslint-disable-next-line import/no-default-export

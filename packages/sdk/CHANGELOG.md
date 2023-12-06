@@ -1,5 +1,16 @@
 # @oak-network/sdk
 
+## 0.1.6
+
+### Patch Changes
+
+- e139d8f: Updated dependencies among @oak-network/packages to refer to the latest code instead of fixed version
+- 62a7082: Reverted package reference strategy back to workspace:^1.0.0
+- Updated dependencies [e139d8f]
+- Updated dependencies [62a7082]
+  - @oak-network/adapter@0.1.6
+  - @oak-network/config@1.0.1
+
 ## 0.1.5
 
 ### Patch Changes

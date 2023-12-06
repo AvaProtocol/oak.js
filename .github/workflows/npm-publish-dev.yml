@@ -60,12 +60,6 @@ jobs:
       - name: 🚀 Publish ${{ matrix.package }} package if newer than latest
         working-directory: ./packages/${{ matrix.package }}/build
         run: |
-          echo "Listing all files and directories in the current directory:"
-          ls -la
-          
-          echo "Listing all files and directories in the parent directory:"
-          ls -la ..
-
           new_version=$(node -p "require('./package.json').version")
           echo "New version from local build folder: $new_version"
 

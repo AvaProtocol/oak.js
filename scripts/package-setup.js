@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 const fs = require("fs");
 
-
 process.chdir("packages");
-const dirs = fs.readdirSync(".")
+
+console.log("postbuild script starts: setting up build folders of packages ...");
 
 process.chdir(`api-augment/build`);
-const aaPkg = JSON.parse(fs.readFileSync('../package.json'));
-
+const aaPkg = JSON.parse(fs.readFileSync("../package.json"));
 aaPkg.scripts = {};
 aaPkg.main = "./index.cjs";
 aaPkg.module = "./index.js";
@@ -17,8 +16,7 @@ fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
 
 process.chdir("../..");
 process.chdir(`types/build`);
-const tPkg = JSON.parse(fs.readFileSync('../package.json'));
-
+const tPkg = JSON.parse(fs.readFileSync("../package.json"));
 tPkg.scripts = {};
 tPkg.main = "./index.js";
 tPkg.types = "./index.d.ts";
@@ -26,8 +24,7 @@ fs.writeFileSync("./package.json", JSON.stringify(tPkg, null, 2));
 
 process.chdir("../..");
 process.chdir(`config/build`);
-const configPkg = JSON.parse(fs.readFileSync('../package.json'));
-
+const configPkg = JSON.parse(fs.readFileSync("../package.json"));
 configPkg.scripts = {};
 configPkg.main = "./index.js";
 configPkg.types = "./index.d.ts";
@@ -36,8 +33,7 @@ fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
 
 process.chdir("../..");
 process.chdir(`sdk/build`);
-const sdkPkg = JSON.parse(fs.readFileSync('../package.json'));
-
+const sdkPkg = JSON.parse(fs.readFileSync("../package.json"));
 sdkPkg.scripts = {};
 sdkPkg.main = "./index.js";
 sdkPkg.types = "./index.d.ts";
@@ -46,8 +42,7 @@ fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
 
 process.chdir("../..");
 process.chdir(`adapter/build`);
-const adapterPkg = JSON.parse(fs.readFileSync('../package.json'));
-
+const adapterPkg = JSON.parse(fs.readFileSync("../package.json"));
 adapterPkg.scripts = {};
 adapterPkg.main = "./index.js";
 adapterPkg.types = "./index.d.ts";

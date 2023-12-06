@@ -1,5 +1,11 @@
 # @oak-network/adapter
 
+## 0.2.0
+
+### Minor Changes
+
+- afb2cda: SDK and adapter upgrades with automationPrice support
+
 ## 0.1.6
 
 ### Patch Changes

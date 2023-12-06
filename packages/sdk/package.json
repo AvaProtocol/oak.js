@@ -1,6 +1,6 @@
 {
 	"name": "@oak-network/sdk",
-	"version": "0.1.6",
+	"version": "0.2.0",
 	"license": "Apache-2.0",
 	"main": "./build/index.js",
 	"scripts": {
@@ -8,7 +8,7 @@
 		"clean": "tsc --build --clean"
 	},
 	"dependencies": {
-		"@oak-network/adapter": "workspace:^0.1.6",
+		"@oak-network/adapter": "workspace:^0.2.0",
 		"@oak-network/config": "workspace:^1.0.1",
 		"@polkadot/util": "^12.6.1",
 		"bn.js": "^5.2.1",

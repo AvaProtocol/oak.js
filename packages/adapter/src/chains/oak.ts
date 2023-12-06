@@ -9,7 +9,7 @@ import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight, XcmInstructionNetworkType, Chain, XToken } from "@oak-network/config";
 import { ISubmittableResult } from "@polkadot/types/types";
 import { ChainAdapter } from "./chainAdapter";
-import { getDerivativeAccountV2, isValidAddress, sendExtrinsic, getDecimalBN } from "../util";
+import { getDerivativeAccountV2, isValidAddress, sendExtrinsic, getDecimalBN } from "../utils";
 import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 import { InvalidAddress } from "../errors";

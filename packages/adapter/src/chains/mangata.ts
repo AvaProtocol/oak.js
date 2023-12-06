@@ -7,7 +7,7 @@ import type { HexString } from "@polkadot/util/types";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight } from "@oak-network/config";
 import { ChainAdapter } from "./chainAdapter";
-import { getDerivativeAccountV2, sendExtrinsic } from "../util";
+import { getDerivativeAccountV2, sendExtrinsic } from "../utils";
 import { WEIGHT_REF_TIME_PER_NANOS, WEIGHT_REF_TIME_PER_SECOND, WEIGHT_PROOF_SIZE_PER_MB } from "../constants";
 import { SendExtrinsicResult } from "../types";
 

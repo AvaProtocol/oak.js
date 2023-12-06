@@ -1,5 +1,11 @@
 # @oak-network/adapter
 
+## 0.2.1
+
+### Patch Changes
+
+- 74c4832: Export utils constants and errors from adapters
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @oak-network/config
 
+## 1.0.1
+
+### Patch Changes
+
+- e139d8f: Updated dependencies among @oak-network/packages to refer to the latest code instead of fixed version
+
 ## 1.0.0
 
 ### Major Changes

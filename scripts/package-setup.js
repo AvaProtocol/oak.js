@@ -1,52 +1,46 @@
 #!/usr/bin/env node
 const fs = require("fs");
 
-process.chdir("packages");
+console.log("Postbuild script starts: setting up build folders of packages...");
 
-console.log("postbuild script starts: setting up build folders of packages ...");
+/* eslint-disable sort-keys */
+const packages = [
+  { name: "api-augment", main: "./index.cjs", module: "./index.js", types: "./index.d.ts", copyFile: true },
+  { name: "types", main: "./index.js", module: null, types: "./index.d.ts", copyFile: false },
+  { name: "config", main: "./index.js", module: null, types: "./index.d.ts", copyFile: true },
+  { name: "sdk", main: "./index.js", module: null, types: "./index.d.ts", copyFile: true },
+  { name: "adapter", main: "./index.js", module: null, types: "./index.d.ts", copyFile: true },
+];
 
-process.chdir(`api-augment/build`);
-const aaPkg = JSON.parse(fs.readFileSync("../package.json"));
-aaPkg.scripts = {};
-aaPkg.main = "./index.cjs";
-aaPkg.module = "./index.js";
-aaPkg.types = "./index.d.ts";
-fs.writeFileSync("./package.json", JSON.stringify(aaPkg, null, 2));
-fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
+packages.forEach((pkg) => {
+  const pkgPath = `packages/${pkg.name}/build`;
+  process.chdir(pkgPath);
 
-process.chdir("../..");
-process.chdir(`types/build`);
-const tPkg = JSON.parse(fs.readFileSync("../package.json"));
-tPkg.scripts = {};
-tPkg.main = "./index.js";
-tPkg.types = "./index.d.ts";
-fs.writeFileSync("./package.json", JSON.stringify(tPkg, null, 2));
+  const packageJson = JSON.parse(fs.readFileSync("../package.json"));
+  packageJson.scripts = {};
+  packageJson.main = pkg.main;
+  if (pkg.module) packageJson.module = pkg.module;
+  packageJson.types = pkg.types;
 
-process.chdir("../..");
-process.chdir(`config/build`);
-const configPkg = JSON.parse(fs.readFileSync("../package.json"));
-configPkg.scripts = {};
-configPkg.main = "./index.js";
-configPkg.types = "./index.d.ts";
-fs.writeFileSync("./package.json", JSON.stringify(configPkg, null, 2));
-fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
+  // Remove the 'workspace:' protocol if exists in dependencies
+  // Only config and adapter packages are depended by others
+  if (packageJson.dependencies && packageJson.dependencies["@oak-network/config"]) {
+    const version = packageJson.dependencies["@oak-network/config"].replace("workspace:", "");
+    packageJson.dependencies["@oak-network/config"] = version;
+  }
 
-process.chdir("../..");
-process.chdir(`sdk/build`);
-const sdkPkg = JSON.parse(fs.readFileSync("../package.json"));
-sdkPkg.scripts = {};
-sdkPkg.main = "./index.js";
-sdkPkg.types = "./index.d.ts";
-fs.writeFileSync("./package.json", JSON.stringify(sdkPkg, null, 2));
-fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
+  if (packageJson.dependencies && packageJson.dependencies["@oak-network/adapter"]) {
+    const version = packageJson.dependencies["@oak-network/adapter"].replace("workspace:", "");
+    packageJson.dependencies["@oak-network/adapter"] = version;
+  }
 
-process.chdir("../..");
-process.chdir(`adapter/build`);
-const adapterPkg = JSON.parse(fs.readFileSync("../package.json"));
-adapterPkg.scripts = {};
-adapterPkg.main = "./index.js";
-adapterPkg.types = "./index.d.ts";
-fs.writeFileSync("./package.json", JSON.stringify(adapterPkg, null, 2));
-fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
+  fs.writeFileSync("./package.json", JSON.stringify(packageJson, null, 2));
 
-process.chdir("../..");
+  if (pkg.copyFile) {
+    fs.copyFileSync("../../../templates/index.cjs", "./index.cjs");
+  }
+
+  process.chdir("../../.."); // Going back to the root directory
+});
+
+console.log("Postbuild setup completed.");

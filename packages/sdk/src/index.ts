@@ -140,6 +140,10 @@ export function Sdk() {
         xcmOptions,
         scheduleAs,
       } = params;
+      if (_.isEmpty(scheduleAs)) {
+        throw new Error("The scheduleAs parameter should not be empty");
+      }
+
       const createTaskFunc = (funcParams: CreateTaskFuncParams): SubmittableExtrinsic<"promise"> => {
         const { oakApi, destination, executionFee, encodedCall, encodedCallWeight, overallWeight } = funcParams;
         const taskExtrinsic = oakApi.tx.automationPrice.scheduleXcmpTaskThroughProxy(
@@ -156,7 +160,7 @@ export function Sdk() {
           encodedCall,
           encodedCallWeight,
           overallWeight,
-          scheduleAs || u8aToHex(keyringPair.addressRaw),
+          scheduleAs,
         );
         return taskExtrinsic;
       };
@@ -236,9 +240,12 @@ export function Sdk() {
         xcmOptions,
         scheduleAs,
       } = scheduleXcmpTaskParams;
+      if (_.isEmpty(scheduleAs)) {
+        throw new Error("The scheduleAs parameter should not be empty");
+      }
+
       const createTaskFunc = (funcParams: CreateTaskFuncParams): SubmittableExtrinsic<"promise"> => {
         const { oakApi, destination, executionFee, encodedCall, encodedCallWeight, overallWeight } = funcParams;
-        console.log("scheduleFeeLocation: ", scheduleFeeLocation);
         const taskExtrinsic = oakApi.tx.automationTime.scheduleXcmpTaskThroughProxy(
           schedule,
           destination,
@@ -247,7 +254,7 @@ export function Sdk() {
           encodedCall,
           encodedCallWeight,
           overallWeight,
-          scheduleAs || u8aToHex(keyringPair.addressRaw),
+          scheduleAs,
         );
         return taskExtrinsic;
       };

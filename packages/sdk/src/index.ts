@@ -34,6 +34,7 @@ interface ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams extends Schedu
 
 interface ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams extends ScheduleXcmpTaskParams {
   destinationChainAdapter: TaskSchedulerChainAdapter;
+  scheduleAs?: HexString;
 }
 
 interface CreateTaskFuncParams {
@@ -129,8 +130,20 @@ export function Sdk() {
       params: ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams,
       automationPriceTriggerParams: AutomationPriceTriggerParams,
     ): Promise<SendExtrinsicResult> => {
-      const { oakAdapter, destinationChainAdapter, taskPayloadExtrinsic, scheduleFeeLocation, executionFeeLocation, keyringPair, xcmOptions } =
-        params;
+      const {
+        oakAdapter,
+        destinationChainAdapter,
+        taskPayloadExtrinsic,
+        scheduleFeeLocation,
+        executionFeeLocation,
+        keyringPair,
+        xcmOptions,
+        scheduleAs,
+      } = params;
+      if (_.isEmpty(scheduleAs)) {
+        throw new Error("The scheduleAs parameter should not be empty");
+      }
+
       const createTaskFunc = (funcParams: CreateTaskFuncParams): SubmittableExtrinsic<"promise"> => {
         const { oakApi, destination, executionFee, encodedCall, encodedCallWeight, overallWeight } = funcParams;
         const taskExtrinsic = oakApi.tx.automationPrice.scheduleXcmpTaskThroughProxy(
@@ -147,7 +160,7 @@ export function Sdk() {
           encodedCall,
           encodedCallWeight,
           overallWeight,
-          u8aToHex(keyringPair.addressRaw),
+          scheduleAs,
         );
         return taskExtrinsic;
       };
@@ -214,14 +227,25 @@ export function Sdk() {
      * @returns
      */
     scheduleXcmpTimeTaskWithPayThroughRemoteDerivativeAccountFlow: async (
-      scheduleXcmpTaskParams: ScheduleXcmpTaskParams,
-      destinationChainAdapter: TaskSchedulerChainAdapter,
+      scheduleXcmpTaskParams: ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams,
       schedule: any,
     ): Promise<SendExtrinsicResult> => {
-      const { oakAdapter, taskPayloadExtrinsic, scheduleFeeLocation, executionFeeLocation, keyringPair, xcmOptions } = scheduleXcmpTaskParams;
+      const {
+        oakAdapter,
+        destinationChainAdapter,
+        taskPayloadExtrinsic,
+        scheduleFeeLocation,
+        executionFeeLocation,
+        keyringPair,
+        xcmOptions,
+        scheduleAs,
+      } = scheduleXcmpTaskParams;
+      if (_.isEmpty(scheduleAs)) {
+        throw new Error("The scheduleAs parameter should not be empty");
+      }
+
       const createTaskFunc = (funcParams: CreateTaskFuncParams): SubmittableExtrinsic<"promise"> => {
         const { oakApi, destination, executionFee, encodedCall, encodedCallWeight, overallWeight } = funcParams;
-        console.log("scheduleFeeLocation: ", scheduleFeeLocation);
         const taskExtrinsic = oakApi.tx.automationTime.scheduleXcmpTaskThroughProxy(
           schedule,
           destination,
@@ -230,7 +254,7 @@ export function Sdk() {
           encodedCall,
           encodedCallWeight,
           overallWeight,
-          u8aToHex(keyringPair.addressRaw),
+          scheduleAs,
         );
         return taskExtrinsic;
       };
@@ -255,7 +279,7 @@ export function Sdk() {
      * @returns
      */
     scheduleXcmpTimeTaskWithPayThroughSoverignAccountFlow: async (
-      scheduleXcmpTaskParams: ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams,
+      scheduleXcmpTaskParams: ScheduleXcmpTaskWithPayThroughSoverignAccountFlowParams,
       schedule: any,
     ): Promise<SendExtrinsicResult> => {
       const { oakAdapter, destinationChainAdapter, taskPayloadExtrinsic, scheduleFeeLocation, executionFeeLocation, keyringPair, xcmOptions } =

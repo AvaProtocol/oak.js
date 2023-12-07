@@ -6,8 +6,9 @@ import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
 import type { u32, u128, Option } from "@polkadot/types";
 import type { WeightV2 } from "@polkadot/types/interfaces";
 import type { KeyringPair } from "@polkadot/keyring/types";
-import { Weight, XcmInstructionNetworkType, Chain, XToken } from "@oak-network/config";
 import { ISubmittableResult } from "@polkadot/types/types";
+import { Weight, XcmInstructionNetworkType, Chain, XToken } from "@oak-network/config";
+import "@oak-network/api-augment";
 import { ChainAdapter } from "./chainAdapter";
 import { getDerivativeAccountV2, isValidAddress, sendExtrinsic, getDecimalBN } from "../utils";
 import { AccountType, SendExtrinsicResult } from "../types";
@@ -243,6 +244,45 @@ export class OakAdapter extends ChainAdapter {
     console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
     const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
+  }
+
+  /**
+   * Schedule XCMP task
+   * @param destination The location of the destination chain
+   * @param schedule Schedule setting
+   * @param scheduleFee Schedule fee
+   * @param executionFee Execution fee
+   * @param encodedCall Encoded call
+   * @param encodedCallWeight The encoded call weight weight of the XCM instructions
+   * @param overallWeight The overall weight of the XCM instructions
+   * @returns SendExtrinsicResult
+   */
+  async createXcmpTimeTask(
+    destination: any,
+    schedule: any,
+    scheduleFee: any,
+    executionFee: any,
+    encodedCall: HexString,
+    encodedCallWeight: Weight,
+    overallWeight: Weight,
+  ): Promise<any> {
+    const api = this.getApi();
+    const { key } = this.chainConfig;
+    if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
+
+    const extrinsic = api.tx.automationTime.scheduleXcmpTask(
+      schedule,
+      destination,
+      scheduleFee,
+      executionFee,
+      encodedCall,
+      encodedCallWeight,
+      overallWeight,
+    );
+
+    const feeDetails = await api.rpc.automationTime.queryFeeDetails(extrinsic);
+
+    return { extrinsic, feeDetails };
   }
 
   /**

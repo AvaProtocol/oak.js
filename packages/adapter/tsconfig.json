@@ -8,6 +8,7 @@
   },
   "references": [
     { "path": "../types" },
-    { "path": "../config" }
+    { "path": "../config" },
+    { "path": "../api-augment" }
   ]
 }

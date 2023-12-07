@@ -1,6 +1,5 @@
 import _ from "lodash";
 import BN from "bn.js";
-// import '@polkadot/api-augment';
 import type { ApiPromise } from "@polkadot/api";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
@@ -37,11 +36,7 @@ export abstract class ChainAdapter {
    * @param options Optional operation options: { locationType, network }
    * @returns Derivative account
    */
-  public abstract getDerivativeAccount(
-    accountId: HexString,
-    paraId: number,
-    options?: any,
-  ): HexString;
+  public abstract getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString;
 
   /**
    * Get extrinsic weight for transact an extrinsic call through XCM message
@@ -49,10 +44,7 @@ export abstract class ChainAdapter {
    * @param account
    * @returns Extrinsic weight
    */
-  public abstract getExtrinsicWeight(
-    extrinsic: SubmittableExtrinsic<"promise">,
-    account: AddressOrPair,
-  ): Promise<Weight>;
+  public abstract getExtrinsicWeight(extrinsic: SubmittableExtrinsic<"promise">, account: AddressOrPair): Promise<Weight>;
 
   /**
    * Calculate XCM overall weight for transact an extrinsic call through XCM message
@@ -60,10 +52,7 @@ export abstract class ChainAdapter {
    * @param instructionCount The number of XCM instructions
    * @returns XCM overall weight
    */
-  public abstract calculateXcmOverallWeight(
-    transactCallWeight: Weight,
-    instructionCount: number,
-  ): Promise<Weight>;
+  public abstract calculateXcmOverallWeight(transactCallWeight: Weight, instructionCount: number): Promise<Weight>;
 
   /**
    * Calculate XCM execution fee based on weight
@@ -103,9 +92,7 @@ export abstract class ChainAdapter {
    */
   public async fetchAndUpdateConfigs(): Promise<void> {
     const api = this.getApi();
-    this.chainConfig.ss58Prefix = (
-      api.consts.system.ss58Prefix as unknown as u32
-    ).toNumber();
+    this.chainConfig.ss58Prefix = (api.consts.system.ss58Prefix as unknown as u32).toNumber();
     const storageValue = await api.query.parachainInfo.parachainId();
     this.chainConfig.paraId = (storageValue as unknown as u32).toNumber();
   }

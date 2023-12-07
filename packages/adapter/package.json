@@ -9,6 +9,7 @@
 	},
 	"dependencies": {
 		"@oak-network/config": "workspace:^1.0.1",
+		"@oak-network/api-augment": "workspace:^2.1.0",
 		"@polkadot/api": "^10.9.1",
 		"@polkadot/keyring": "^12.6.1",
 		"@polkadot/types": "^10.11.1",

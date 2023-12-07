@@ -1,5 +1,11 @@
 # @oak-network/sdk
 
+## 0.2.1
+
+### Patch Changes
+
+- 2d5b02f: Add scheduleAs to task params
+
 ## 0.2.0
 
 ### Minor Changes

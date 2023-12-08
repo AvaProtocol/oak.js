@@ -88,7 +88,7 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
   };
 
   // Calculate derive account on Turing/OAK
-  const deriveAccountId = oakAdapter.getDerivativeAccount(u8aToHex(keyringPair.addressRaw), paraId, xcm.instructionNetworkType);
+  const deriveAccountId = oakAdapter.getDerivativeAccount(u8aToHex(keyringPair.addressRaw), paraId);
 
   // Create task extrinsic
   const taskExtrinsic = createTaskFunc({

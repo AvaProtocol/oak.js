@@ -6,10 +6,10 @@ import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
 import type { u32, u128, Option } from "@polkadot/types";
 import type { WeightV2 } from "@polkadot/types/interfaces";
 import type { KeyringPair } from "@polkadot/keyring/types";
-import { Weight, XcmInstructionNetworkType, Chain, XToken } from "@oak-network/config";
+import { Weight, Chain, XToken } from "@oak-network/config";
 import { ISubmittableResult } from "@polkadot/types/types";
 import { ChainAdapter } from "./chainAdapter";
-import { getDerivativeAccountV2, isValidAddress, sendExtrinsic, getDecimalBN } from "../utils";
+import { isValidAddress, sendExtrinsic, getDecimalBN, getDerivativeAccountV3 } from "../utils";
 import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 import { InvalidAddress } from "../errors";
@@ -296,23 +296,11 @@ export class OakAdapter extends ChainAdapter {
    * Calculate the derivative account ID of a certain account ID
    * @param accountId
    * @param paraId The paraId of the XCM message sender
-   * @param options Optional operation options: { locationType, network }
    * @returns Derivative account
    */
-  getDerivativeAccount(
-    accountId: HexString,
-    paraId: number,
-    xcmInstructionNetworkType: XcmInstructionNetworkType = XcmInstructionNetworkType.Null,
-  ): HexString {
-    const api = this.getApi();
-    const accountOptions =
-      xcmInstructionNetworkType === XcmInstructionNetworkType.Concrete
-        ? {
-            locationType: "XcmV3MultiLocation",
-            network: this.getChainConfig().xcm.network,
-          }
-        : undefined;
-    return getDerivativeAccountV2(api, accountId, paraId, accountOptions);
+  // eslint-disable-next-line class-methods-use-this
+  getDerivativeAccount(accountId: HexString, paraId: number): HexString {
+    return getDerivativeAccountV3(accountId, paraId);
   }
 
   /**

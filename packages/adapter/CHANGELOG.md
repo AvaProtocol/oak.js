@@ -1,5 +1,11 @@
 # @oak-network/adapter
 
+## 0.2.3
+
+### Patch Changes
+
+- 0eaa448: Rename xtokens to xTokens in astarAdapter
+
 ## 0.2.2
 
 ### Patch Changes

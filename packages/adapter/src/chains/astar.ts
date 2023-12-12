@@ -209,7 +209,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
 
     const transferAssetLocation = this.isNativeAsset(assetLocation) ? convertAbsoluteLocationToRelative(assetLocation) : assetLocation;
 
-    const extrinsic = api.tx.xtokens.transferMultiasset(
+    const extrinsic = api.tx.xTokens.transferMultiasset(
       {
         V3: {
           fun: { Fungible: assetAmount },

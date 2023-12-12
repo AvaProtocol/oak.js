@@ -1,5 +1,13 @@
 # @oak-network/sdk
 
+## 0.2.2
+
+### Patch Changes
+
+- 9cfa4a9: Change oakAdapter account derivation
+- Updated dependencies [9cfa4a9]
+  - @oak-network/adapter@0.2.2
+
 ## 0.2.1
 
 ### Patch Changes

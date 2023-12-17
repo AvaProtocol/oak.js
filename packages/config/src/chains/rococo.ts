@@ -33,8 +33,8 @@ const mangataRococo = createChain({
 
 const turingStaging = createChain({
   assets: [
-    { asset: RococoTokens.tur, isNative: true },
-    { asset: RococoTokens.rstr, isNative: false },
+    { asset: RococoTokens.tur, id: 0, isNative: true },
+    { asset: RococoTokens.rstr, id: 9, isNative: false },
   ],
   endpoint: "wss://rpc.turing-staging.oak.tech",
   key: "turing-staging",

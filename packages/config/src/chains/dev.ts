@@ -18,8 +18,10 @@ const shibuya = createChain({
 
 const turingLocal = createChain({
   assets: [
-    { asset: DevTokens.tur, isNative: true },
-    { asset: DevTokens.sby, isNative: false },
+    { asset: DevTokens.tur, id: 0, isNative: true },
+    { asset: DevTokens.sby, id: 4, isNative: false },
+    { asset: DevTokens.moonbaseLocal, id: 5, isNative: false },
+    { asset: DevTokens.mgr, id: 1, isNative: false },
   ],
   endpoint: "ws://127.0.0.1:9946",
   key: "turing-local",

@@ -1,5 +1,11 @@
 # @oak-network/config
 
+## 1.0.3
+
+### Patch Changes
+
+- 933ed48: Fix a problem where currencyId is not set on Turing chains
+
 ## 1.0.2
 
 ### Patch Changes

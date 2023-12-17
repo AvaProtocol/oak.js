@@ -5,6 +5,7 @@ import { Token, TokenConstructorParams } from "./Token"; // Ensure this path is 
 
 interface XTokenConstructorParams {
   asset: TokenConstructorParams; // The 'asset' property is introduced here.
+  id?: number;
   isNative: boolean;
   contractAddress?: string;
   otherSymbol?: string;
@@ -13,7 +14,7 @@ interface XTokenConstructorParams {
 }
 
 class XToken extends Token {
-  public id: any; // Consider specifying a more precise type if possible.
+  public id: number | undefined;
 
   public isNative: boolean;
 
@@ -29,6 +30,7 @@ class XToken extends Token {
     // Spreading 'asset' properties here so that they are passed as individual parameters to the super constructor.
     super({ ...params.asset });
 
+    this.id = params.id;
     this.isNative = params.isNative;
     this.contractAddress = params.contractAddress;
     this.otherSymbol = params.otherSymbol;

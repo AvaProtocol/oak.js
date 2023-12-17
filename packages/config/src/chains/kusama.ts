@@ -18,10 +18,10 @@ const shiden = createChain({
 
 const turing = createChain({
   assets: [
-    { asset: KusamaTokens.tur, isNative: true },
-    { asset: KusamaTokens.sdn, isNative: false },
-    { asset: KusamaTokens.movr, isNative: false },
-    { asset: KusamaTokens.mgx, isNative: false },
+    { asset: KusamaTokens.tur, id: 0, isNative: true },
+    { asset: KusamaTokens.sdn, id: 8, isNative: false },
+    { asset: KusamaTokens.movr, id: 9, isNative: false },
+    { asset: KusamaTokens.mgx, isNative: false }, // MGX is not registered on Turing yet
   ],
   endpoint: "wss://rpc.turing.oak.tech",
   key: "turing",

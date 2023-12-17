@@ -13,6 +13,7 @@ interface XcmConfig {
 type AssetInfo = {
   asset: Token;
   isNative: boolean;
+  id?: number;
 };
 
 interface ChainConstructorParams {

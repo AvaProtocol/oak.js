@@ -8,9 +8,10 @@ import { u8aToHex } from "@polkadot/util";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight, XcmInstructionNetworkType } from "@oak-network/config";
 import { ChainAdapter, TaskScheduler } from "./chainAdapter";
-import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic } from "../utils";
-import { SendExtrinsicResult } from "../types";
+import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic, isValidAddress, getAccountTypeFromAddress } from "../utils";
+import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
+import { InvalidAddress } from "../errors";
 
 const TRANSACT_XCM_INSTRUCTION_COUNT = 6;
 
@@ -207,6 +208,15 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
     const api = this.getApi();
 
+    const isAccountKey20Address = getAccountTypeFromAddress(recipient) === AccountType.AccountKey20;
+    if (!isValidAddress(recipient, isAccountKey20Address)) {
+      throw new InvalidAddress(recipient);
+    }
+
+    const accountId = isAccountKey20Address
+      ? { [AccountType.AccountKey20]: { key: recipient, network: null } }
+      : { [AccountType.AccountId32]: { id: recipient, network: null } };
+
     const transferAssetLocation = this.isNativeAsset(assetLocation) ? convertAbsoluteLocationToRelative(assetLocation) : assetLocation;
 
     const extrinsic = api.tx.xTokens.transferMultiasset(
@@ -219,7 +229,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
       {
         V3: {
           interior: {
-            X2: [destination.interior.X1, { AccountId32: { id: recipient, network: null } }],
+            X2: [destination.interior.X1, accountId],
           },
           parents: 1,
         },

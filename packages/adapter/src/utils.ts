@@ -175,3 +175,15 @@ export function getDecimalBN(decimals: number | string) {
   const power = new BN(decimals, 10);
   return base.pow(power);
 }
+
+/**
+ * Determine the account type based on the address.
+ * Because 1 byte takes 2 characters in hex string, we can use the length of the address to determine the address type.
+ * AccountKey20: 42 characters with prefix 0x.
+ * AccountId32: 66 characters with prefix 0x.
+ * @param address The address to identify the account type.
+ * @returns The account type.
+ */
+export function getAccountTypeFromAddress(address: HexString): AccountType {
+  return address.length === 42 ? AccountType.AccountKey20 : AccountType.AccountId32;
+}

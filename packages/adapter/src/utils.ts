@@ -294,13 +294,20 @@ const prefixs: any = [
  * @returns Precompile multi location
  */
 export const convertLocationToPrecompileMultiLocation = (location: any): any => {
+  console.log("location: ", location);
   const { parents, interior } = location;
   const interiors: string[] = [];
   const precompileLocation = [parents, interiors];
+  if (interior === "Here") {
+    return precompileLocation;
+  }
   const interiorKey = _.keys(interior)[0];
   const fields = interiorKey === "X1" ? [interior.X1] : interior[interiorKey];
   _.each(fields, (field) => {
+    console.log("field: ", field);
     const selector = _.keys(field)[0];
+    // console.log("prefixs", prefixs);
+    console.log("selector", selector);
     const { prefix, handleFunc } = _.find(prefixs, { selector });
     interiors.push(prefix + handleFunc(field));
   });

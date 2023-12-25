@@ -287,6 +287,9 @@ const prefixs: any = [
 
 /**
  * Convert location to precompile multi location
+ * Docs:
+ * https://docs.moonbeam.network/builders/interoperability/xcm/core-concepts/multilocations/
+ * https://docs.moonbeam.network/builders/interoperability/xcm/xc20/send-xc20s/xtokens-precompile/
  * @param location The location to be converted
  * @returns Precompile multi location
  */

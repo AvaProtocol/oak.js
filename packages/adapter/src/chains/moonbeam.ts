@@ -8,7 +8,14 @@ import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight, contracts } from "@oak-network/config";
 import { ethers } from "ethers";
 import { ChainAdapter, TaskScheduler } from "./chainAdapter";
-import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic, isValidAddress, getAccountTypeFromAddress } from "../utils";
+import {
+  convertAbsoluteLocationToRelative,
+  getDerivativeAccountV3,
+  sendExtrinsic,
+  isValidAddress,
+  getAccountTypeFromAddress,
+  convertLocationToPrecompileMultiLocation,
+} from "../utils";
 import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 import { InvalidAddress } from "../errors";
@@ -236,8 +243,6 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     return result;
   }
 
-  ///  const xTokens = new ethers.Contract(contracts.moonbeam.xtokens.address, contracts.moonbeam.xtokens.abi, signer);
-
   /**
    * Execute a cross-chain transfer
    * @param destination The location of the destination chain
@@ -262,26 +267,19 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
       throw new InvalidAddress(recipient);
     }
 
-    // const accountId = isAccountKey20Address
-    //   ? { [AccountType.AccountKey20]: { key: recipient, network: null } }
-    //   : { [AccountType.AccountId32]: { id: recipient, network: null } };
+    const accountId = isAccountKey20Address
+      ? { [AccountType.AccountKey20]: { key: recipient, network: null } }
+      : { [AccountType.AccountId32]: { id: recipient, network: null } };
 
-    // const transferAssetLocation = this.isNativeAsset(assetLocation) ? convertAbsoluteLocationToRelative(assetLocation) : assetLocation;
-    const xTokens = new ethers.Contract(contracts.moonbeam.xtokens.address, contracts.moonbeam.xtokens.abi, signer);
-
-    // Arguments for the transfer function
-    // const currencyAddress = "0xFfFFfFff1FcaCBd218EDc0EbA20Fc2308C778080"; // xcUNIT address
-    const asset = [
-      0, // Parents: 0
-      ["0x0403"], // PalletInstace 3
-    ];
-    // const amount = 1000000000000;
-    const destinationParam = [
-      1, // Parents: 1
-      // Parachain 2114, accountId: 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
-      ["0x0000000842", "0x01d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d00"],
-    ];
+    const transferAssetLocation = this.isNativeAsset(assetLocation) ? convertAbsoluteLocationToRelative(assetLocation) : assetLocation;
+    const asset = convertLocationToPrecompileMultiLocation(transferAssetLocation);
+    const dest = { interior: { X2: [destination.interior.X1, accountId] }, parents: destination.parents };
+    const destinationParam = convertLocationToPrecompileMultiLocation(dest);
+    // Unlimited weight
     const uint64Max = BigInt("0xFFFFFFFFFFFFFFFF");
+
+    // Send contract call
+    const xTokens = new ethers.Contract(contracts.moonbeam.xtokens.address, contracts.moonbeam.xtokens.abi, signer);
     const transaction = await xTokens.transfer_multiasset(asset, assetAmount.toString(), destinationParam, uint64Max);
     await transaction.wait();
     return transaction;

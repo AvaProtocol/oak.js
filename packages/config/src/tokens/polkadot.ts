@@ -2,7 +2,7 @@ import { createToken } from "./types/Token";
 
 const glmr = createToken({
   decimals: 10,
-  interior: { palletInstance: 10 },
+  interior: { PalletInstance: 10 },
   key: "glmr",
   network: "kusama",
   parachainId: 2023,

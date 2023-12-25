@@ -18,7 +18,7 @@ const xcTur = createToken({
 // TODO: movr is not defined in the original file; need to double check its value
 const movr = createToken({
   decimals: 18,
-  interior: { palletInstance: 10 },
+  interior: { PalletInstance: 10 },
   key: "movr",
   network: "kusama",
   parachainId: 2023,

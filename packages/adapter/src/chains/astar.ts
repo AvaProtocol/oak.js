@@ -9,14 +9,8 @@ import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight, XcmInstructionNetworkType, contracts } from "@oak-network/config";
 import { ethers } from "ethers";
 import { ChainAdapter, TaskScheduler } from "./chainAdapter";
-import {
-  convertAbsoluteLocationToRelative,
-  getDerivativeAccountV3,
-  sendExtrinsic,
-  isValidAddress,
-  getAccountTypeFromAddress,
-  convertLocationToPrecompileMultiLocation,
-} from "../utils";
+import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic, isValidAddress, getAccountTypeFromAddress } from "../utils";
+import { convertLocationToPrecompileMultiLocation } from "../contract-utils";
 import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 import { InvalidAddress } from "../errors";

@@ -115,7 +115,7 @@ export const convertLocationToPrecompileMultiLocation = (location: any): any => 
   const interiorKey = _.keys(interior)[0];
   const fields = interiorKey === "X1" ? [interior.X1] : interior[interiorKey];
   _.each(fields, (field) => {
-    const selector = _.keys(field)[0];
+    const selector = _.find(_.keys(field), (key) => _.find(prefixs, { selector: key }));
     const { prefix, handleFunc } = _.find(prefixs, { selector });
     interiors.push(prefix + handleFunc(field));
   });

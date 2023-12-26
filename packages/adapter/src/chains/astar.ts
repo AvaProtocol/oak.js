@@ -283,15 +283,11 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     const dest = { interior: { X2: [destination.interior.X1, accountId] }, parents: destination.parents };
     const destinationParam = convertLocationToPrecompileMultiLocation(dest);
     // Unlimited weight
-    const uint64Max = BigInt("0xFFFFFFFFFFFFFFFF");
+    const unlimitedWeight = [0, 0];
 
     // Send contract call
     const xcm = new ethers.Contract(contracts.astar.xcm.address, contracts.astar.xcm.abi, signer);
-    console.log("asset: ", asset);
-    console.log("assetAmount: ", assetAmount.toString());
-    console.log("destinationParam: ", destinationParam);
-    console.log("contracts.astar.xcm: ", contracts.astar.xcm);
-    const transaction = await xcm.transfer_multiasset(asset, assetAmount.toString(), destinationParam, uint64Max);
+    const transaction = await xcm.transfer_multiasset(asset, assetAmount.toString(), destinationParam, unlimitedWeight);
     await transaction.wait();
     return transaction;
   }

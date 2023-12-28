@@ -10,7 +10,7 @@ const tur = createToken({
 
 const dev = createToken({
   decimals: 10,
-  interior: { palletInstance: 3 },
+  interior: { PalletInstance: 3 },
   key: "dev",
   network: "moonbase",
   parachainId: 1000,

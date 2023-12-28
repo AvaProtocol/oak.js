@@ -6,11 +6,14 @@ import type { WeightV2 } from "@polkadot/types/interfaces";
 import type { HexString } from "@polkadot/util/types";
 import { u8aToHex } from "@polkadot/util";
 import type { KeyringPair } from "@polkadot/keyring/types";
-import { Weight, XcmInstructionNetworkType } from "@oak-network/config";
+import { Weight, XcmInstructionNetworkType, contracts } from "@oak-network/config";
+import { ethers } from "ethers";
 import { ChainAdapter, TaskScheduler } from "./chainAdapter";
-import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic } from "../utils";
-import { SendExtrinsicResult } from "../types";
+import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic, isValidAddress, getAccountTypeFromAddress } from "../utils";
+import { convertLocationToPrecompileMultiLocation } from "../contract-utils";
+import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
+import { InvalidAddress } from "../errors";
 
 const TRANSACT_XCM_INSTRUCTION_COUNT = 6;
 
@@ -207,6 +210,15 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
     const api = this.getApi();
 
+    const isAccountKey20Address = getAccountTypeFromAddress(recipient) === AccountType.AccountKey20;
+    if (!isValidAddress(recipient, isAccountKey20Address)) {
+      throw new InvalidAddress(recipient);
+    }
+
+    const accountId = isAccountKey20Address
+      ? { [AccountType.AccountKey20]: { key: recipient, network: null } }
+      : { [AccountType.AccountId32]: { id: recipient, network: null } };
+
     const transferAssetLocation = this.isNativeAsset(assetLocation) ? convertAbsoluteLocationToRelative(assetLocation) : assetLocation;
 
     const extrinsic = api.tx.xTokens.transferMultiasset(
@@ -219,7 +231,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
       {
         V3: {
           interior: {
-            X2: [destination.interior.X1, { AccountId32: { id: recipient, network: null } }],
+            X2: [destination.interior.X1, accountId],
           },
           parents: 1,
         },
@@ -230,5 +242,47 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());
     const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
+  }
+
+  /**
+   * Execute a cross-chain transfer
+   * @param destination The location of the destination chain
+   * @param recipient recipient account
+   * @param assetLocation Asset location
+   * @param assetAmount Asset amount
+   * @param keyringPair Operator's keyring pair
+   * @returns SendExtrinsicResult
+   */
+  async crossChainTransferWithEthSigner(
+    destination: any,
+    recipient: HexString,
+    assetLocation: any,
+    assetAmount: BN,
+    signer: ethers.AbstractSigner,
+  ): Promise<any> {
+    const { key } = this.chainConfig;
+    if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
+
+    const isAccountKey20Address = getAccountTypeFromAddress(recipient) === AccountType.AccountKey20;
+    if (!isValidAddress(recipient, isAccountKey20Address)) {
+      throw new InvalidAddress(recipient);
+    }
+
+    const accountId = isAccountKey20Address
+      ? { [AccountType.AccountKey20]: { key: recipient, network: null } }
+      : { [AccountType.AccountId32]: { id: recipient, network: null } };
+
+    const transferAssetLocation = this.isNativeAsset(assetLocation) ? convertAbsoluteLocationToRelative(assetLocation) : assetLocation;
+    const asset = convertLocationToPrecompileMultiLocation(transferAssetLocation);
+    const dest = { interior: { X2: [destination.interior.X1, accountId] }, parents: destination.parents };
+    const destinationParam = convertLocationToPrecompileMultiLocation(dest);
+    // Unlimited weight
+    const unlimitedWeight = [0, 0];
+
+    // Send contract call
+    const xcm = new ethers.Contract(contracts.astar.xcm.address, contracts.astar.xcm.abi, signer);
+    const transaction = await xcm.transfer_multiasset(asset, assetAmount.toString(), destinationParam, unlimitedWeight);
+    await transaction.wait();
+    return transaction;
   }
 }

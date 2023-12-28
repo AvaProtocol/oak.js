@@ -7,9 +7,10 @@ import type { HexString } from "@polkadot/util/types";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight } from "@oak-network/config";
 import { ChainAdapter } from "./chainAdapter";
-import { getDerivativeAccountV2, sendExtrinsic } from "../utils";
+import { getDerivativeAccountV2, sendExtrinsic, isValidAddress, getAccountTypeFromAddress } from "../utils";
 import { WEIGHT_REF_TIME_PER_NANOS, WEIGHT_REF_TIME_PER_SECOND, WEIGHT_PROOF_SIZE_PER_MB } from "../constants";
-import { SendExtrinsicResult } from "../types";
+import { AccountType, SendExtrinsicResult } from "../types";
+import { InvalidAddress } from "../errors";
 
 // MangataAdapter implements ChainAdapter
 export class MangataAdapter extends ChainAdapter {
@@ -124,6 +125,15 @@ export class MangataAdapter extends ChainAdapter {
     const { key } = this.chainConfig;
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
 
+    const isAccountKey20Address = getAccountTypeFromAddress(recipient) === AccountType.AccountKey20;
+    if (!isValidAddress(recipient, isAccountKey20Address)) {
+      throw new InvalidAddress(recipient);
+    }
+
+    const accountId = isAccountKey20Address
+      ? { [AccountType.AccountKey20]: { key: recipient, network: null } }
+      : { [AccountType.AccountId32]: { id: recipient, network: null } };
+
     const api = this.getApi();
     const extrinsic = api.tx.xTokens.transferMultiasset(
       {
@@ -135,7 +145,7 @@ export class MangataAdapter extends ChainAdapter {
       {
         V3: {
           interior: {
-            X2: [destination.interior.X1, { AccountId32: { id: recipient, network: null } }],
+            X2: [destination.interior.X1, accountId],
           },
           parents: 1,
         },

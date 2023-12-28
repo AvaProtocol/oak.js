@@ -9,7 +9,7 @@ import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight, Chain, XToken } from "@oak-network/config";
 import { ISubmittableResult } from "@polkadot/types/types";
 import { ChainAdapter } from "./chainAdapter";
-import { isValidAddress, sendExtrinsic, getDecimalBN, getDerivativeAccountV3 } from "../utils";
+import { isValidAddress, sendExtrinsic, getDecimalBN, getDerivativeAccountV3, getAccountTypeFromAddress } from "../utils";
 import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 import { InvalidAddress } from "../errors";
@@ -163,10 +163,14 @@ export class OakAdapter extends ChainAdapter {
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
     const api = this.getApi();
 
-    // if isEthereum accountId20: {key: recipient, network: null}
-    //	if (!validateAddress(address, useAccountKey20 ? "ethereum" : "substract")) {
-    // throw new InvalidAddress(address);
-    // }
+    const isAccountKey20Address = getAccountTypeFromAddress(recipient) === AccountType.AccountKey20;
+    if (!isValidAddress(recipient, isAccountKey20Address)) {
+      throw new InvalidAddress(recipient);
+    }
+
+    const accountId = isAccountKey20Address
+      ? { [AccountType.AccountKey20]: { key: recipient, network: null } }
+      : { [AccountType.AccountId32]: { id: recipient, network: null } };
 
     const extrinsic = api.tx.xTokens.transferMultiasset(
       {
@@ -178,7 +182,7 @@ export class OakAdapter extends ChainAdapter {
       {
         V3: {
           interior: {
-            X2: [destination.interior.X1, { AccountId32: { id: recipient, network: null } }],
+            X2: [destination.interior.X1, accountId],
           },
           parents: 1,
         },

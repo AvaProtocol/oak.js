@@ -1,20 +1,7 @@
 // Importing variables
-import {
-  DevChains,
-  MoonbaseChains,
-  RococoChains,
-  KusamaChains,
-  PolkadotChains,
-  Weight,
-} from "./chains";
-import {
-  XToken,
-  DevTokens,
-  MoonbaseTokens,
-  RococoTokens,
-  KusamaTokens,
-  PolkadotTokens,
-} from "./tokens";
+import { DevChains, MoonbaseChains, RococoChains, KusamaChains, PolkadotChains, Weight } from "./chains";
+import { XToken, DevTokens, MoonbaseTokens, RococoTokens, KusamaTokens, PolkadotTokens } from "./tokens";
+import * as contracts from "./contracts";
 import { XcmInstructionNetworkType } from "./chains/types/XcmInstructionNetworkType";
 
 // Importing types
@@ -36,7 +23,7 @@ export const tokens = {
   RococoTokens,
 };
 
-export { XToken, Weight, XcmInstructionNetworkType };
+export { XToken, Weight, XcmInstructionNetworkType, contracts };
 
 // Exporting types
 export type { Chain, XcmConfig };

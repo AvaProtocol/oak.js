@@ -1,5 +1,11 @@
 # @oak-network/config
 
+## 1.0.4
+
+### Patch Changes
+
+- df498f2: Fix crossChainTransfer for the changes in adapter. fix #137
+
 ## 1.0.3
 
 ### Patch Changes

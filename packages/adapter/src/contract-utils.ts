@@ -1,5 +1,7 @@
 import _ from "lodash";
 
+const bitsInByte = 8;
+
 /**
  * convert number to hex string
  * @param number The number to be converted
@@ -18,25 +20,25 @@ const numberToHex = (number: number, bytes: number) => {
 };
 
 /**
- * Convert parachain field value to hex string
+ * Convert parachain(4 bytes) field value to hex string
  * @param value The parachain field value
  * @returns Hex string
  */
 const convertParachainFieldValue = (value: { Parachain: number }) => numberToHex(value.Parachain, 4);
 
 /**
- * Convert pallet instance field value to hex string
+ * Convert pallet instance(1 byte) field value to hex string
  * @param value The pallet instance field value
  * @returns Hex string
  */
 const convertPalletInstanceFieldValue = (value: { PalletInstance: number }) => numberToHex(value.PalletInstance, 1);
 
 /**
- * Convert general index field value to hex string
+ * Convert general index(u128) field value to hex string
  * @param value The general index field value
  * @returns Hex string
  */
-const convertGeneralIndexFieldValue = (value: { GeneralIndex: number }) => numberToHex(value.GeneralIndex, 128);
+const convertGeneralIndexFieldValue = (value: { GeneralIndex: number }) => numberToHex(value.GeneralIndex, 128 / bitsInByte);
 
 /**
  * Convert general key field value to hex string
@@ -49,7 +51,7 @@ const convertGeneralKeyFieldValue = (value: { GeneralKey: { length: number; data
 const networks: Record<string, string> = { Any: "00", Rococo: "01", Kusama: "02", Polkadot: "03" };
 
 /**
- * Convert AccountId32 to hex string
+ * Convert AccountId32(32 bytes)  to hex string
  * @param value The AccountId32 value
  * @returns Hex string
  */
@@ -62,7 +64,7 @@ const convertAccountId32FieldValue = (value: { AccountId32: { id: string }; Netw
 };
 
 /**
- * Convert AccountKey20 to hex string
+ * Convert AccountKey20(20 bytes) to hex string
  * @param value The AccountKey20 value
  * @returns Hex string
  */
@@ -75,7 +77,7 @@ const convertAccountKey20FieldValue = (value: { AccountKey20: { key: string }; N
 };
 
 /**
- * Convert AccountIndex64 to hex string
+ * Convert AccountIndex64(u64) to hex string
  * @param value The AccountIndex64 value
  * @returns Hex string
  */
@@ -84,7 +86,7 @@ const convertAccountIndex64FieldValue = (value: { AccountIndex64: { index: numbe
     AccountIndex64: { index },
     Network,
   } = value;
-  return `${numberToHex(index, 64)}${networks[Network || "Any"]}`;
+  return `${numberToHex(index, 64 / bitsInByte)}${networks[Network || "Any"]}`;
 };
 
 const prefixs: any = [

@@ -16,7 +16,7 @@ const sby = createToken({
 });
 const moonbaseLocal = createToken({
   decimals: 18,
-  interior: { palletInstance: 3 },
+  interior: { PalletInstance: 3 },
   key: "unit",
   network: "moonbase",
   parachainId: 1000,

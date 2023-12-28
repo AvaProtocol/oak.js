@@ -1,6 +1,6 @@
 {
 	"name": "@oak-network/adapter",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"license": "Apache-2.0",
 	"main": "./build/index.js",
 	"scripts": {
@@ -8,7 +8,7 @@
 		"clean": "tsc --build --clean"
 	},
 	"dependencies": {
-		"@oak-network/config": "workspace:^1.0.1",
+		"@oak-network/config": "workspace:^1.0.4",
 		"@polkadot/api": "^10.9.1",
 		"@polkadot/keyring": "^12.6.1",
 		"@polkadot/types": "^10.11.1",

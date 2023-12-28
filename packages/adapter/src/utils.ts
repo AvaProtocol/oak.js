@@ -179,11 +179,32 @@ export function getDecimalBN(decimals: number | string) {
 /**
  * Determine the account type based on the address.
  * Because 1 byte takes 2 characters in hex string, we can use the length of the address to determine the address type.
- * AccountKey20: 42 characters with prefix 0x.
- * AccountId32: 66 characters with prefix 0x.
+ * For example:
+ * Substrate ss58 address: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+ * We can compute its accountId32 through decodeAddress(address):
+ * [
+ *    212, 53, 147, 199,  21, 253, 211,  28,
+ *     97, 20,  26, 189,   4, 169, 159, 214,
+ *    130, 44, 133,  88, 133,  76, 205, 227,
+ *    154, 86, 132, 231, 165, 109, 162, 125
+ * ],
+ * And convert the bytes to a hex string with 0x prefix through u8atoHex(accountId32):
+ * 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
+ * The length of prefix 0x is 2 and the length of accountId32 is 64(32*2), so the length of the hex string is 66(64+2).
+ * AccountKey20: 40(20*2) characters without prefix 0x.
+ * AccountId32: 64(32*2) characters without prefix 0x.
  * @param address The address to identify the account type.
  * @returns The account type.
  */
 export function getAccountTypeFromAddress(address: HexString): AccountType {
-  return address.length === 42 ? AccountType.AccountKey20 : AccountType.AccountId32;
+  // Remove the prefix 0x
+  const addressWithoutPrefix = address.substring(2);
+  switch (addressWithoutPrefix.length) {
+    case 40:
+      return AccountType.AccountKey20;
+    case 64:
+      return AccountType.AccountId32;
+    default:
+      throw new Error("Unrecognized address format");
+  }
 }

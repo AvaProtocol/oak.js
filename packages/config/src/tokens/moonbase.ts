@@ -1,6 +1,21 @@
 import { createToken } from "./types/Token";
 
-const tur = createToken({ key: "tur", symbol: "TUR", decimals: 10, network: "moonbase", parachainId: 2114 });
-const dev = createToken({ key: "dev", symbol: "DEV", decimals: 10, network: "moonbase", parachainId: 1000, palletInstance: 3 });
+const tur = createToken({
+  decimals: 10,
+  key: "tur",
+  network: "moonbase",
+  parachainId: 2114,
+  symbol: "TUR",
+});
 
-export default { tur, dev };
+const dev = createToken({
+  decimals: 10,
+  interior: { palletInstance: 3 },
+  key: "dev",
+  network: "moonbase",
+  parachainId: 1000,
+  symbol: "DEV",
+});
+
+// eslint-disable-next-line import/no-default-export
+export default { dev, tur };

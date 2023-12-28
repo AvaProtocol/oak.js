@@ -5,11 +5,4 @@ import RococoTokens from "./rococo";
 import KusamaTokens from "./kusama";
 import PolkadotTokens from "./polkadot";
 
-export {
-  XToken,
-  DevTokens,
-  MoonbaseTokens,
-  RococoTokens,
-  KusamaTokens,
-  PolkadotTokens,
-};
+export { XToken, DevTokens, MoonbaseTokens, RococoTokens, KusamaTokens, PolkadotTokens };

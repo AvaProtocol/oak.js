@@ -17,17 +17,11 @@ In addition, it provides an SDK to help developers simplify the use of automatio
 
 ### Installation
 
-To begin, determine the runtime version of the blockchain your code is connecting to. You can find the runtime version in the top-right corner of the [Polkadot.js app](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.turing.oak.tech).
-
-![Runtime version in Polkadot.js](/media/runtime-version.png)
-
-Next, locate the version number of the blockchain from the [OAK-blockchain Releases](https://github.com/OAK-Foundation/OAK-blockchain/releases) page. For example, in the "293 runtime & v1.9.0" release, "1.9.0" is the version number.
-
-Run the following commands to install the required packages:
+Run the following commands to install the latest packages:
 
 ```bash
-npm i @oak-network/api-augment@latest
-npm i @oak-network/types@latest
+npm i @oak-network/api-augment
+npm i @oak-network/types
 ```
 
 ### Including the Library in Your Code
@@ -99,6 +93,17 @@ await Sdk().scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
 ## Development
 If you would like to develop or test the code in this repository, please follow the guidelines below.
 
+### Pre-requisites
+Yarn version needs to be equal to or higher than 2 to use Yarn Workspace feature of this monorepo. First run the following command to check the version of Yarn:
+```
+yarn --version
+```
+
+Then if yarn version is lower than 2, run the following command to upgrade:
+```
+yarn set version berry
+```
+
 ### Installation
 Run the following command to install the necessary dependencies:
 
@@ -106,7 +111,14 @@ Run the following command to install the necessary dependencies:
 yarn # Please use yarn to install dependencies due to the use of Yarn Workspace
 ```
 
-### Running Foundational Tests
+### Maintaining dependencies across packages
+The packages are referring each other by source code, so when one is updated, the new version will be used by other packages. For example, ./packages/sdk/package.json has the following dependency:
+```
+"@oak-network/adapter": "../adapter",
+"@oak-network/config": "../config"
+```
+
+### Running Functional Tests
 By default, the tests are configured to target your local development environment. Before running any commands, please follow the steps in the [Quickstart: run Local Network with Zombienet](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9946#/accounts) guide to build and run a local relay chain and parachain.
 
 Once the Turing Dev network is running, you should be able to see it on [polkadot.js.org/apps](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9946#/accounts).
@@ -150,6 +162,28 @@ Then, you'll need to specify a test suite since each suite executes tests for a 
 ```bash
 yarn run test:sdk -- -t test-mangata
 ```
+
+### Compound Tests
+
+If you wish to perform local testing, you'll need to launch the parachain test network yourself using the following command:
+
+```bash
+zombienet spawn zombienets/turing/single-chain.toml
+```
+
+If the account hasn't been delegated on-chain yet, you can execute the following command to test the `delegateWithAutoCompound` interface.
+
+```bash
+MNEMONIC="<MNEMONIC>" ENV="Turing Dev" yarn run test:delegate
+```
+
+If the account has already been delegated on-chain, or if you've previously tested the `delegateWithAutoCompound` interface, you can execute the following command to test the `delegatorBondMore`, `setAutoCompound`, `getDelegation`, and `getAutoCompoundingDelegationPercentage` interfaces.
+
+```bash
+MNEMONIC="<MNEMONIC>" ENV="Turing Dev" yarn test:compound
+```
+
+
 
 ## File structure
 

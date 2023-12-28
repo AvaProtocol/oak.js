@@ -1,0 +1,18 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@oak-network/api-augment": "file:../packages/api-augment/build",
+    "@oak-network/types": "file:../packages/types/build",
+    "@polkadot/api": "^10.11.1",
+    "@polkadot/types": "^10.11.1",
+    "@polkadot/util": "^12.6.1",
+    "@polkadot/wasm-crypto": "^7.3.1",
+    "bn.js": "^5.2.1",
+    "lodash": "^4.17.21"
+  }
+}

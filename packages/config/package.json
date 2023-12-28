@@ -1,6 +1,17 @@
 {
-  "name": "@oak-network/config",
-  "version": "1.0.0",
-  "license": "Apache-2.0",
-  "main": "./build/index.js"
+	"name": "@oak-network/config",
+	"version": "1.0.3",
+	"license": "Apache-2.0",
+	"main": "./build/index.js",
+	"scripts": {
+		"build": "tsc --build",
+		"clean": "tsc --build --clean"
+	},
+	"devDependencies": {
+		"@types/bn.js": "^5",
+		"typescript": "^5.3.2"
+	},
+	"dependencies": {
+		"bn.js": "^5.2.1"
+	}
 }

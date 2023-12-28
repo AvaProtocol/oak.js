@@ -1,14 +1,24 @@
 {
 	"name": "@oak-network/adapter",
-	"version": "0.1.5",
+	"version": "0.2.3",
 	"license": "Apache-2.0",
 	"main": "./build/index.js",
+	"scripts": {
+		"build": "tsc --build",
+		"clean": "tsc --build --clean"
+	},
 	"dependencies": {
-		"@oak-network/config": "workspace:*",
+		"@oak-network/config": "workspace:^1.0.1",
 		"@polkadot/api": "^10.9.1",
+		"@polkadot/keyring": "^12.6.1",
 		"@polkadot/types": "^10.11.1",
 		"@polkadot/util": "^12.6.1",
+		"@polkadot/util-crypto": "^12.6.1",
 		"bn.js": "^5.2.1",
-		"lodash": "^4.17.21"
+		"lodash": "^4.17.21",
+		"web3-validator": "^2.0.3"
+	},
+	"devDependencies": {
+		"typescript": "^5.3.2"
 	}
 }

@@ -5,71 +5,79 @@ import { RelayChainType } from "./RelayChainType";
 import { XcmInstructionNetworkType } from "./XcmInstructionNetworkType";
 
 interface XcmConfig {
-  network: RelayChainType;
-  instructionWeight: Weight;
   instructionNetworkType?: XcmInstructionNetworkType;
+  instructionWeight: Weight;
+  network: RelayChainType;
 }
 
 type AssetInfo = {
   asset: Token;
   isNative: boolean;
+  id?: number;
 };
 
 interface ChainConstructorParams {
-  key: string;
-  name: string;
   assets: XToken[];
   endpoint: string;
+  isEthereum?: boolean;
+  key: string;
+  name: string;
   relayChain: RelayChainType;
   xcm: XcmConfig;
 }
 
 class Chain {
-  key: string;
-
   readonly assets: XToken[];
 
   readonly endpoint: string;
 
-  paraId: number | undefined;
+  isEthereum: boolean;
 
-  ss58Prefix: number | undefined;
+  key: string;
 
   name: string | undefined;
 
+  paraId: number | undefined;
+
   relayChain: RelayChainType;
+
+  ss58Prefix: number | undefined;
 
   xcm: XcmConfig;
 
   constructor({
-    key,
-    name,
     assets,
     endpoint,
+    isEthereum = false, // Set default value to false
+    key,
+    name,
     relayChain,
     xcm,
   }: ChainConstructorParams) {
-    this.key = key;
-    this.name = name;
     this.assets = assets;
     this.endpoint = endpoint;
+    this.isEthereum = isEthereum;
+    this.key = key;
+    this.name = name;
     this.relayChain = relayChain;
     this.xcm = xcm;
   }
 }
 
 function createChain(config: {
-  key: string;
-  name: string;
   assets: AssetInfo[];
   endpoint: string;
+  isEthereum?: boolean;
+  key: string;
+  name: string;
   relayChain: RelayChainType;
   xcm: XcmConfig;
 }): Chain {
-  const { key, name, assets, endpoint, relayChain, xcm } = config;
+  const { assets, endpoint, isEthereum, key, name, relayChain, xcm } = config;
   return new Chain({
     assets: assets.map((asset) => new XToken(asset)),
     endpoint,
+    isEthereum,
     key,
     name,
     relayChain,
@@ -77,4 +85,6 @@ function createChain(config: {
   });
 }
 
-export { createChain, Chain, XcmConfig, ChainConstructorParams };
+export { createChain };
+
+export type { Chain, XcmConfig, ChainConstructorParams };

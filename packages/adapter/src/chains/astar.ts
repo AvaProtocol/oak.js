@@ -8,11 +8,7 @@ import { u8aToHex } from "@polkadot/util";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight, XcmInstructionNetworkType } from "@oak-network/config";
 import { ChainAdapter, TaskScheduler } from "./chainAdapter";
-import {
-  convertAbsoluteLocationToRelative,
-  getDerivativeAccountV3,
-  sendExtrinsic,
-} from "../util";
+import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic } from "../utils";
 import { SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 
@@ -32,8 +28,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    */
   public async fetchAndUpdateConfigs(): Promise<void> {
     await super.fetchAndUpdateConfigs();
-    this.chainData.xcm.instructionNetworkType =
-      XcmInstructionNetworkType.Concrete;
+    this.chainConfig.xcm.instructionNetworkType = XcmInstructionNetworkType.Concrete;
   }
 
   /**
@@ -43,12 +38,8 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * @returns Extrinsic weight
    */
   // eslint-disable-next-line class-methods-use-this
-  async getExtrinsicWeight(
-    extrinsic: SubmittableExtrinsic<"promise">,
-    account: AddressOrPair,
-  ): Promise<Weight> {
-    const { refTime, proofSize } = (await extrinsic.paymentInfo(account))
-      .weight as unknown as WeightV2;
+  async getExtrinsicWeight(extrinsic: SubmittableExtrinsic<"promise">, account: AddressOrPair): Promise<Weight> {
+    const { refTime, proofSize } = (await extrinsic.paymentInfo(account)).weight as unknown as WeightV2;
     return new Weight(new BN(refTime.unwrap()), new BN(proofSize.unwrap()));
   }
 
@@ -58,15 +49,10 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * @param instructionCount The number of XCM instructions
    * @returns XCM overall weight
    */
-  async calculateXcmOverallWeight(
-    transactCallWeight: Weight,
-    instructionCount: number,
-  ): Promise<Weight> {
-    const { xcm } = this.chainData;
-    if (_.isUndefined(xcm)) throw new Error("chainData.xcm not set");
-    const overallWeight = transactCallWeight.add(
-      xcm.instructionWeight.muln(instructionCount),
-    );
+  async calculateXcmOverallWeight(transactCallWeight: Weight, instructionCount: number): Promise<Weight> {
+    const { xcm } = this.chainConfig;
+    if (_.isUndefined(xcm)) throw new Error("chainConfig.xcm not set");
+    const overallWeight = transactCallWeight.add(xcm.instructionWeight.muln(instructionCount));
     return overallWeight;
   }
 
@@ -77,22 +63,17 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * @returns XCM execution fee
    */
   async weightToFee(weight: Weight, assetLocation: any): Promise<BN> {
-    const [defaultAsset] = this.chainData.assets;
-    if (_.isUndefined(defaultAsset))
-      throw new Error("chainData.defaultAsset not set");
+    const [defaultAsset] = this.chainConfig.assets;
+    if (_.isUndefined(defaultAsset)) throw new Error("chainConfig.defaultAsset not set");
 
     const api = this.getApi();
     if (_.isEqual(defaultAsset.location, assetLocation)) {
-      const fee = (await api.call.transactionPaymentApi.queryWeightToFee(
-        weight,
-      )) as u64;
+      const fee = (await api.call.transactionPaymentApi.queryWeightToFee(weight)) as u64;
       return fee;
     }
-    const AssetLocationUnitsPerSecond =
-      await api.query.xcAssetConfig.assetLocationUnitsPerSecond(assetLocation);
+    const AssetLocationUnitsPerSecond = await api.query.xcAssetConfig.assetLocationUnitsPerSecond(assetLocation);
     const metadataItem = AssetLocationUnitsPerSecond as unknown as Option<u128>;
-    if (metadataItem.isNone)
-      throw new Error("MetadatAssetLocationUnitsPerSecond is null");
+    if (metadataItem.isNone) throw new Error("MetadatAssetLocationUnitsPerSecond is null");
     const unitsPerSecond = metadataItem.unwrap();
     return weight.refTime.mul(unitsPerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
   }
@@ -137,8 +118,8 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
     const api = this.getApi();
-    const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error("chainData.key not set.");
+    const { key } = this.chainConfig;
+    if (_.isUndefined(key)) throw new Error("chainConfig.key not set.");
 
     const extrinsic = api.tx.polkadotXcm.send(
       { V3: destination },
@@ -190,10 +171,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
       },
     );
 
-    console.log(
-      `Send extrinsic from ${key} to schedule task. extrinsic:`,
-      extrinsic.method.toHex(),
-    );
+    console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
 
     const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
@@ -205,7 +183,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
    * @returns A bool value indicating whether it is a native asset
    */
   isNativeAsset(assetLocation: any): boolean {
-    const { assets } = this.chainData;
+    const { assets } = this.chainConfig;
     const foundAsset = _.find(assets, { location: assetLocation });
     return !_.isUndefined(foundAsset) && foundAsset.isNative;
   }
@@ -225,15 +203,13 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
     assetAmount: BN,
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
-    const { key } = this.chainData;
-    if (_.isUndefined(key)) throw new Error("chainData.key not set");
+    const { key } = this.chainConfig;
+    if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
     const api = this.getApi();
 
-    const transferAssetLocation = this.isNativeAsset(assetLocation)
-      ? convertAbsoluteLocationToRelative(assetLocation)
-      : assetLocation;
+    const transferAssetLocation = this.isNativeAsset(assetLocation) ? convertAbsoluteLocationToRelative(assetLocation) : assetLocation;
 
-    const extrinsic = api.tx.xtokens.transferMultiasset(
+    const extrinsic = api.tx.xTokens.transferMultiasset(
       {
         V3: {
           fun: { Fungible: assetAmount },
@@ -243,10 +219,7 @@ export class AstarAdapter extends ChainAdapter implements TaskScheduler {
       {
         V3: {
           interior: {
-            X2: [
-              destination.interior.X1,
-              { AccountId32: { id: recipient, network: null } },
-            ],
+            X2: [destination.interior.X1, { AccountId32: { id: recipient, network: null } }],
           },
           parents: 1,
         },

@@ -1,3 +1,8 @@
+// Documentation: https://docs.astar.network/docs/build/EVM/precompiles/xcm/
+// https://blockscout.com/shiden/address/0x0000000000000000000000000000000000005004
+
+const address = "0x0000000000000000000000000000000000005004";
+
 const abi = [
   {
     inputs: [
@@ -455,10 +460,4 @@ const abi = [
   },
 ];
 
-const xtokens = {
-  abi,
-  address: "0x0000000000000000000000000000000000005004",
-};
-
-// eslint-disable-next-line import/no-default-export
-export default xtokens;
+export { abi, address };

@@ -1,5 +1,8 @@
-// Document: https://docs.moonbeam.network/builders/interoperability/xcm/xcm-transactor/#xcmtransactor-precompile
+// Documentation: https://docs.moonbeam.network/builders/interoperability/xcm/remote-execution/substrate-calls/xcm-transactor-precompile/
 // https://moonriver.moonscan.io/address/0x0000000000000000000000000000000000000804#code
+
+const address = "0x0000000000000000000000000000000000000804";
+
 const abi = [
   {
     inputs: [
@@ -95,10 +98,4 @@ const abi = [
   },
 ];
 
-const xtokens = {
-  abi,
-  address: "0x0000000000000000000000000000000000000804",
-};
-
-// eslint-disable-next-line import/no-default-export
-export default xtokens;
+export { abi, address };

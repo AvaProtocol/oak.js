@@ -1,7 +1,7 @@
 // Importing variables
 import { DevChains, MoonbaseChains, RococoChains, KusamaChains, PolkadotChains, Weight } from "./chains";
 import { XToken, DevTokens, MoonbaseTokens, RococoTokens, KusamaTokens, PolkadotTokens } from "./tokens";
-import contracts from "./contracts";
+import * as contracts from "./contracts";
 import { XcmInstructionNetworkType } from "./chains/types/XcmInstructionNetworkType";
 
 // Importing types

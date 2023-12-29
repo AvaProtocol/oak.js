@@ -1,5 +1,11 @@
 # @oak-network/config
 
+## 1.0.5
+
+### Patch Changes
+
+- ecf9723: Added Moonbeam's batch, proxy, xcmTransactor contracts
+
 ## 1.0.4
 
 ### Patch Changes

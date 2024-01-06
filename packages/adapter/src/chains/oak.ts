@@ -242,6 +242,7 @@ export class OakAdapter extends ChainAdapter {
       encodedCall,
       encodedCallWeight,
       overallWeight,
+      "PayThroughSovereignAccount",
     );
 
     console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());

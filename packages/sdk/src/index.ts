@@ -9,7 +9,7 @@ import {
   OakAdapter,
   TaskSchedulerChainAdapter,
   SendExtrinsicResult,
-  OakAdapterTransactType,
+  InstructionSequenceType,
   AutomationPriceTriggerParams,
 } from "@oak-network/adapter";
 import { Weight } from "@oak-network/config";
@@ -79,7 +79,7 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
   const destination = { V3: destinationChainAdapter.getLocation() };
   const encodedCall = taskPayloadExtrinsic.method.toHex();
   const oakTransactXcmInstructionCount =
-    xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount(OakAdapterTransactType.PayThroughRemoteDerivativeAccount);
+    xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount(InstructionSequenceType.PayThroughRemoteDerivativeAccount);
   const taskPayloadEncodedCallWeight = await destinationChainAdapter.getExtrinsicWeight(taskPayloadExtrinsic, keyringPair);
   const taskPayloadOverallWeight =
     xcmOptions?.overallWeight ||
@@ -159,7 +159,7 @@ export function Sdk() {
       const destination = { V3: destinationChainAdapter.getLocation() };
       const encodedCall = taskPayloadExtrinsic.method.toHex();
       const oakTransactXcmInstructionCount =
-        xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount(OakAdapterTransactType.PayThroughSoverignAccount);
+        xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount(InstructionSequenceType.PayThroughSoverignAccount);
       const taskPayloadEncodedCallWeight = await destinationChainAdapter.getExtrinsicWeight(taskPayloadExtrinsic, keyringPair);
       const taskPayloadOverallWeight =
         xcmOptions?.overallWeight ||
@@ -222,7 +222,7 @@ export function Sdk() {
       const destination = { V3: destinationChainAdapter.getLocation() };
       const encodedCall = taskPayloadExtrinsic.method.toHex();
       const oakTransactXcmInstructionCount =
-        xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount(OakAdapterTransactType.PayThroughSoverignAccount);
+        xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount(InstructionSequenceType.PayThroughSoverignAccount);
       const taskPayloadEncodedCallWeight = await destinationChainAdapter.getExtrinsicWeight(taskPayloadExtrinsic, keyringPair);
       const taskPayloadOverallWeight =
         xcmOptions?.overallWeight ||
@@ -242,9 +242,9 @@ export function Sdk() {
           encodedCall,
           encodedCallWeight: taskPayloadEncodedCallWeight,
           executionFee,
+          instructionSequenceType: InstructionSequenceType.PayThroughSoverignAccount,
           overallWeight: taskPayloadOverallWeight,
           scheduleFee: { V3: scheduleFeeLocation },
-          transactType: OakAdapterTransactType.PayThroughSoverignAccount,
         },
         undefined,
         keyringPair,

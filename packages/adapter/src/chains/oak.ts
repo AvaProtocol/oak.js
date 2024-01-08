@@ -24,7 +24,7 @@ export interface AutomationPriceTriggerParams {
   triggerParam: number[];
 }
 
-export enum OakAdapterTransactType {
+export enum InstructionSequenceType {
   PayThroughRemoteDerivativeAccount = "PayThroughRemoteDerivativeAccount",
   PayThroughSoverignAccount = "PayThroughSoverignAccount",
 }
@@ -204,8 +204,8 @@ export class OakAdapter extends ChainAdapter {
    * @returns The instruction number of XCM instructions
    */
   // eslint-disable-next-line class-methods-use-this
-  getTransactXcmInstructionCount(transactType: OakAdapterTransactType) {
-    return transactType === OakAdapterTransactType.PayThroughRemoteDerivativeAccount ? 4 : 6;
+  getTransactXcmInstructionCount(instructionSequenceType: InstructionSequenceType) {
+    return instructionSequenceType === InstructionSequenceType.PayThroughRemoteDerivativeAccount ? 4 : 6;
   }
 
   /**
@@ -233,12 +233,12 @@ export class OakAdapter extends ChainAdapter {
       encodedCall: HexString;
       encodedCallWeight: Weight;
       overallWeight: Weight;
-      transactType: OakAdapterTransactType;
+      instructionSequenceType: InstructionSequenceType;
     },
     scheduleAs: HexString | undefined,
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
-    const { destination, scheduleFee, executionFee, encodedCall, encodedCallWeight, overallWeight, transactType } = xcmParams;
+    const { destination, scheduleFee, executionFee, encodedCall, encodedCallWeight, overallWeight, instructionSequenceType } = xcmParams;
     const api = this.getApi();
     const { key } = this.chainConfig;
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
@@ -251,7 +251,7 @@ export class OakAdapter extends ChainAdapter {
       encodedCall,
       encodedCallWeight,
       overallWeight,
-      transactType,
+      instructionSequenceType,
       scheduleAs,
     );
 

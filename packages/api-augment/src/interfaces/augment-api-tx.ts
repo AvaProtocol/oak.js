@@ -10,7 +10,7 @@ import type { Data } from '@polkadot/types';
 import type { Bytes, Compact, Option, Struct, U8aFixed, Vec, bool, i128, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
-import type { CumulusPrimitivesParachainInherentParachainInherentData, FrameSupportPreimagesBounded, OrmlTraitsAssetRegistryAssetMetadata, PalletAutomationPriceAssetPayment, PalletAutomationTimeAssetPayment, PalletAutomationTimeScheduleParam, PalletDemocracyConviction, PalletDemocracyMetadataOwner, PalletDemocracyVoteAccountVote, PalletIdentityBitFlags, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletMultisigTimepoint, PrimitivesAssetsCustomMetadata, SpWeightsWeightV2Weight, TuringRuntimeOriginCaller, TuringRuntimeProxyType, TuringRuntimeSessionKeys, XcmV3MultiLocation, XcmV3WeightLimit, XcmVersionedMultiAsset, XcmVersionedMultiAssets, XcmVersionedMultiLocation, XcmVersionedXcm } from '@polkadot/types/lookup';
+import type { CumulusPrimitivesParachainInherentParachainInherentData, FrameSupportPreimagesBounded, OrmlTraitsAssetRegistryAssetMetadata, PalletAutomationPriceAssetPayment, PalletAutomationTimeAssetPayment, PalletAutomationTimeScheduleParam, PalletDemocracyConviction, PalletDemocracyMetadataOwner, PalletDemocracyVoteAccountVote, PalletIdentityBitFlags, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletMultisigTimepoint, PalletXcmpHandlerInstructionSequence, PrimitivesAssetsCustomMetadata, SpWeightsWeightV2Weight, TuringRuntimeOriginCaller, TuringRuntimeProxyType, TuringRuntimeSessionKeys, XcmV3MultiLocation, XcmV3WeightLimit, XcmVersionedMultiAsset, XcmVersionedMultiAssets, XcmVersionedMultiLocation, XcmVersionedXcm } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -194,6 +194,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `encoded_call`: Call that will be sent via XCMP to the parachain id provided.
        * * `encoded_call_weight`: Required weight at most the provided call will take.
        * * `overall_weight`: The overall weight in which fees will be paid for XCM instructions.
+       * * `instruction_sequence`: The instruction sequence for the XCM call.
+       * * `schedule_as`: The real task executor. If it is None, the caller will be the executor.
        * 
        * # Errors
        * * `InvalidTime`: Time in seconds must be a multiple of SlotSizeSeconds.
@@ -204,33 +206,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `UnsupportedFeePayment`: Unsupported fee payment.
        * * `InvalidAssetLocation` Invalid asset location.
        **/
-      scheduleXcmpTask: AugmentedSubmittable<(schedule: PalletAutomationTimeScheduleParam | { Fixed: any } | { Recurring: any } | string | Uint8Array, destination: XcmVersionedMultiLocation | { V2: any } | { V3: any } | string | Uint8Array, scheduleFee: XcmVersionedMultiLocation | { V2: any } | { V3: any } | string | Uint8Array, executionFee: PalletAutomationTimeAssetPayment | { assetLocation?: any; amount?: any } | string | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, overallWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAutomationTimeScheduleParam, XcmVersionedMultiLocation, XcmVersionedMultiLocation, PalletAutomationTimeAssetPayment, Bytes, SpWeightsWeightV2Weight, SpWeightsWeightV2Weight]>;
-      /**
-       * Schedule a task through XCMP through proxy account to fire an XCMP message with a provided call.
-       * 
-       * Before the task can be scheduled the task must past validation checks.
-       * * The transaction is signed
-       * * The times are valid
-       * * The given asset location is supported
-       * 
-       * # Parameters
-       * * `schedule`: The triggering rules for recurring task or the list of unix standard times in seconds for when the task should run.
-       * * `destination`: Destination the XCMP call will be sent to.
-       * * `schedule_fee`: The payment asset location required for scheduling automation task.
-       * * `execution_fee`: The fee will be paid for XCMP execution.
-       * * `encoded_call`: Call that will be sent via XCMP to the parachain id provided.
-       * * `encoded_call_weight`: Required weight at most the provided call will take.
-       * * `overall_weight`: The overall weight in which fees will be paid for XCM instructions.
-       * 
-       * # Errors
-       * * `InvalidTime`: Time in seconds must be a multiple of SlotSizeSeconds.
-       * * `PastTime`: Time must be in the future.
-       * * `DuplicateTask`: There can be no duplicate tasks.
-       * * `TimeTooFarOut`: Execution time or frequency are past the max time horizon.
-       * * `TimeSlotFull`: Time slot is full. No more tasks can be scheduled for this time.
-       * * `Other("proxy error: expected `ProxyType::Any`")`: schedule_as must be a proxy account of type "any" for the caller.
-       **/
-      scheduleXcmpTaskThroughProxy: AugmentedSubmittable<(schedule: PalletAutomationTimeScheduleParam | { Fixed: any } | { Recurring: any } | string | Uint8Array, destination: XcmVersionedMultiLocation | { V2: any } | { V3: any } | string | Uint8Array, scheduleFee: XcmVersionedMultiLocation | { V2: any } | { V3: any } | string | Uint8Array, executionFee: PalletAutomationTimeAssetPayment | { assetLocation?: any; amount?: any } | string | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, overallWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, scheduleAs: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAutomationTimeScheduleParam, XcmVersionedMultiLocation, XcmVersionedMultiLocation, PalletAutomationTimeAssetPayment, Bytes, SpWeightsWeightV2Weight, SpWeightsWeightV2Weight, AccountId32]>;
+      scheduleXcmpTask: AugmentedSubmittable<(schedule: PalletAutomationTimeScheduleParam | { Fixed: any } | { Recurring: any } | string | Uint8Array, destination: XcmVersionedMultiLocation | { V2: any } | { V3: any } | string | Uint8Array, scheduleFee: XcmVersionedMultiLocation | { V2: any } | { V3: any } | string | Uint8Array, executionFee: PalletAutomationTimeAssetPayment | { assetLocation?: any; amount?: any } | string | Uint8Array, encodedCall: Bytes | string | Uint8Array, encodedCallWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, overallWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, instructionSequence: PalletXcmpHandlerInstructionSequence | 'PayThroughSovereignAccount' | 'PayThroughRemoteDerivativeAccount' | number | Uint8Array, scheduleAs: Option<AccountId32> | null | Uint8Array | AccountId32 | string) => SubmittableExtrinsic<ApiType>, [PalletAutomationTimeScheduleParam, XcmVersionedMultiLocation, XcmVersionedMultiLocation, PalletAutomationTimeAssetPayment, Bytes, SpWeightsWeightV2Weight, SpWeightsWeightV2Weight, PalletXcmpHandlerInstructionSequence, Option<AccountId32>]>;
       /**
        * Generic tx
        **/

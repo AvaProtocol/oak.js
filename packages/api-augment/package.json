@@ -15,10 +15,10 @@
 		"clean": "tsc --build --clean"
 	},
 	"dependencies": {
-		"@polkadot/types": "^10.9.1"
+		"@polkadot/types": "^10.11.2"
 	},
 	"devDependencies": {
-		"@polkadot/typegen": "^10.9.1",
+		"@polkadot/typegen": "^10.11.2",
 		"@types/node": "^20.9.5",
 		"typescript": "^5.3.2"
 	}

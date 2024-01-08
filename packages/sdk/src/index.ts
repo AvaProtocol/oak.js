@@ -32,12 +32,12 @@ interface ScheduleXcmpTaskParams {
 
 /**
  * The params for scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow
- * invoker is the chain adapter that will send the XCM message to Turing/OAK to schedule the task
- * invokeFeeLocation is the location of the fee asset for XCM message execution
+ * caller is the chain adapter that will send the XCM message to Turing/OAK to schedule the task
+ * callerXcmFeeLocation is the location of the fee asset for XCM message execution
  */
 interface ScheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlowParams extends ScheduleXcmpTaskParams {
-  invoker: TaskSchedulerChainAdapter;
-  invokeFeeLocation: any;
+  caller: TaskSchedulerChainAdapter;
+  callerXcmFeeLocation: any;
 }
 
 /**
@@ -55,8 +55,8 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
     taskPayloadExtrinsic,
     scheduleFeeLocation,
     executionFeeLocation,
-    invoker,
-    invokeFeeLocation,
+    caller,
+    callerXcmFeeLocation,
     keyringPair,
     xcmOptions,
     scheduleAs,
@@ -108,18 +108,18 @@ const scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow = async (
 
   // Schedule task through XCM
   const taskEncodedCall = taskExtrinsic.method.toHex();
-  // Get XCM instruction count for XCM message base on invoker implmentation
-  const destinationTransactXcmInstructionCount = invoker.getTransactXcmInstructionCount();
+  // Get XCM instruction count for XCM message base on caller implmentation
+  const destinationTransactXcmInstructionCount = caller.getTransactXcmInstructionCount();
   const taskEncodedCallWeight = await oakAdapter.getExtrinsicWeight(taskExtrinsic, deriveAccountId);
   const taskOverallWeight = await oakAdapter.calculateXcmOverallWeight(taskEncodedCallWeight, destinationTransactXcmInstructionCount);
-  // Calculate fee for XCM message base on invoker fee location
-  const taskExecutionFee = await oakAdapter.weightToFee(taskOverallWeight, invokeFeeLocation);
+  // Calculate fee for XCM message base on caller fee location
+  const taskExecutionFee = await oakAdapter.weightToFee(taskOverallWeight, callerXcmFeeLocation);
   const oakLocation = oakAdapter.getLocation();
   // Send XCM message from invoker chain to Turing/OAK
-  const sendExtrinsicResult = await invoker.scheduleTaskThroughXcm(
+  const sendExtrinsicResult = await caller.scheduleTaskThroughXcm(
     oakLocation,
     taskEncodedCall,
-    invokeFeeLocation,
+    callerXcmFeeLocation,
     taskExecutionFee,
     taskEncodedCallWeight,
     taskOverallWeight,
@@ -172,14 +172,16 @@ export function Sdk() {
       };
 
       // Schedule XCMP task
-      const sendExtrinsicResult = oakAdapter.scheduleXcmpPriceTask(
+      const sendExtrinsicResult = oakAdapter.scheduleAutomationPriceXcmpTask(
         automationPriceTriggerParams,
-        destination,
-        { V3: scheduleFeeLocation },
-        executionFee,
-        encodedCall,
-        taskPayloadEncodedCallWeight,
-        taskPayloadOverallWeight,
+        {
+          destination,
+          encodedCall,
+          encodedCallWeight: taskPayloadEncodedCallWeight,
+          executionFee,
+          overallWeight: taskPayloadOverallWeight,
+          scheduleFee: { V3: scheduleFeeLocation },
+        },
         keyringPair,
       );
 
@@ -233,14 +235,18 @@ export function Sdk() {
       };
 
       // Schedule XCMP task
-      const sendExtrinsicResult = oakAdapter.scheduleXcmpTask(
-        destination,
+      const sendExtrinsicResult = oakAdapter.scheduleAutomationTimeXcmpTask(
         schedule,
-        { V3: scheduleFeeLocation },
-        executionFee,
-        encodedCall,
-        taskPayloadEncodedCallWeight,
-        taskPayloadOverallWeight,
+        {
+          destination,
+          encodedCall,
+          encodedCallWeight: taskPayloadEncodedCallWeight,
+          executionFee,
+          overallWeight: taskPayloadOverallWeight,
+          scheduleFee: { V3: scheduleFeeLocation },
+          transactType: OakAdapterTransactType.PayThroughSoverignAccount,
+        },
+        undefined,
         keyringPair,
       );
 

@@ -1,5 +1,11 @@
 # @oak-network/api-augment
 
+## 2.1.2
+
+### Patch Changes
+
+- a1f70f0: Update @polkadot/api to 10.11.2
+
 ## 2.1.1
 
 ### Patch Changes

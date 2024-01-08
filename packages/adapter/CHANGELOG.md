@@ -1,5 +1,11 @@
 # @oak-network/adapter
 
+## 0.2.5
+
+### Patch Changes
+
+- a1f70f0: Update @polkadot/api to 10.11.2
+
 ## 0.2.4
 
 ### Patch Changes

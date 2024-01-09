@@ -24,9 +24,9 @@ export interface AutomationPriceTriggerParams {
   triggerParam: number[];
 }
 
-export enum OakAdapterTransactType {
-  PayThroughRemoteDerivativeAccount,
-  PayThroughSoverignAccount,
+export enum InstructionSequenceType {
+  PayThroughRemoteDerivativeAccount = "PayThroughRemoteDerivativeAccount",
+  PayThroughSoverignAccount = "PayThroughSoverignAccount",
 }
 
 // OakAdapter implements ChainAdapter
@@ -204,32 +204,41 @@ export class OakAdapter extends ChainAdapter {
    * @returns The instruction number of XCM instructions
    */
   // eslint-disable-next-line class-methods-use-this
-  getTransactXcmInstructionCount(transactType: OakAdapterTransactType) {
-    return transactType === OakAdapterTransactType.PayThroughRemoteDerivativeAccount ? 4 : 6;
+  getTransactXcmInstructionCount(instructionSequenceType: InstructionSequenceType) {
+    return instructionSequenceType === InstructionSequenceType.PayThroughRemoteDerivativeAccount ? 4 : 6;
   }
 
   /**
-   * Schedule XCMP task
-   * @param destination The location of the destination chain
-   * @param schedule Schedule setting
-   * @param scheduleFee Schedule fee
-   * @param executionFee Execution fee
-   * @param encodedCall Encoded call
-   * @param encodedCallWeight The encoded call weight weight of the XCM instructions
-   * @param overallWeight The overall weight of the XCM instructions
+   * Schedule AutomationTime XCMP task
+   * @param schedule The schedule of the task
+   * @param xcmParams The parameters of the XCM instructions
+   * destination - The location of the destination chain
+   * schedule - Schedule setting
+   * scheduleFee - Schedule fee
+   * executionFee - Execution fee
+   * encodedCall -  Encoded call
+   * encodedCallWeight - The encoded call weight weight of the XCM instructions
+   * overallWeight - The overall weight of the XCM instructions
+   * transactType - Transact type
+   * scheduleAs - The real executor of the task
    * @param keyringPair Operator's keyring pair
    * @returns SendExtrinsicResult
    */
-  async scheduleXcmpTask(
-    destination: any,
+  async scheduleAutomationTimeXcmpTask(
     schedule: any,
-    scheduleFee: any,
-    executionFee: any,
-    encodedCall: HexString,
-    encodedCallWeight: Weight,
-    overallWeight: Weight,
+    xcmParams: {
+      destination: any;
+      scheduleFee: any;
+      executionFee: any;
+      encodedCall: HexString;
+      encodedCallWeight: Weight;
+      overallWeight: Weight;
+      instructionSequenceType: InstructionSequenceType;
+    },
+    scheduleAs: HexString | undefined,
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
+    const { destination, scheduleFee, executionFee, encodedCall, encodedCallWeight, overallWeight, instructionSequenceType } = xcmParams;
     const api = this.getApi();
     const { key } = this.chainConfig;
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
@@ -242,6 +251,8 @@ export class OakAdapter extends ChainAdapter {
       encodedCall,
       encodedCallWeight,
       overallWeight,
+      instructionSequenceType,
+      scheduleAs,
     );
 
     console.log(`Send extrinsic from ${key} to schedule task. extrinsic:`, extrinsic.method.toHex());
@@ -250,39 +261,45 @@ export class OakAdapter extends ChainAdapter {
   }
 
   /**
-   * Schedule XCMP task
-   * @param destination The location of the destination chain
-   * @param schedule Schedule setting
-   * @param scheduleFee Schedule fee
-   * @param executionFee Execution fee
-   * @param encodedCall Encoded call
-   * @param encodedCallWeight The encoded call weight weight of the XCM instructions
-   * @param overallWeight The overall weight of the XCM instructions
+   * Schedule AutomationPrice XCMP task
+   * @param triggerParams The trigger params of the task
+   * @param xcmParams The parameters of the XCM instructions
+   * destination - The location of the destination chain
+   * schedule - Schedule setting
+   * scheduleFee - Schedule fee
+   * executionFee - Execution fee
+   * encodedCall -  Encoded call
+   * encodedCallWeight - The encoded call weight weight of the XCM instructions
+   * overallWeight - The overall weight of the XCM instructions
    * @param keyringPair Operator's keyring pair
    * @returns SendExtrinsicResult
    */
-  async scheduleXcmpPriceTask(
-    automationPriceTriggerParams: AutomationPriceTriggerParams,
-    destination: any,
-    scheduleFee: any,
-    executionFee: any,
-    encodedCall: HexString,
-    encodedCallWeight: Weight,
-    overallWeight: Weight,
+  async scheduleAutomationPriceXcmpTask(
+    triggerParams: AutomationPriceTriggerParams,
+    xcmParams: {
+      destination: any;
+      scheduleFee: any;
+      executionFee: any;
+      encodedCall: HexString;
+      encodedCallWeight: Weight;
+      overallWeight: Weight;
+    },
     keyringPair: KeyringPair,
   ): Promise<SendExtrinsicResult> {
+    const { destination, scheduleFee, executionFee, encodedCall, encodedCallWeight, overallWeight } = xcmParams;
     const api = this.getApi();
     const { key } = this.chainConfig;
     if (_.isUndefined(key)) throw new Error("chainData.key not set");
 
+    const { chain, exchange, asset1, asset2, submittedAt, triggerFunction, triggerParam } = triggerParams;
     const extrinsic = api.tx.automationPrice.scheduleXcmpTask(
-      automationPriceTriggerParams.chain,
-      automationPriceTriggerParams.exchange,
-      automationPriceTriggerParams.asset1,
-      automationPriceTriggerParams.asset2,
-      automationPriceTriggerParams.submittedAt,
-      automationPriceTriggerParams.triggerFunction,
-      automationPriceTriggerParams.triggerParam,
+      chain,
+      exchange,
+      asset1,
+      asset2,
+      submittedAt,
+      triggerFunction,
+      triggerParam,
       destination,
       scheduleFee,
       executionFee,

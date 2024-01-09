@@ -1,5 +1,11 @@
 # @oak-network/adapter
 
+## 0.2.6
+
+### Patch Changes
+
+- 8e5d625: Add callerXcmFeeLocation param to scheduleXcmpTaskWithPayThroughRemoteDerivativeAccountFlow function
+
 ## 0.2.5
 
 ### Patch Changes

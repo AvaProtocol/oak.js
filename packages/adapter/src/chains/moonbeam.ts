@@ -22,13 +22,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
    * Initialize adapter
    */
   async initialize() {
-    // As of 12/02/2023, api.consts and api.query both return {} from all Moonriver endpoints.
-    // Maybe additional calls are required prior to fetch api.consts
-
-    // await this.fetchAndUpdateConfigs();
-
-    this.chainConfig.ss58Prefix = 1285;
-    this.chainConfig.paraId = 2023;
+    await this.fetchAndUpdateConfigs();
   }
 
   /**

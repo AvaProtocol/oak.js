@@ -1,4 +1,4 @@
-// Document: https://docs.moonbeam.network/builders/interoperability/xcm/xcm-transactor/#xcmtransactor-precompile
+// Document: https://docs.moonbeam.network/builders/interoperability/xcm/remote-execution/substrate-calls/xcm-transactor-precompile/
 // https://moonriver.moonscan.io/address/0x000000000000000000000000000000000000080D#code
 
 const address = "0x000000000000000000000000000000000000080d";

@@ -1,59 +1,28 @@
-// Documentation: https://docs.moonbeam.network/builders/pallets-precompiles/precompiles/batch/
-// https://moonriver.moonscan.io/address/0x0000000000000000000000000000000000000808#code
+// Document: https://docs.moonbeam.network/builders/pallets-precompiles/precompiles/proxy/
+// https://moonriver.moonscan.io/address/0x000000000000000000000000000000000000080D#code
 
-const address = "0x0000000000000000000000000000000000000808";
+const address = "0x000000000000000000000000000000000000080b";
 
 const abi = [
   {
-    anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "index",
-        type: "uint256",
+        internalType: "address",
+        name: "delegate",
+        type: "address",
+      },
+      {
+        internalType: "enum Proxy.ProxyType",
+        name: "proxyType",
+        type: "uint8",
+      },
+      {
+        internalType: "uint32",
+        name: "delay",
+        type: "uint32",
       },
     ],
-    name: "SubcallFailed",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "index",
-        type: "uint256",
-      },
-    ],
-    name: "SubcallSucceeded",
-    type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address[]",
-        name: "to",
-        type: "address[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "value",
-        type: "uint256[]",
-      },
-      {
-        internalType: "bytes[]",
-        name: "call_data",
-        type: "bytes[]",
-      },
-      {
-        internalType: "uint64[]",
-        name: "gas_limit",
-        type: "uint64[]",
-      },
-    ],
-    name: "batchAll",
+    name: "addProxy",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -61,27 +30,91 @@ const abi = [
   {
     inputs: [
       {
-        internalType: "address[]",
-        name: "to",
-        type: "address[]",
+        internalType: "address",
+        name: "real",
+        type: "address",
       },
       {
-        internalType: "uint256[]",
-        name: "value",
-        type: "uint256[]",
+        internalType: "address",
+        name: "delegate",
+        type: "address",
       },
       {
-        internalType: "bytes[]",
-        name: "call_data",
-        type: "bytes[]",
+        internalType: "enum Proxy.ProxyType",
+        name: "proxyType",
+        type: "uint8",
       },
       {
-        internalType: "uint64[]",
-        name: "gas_limit",
-        type: "uint64[]",
+        internalType: "uint32",
+        name: "delay",
+        type: "uint32",
       },
     ],
-    name: "batchSome",
+    name: "isProxy",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "exists",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "real",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "callTo",
+        type: "address",
+      },
+      {
+        internalType: "bytes",
+        name: "callData",
+        type: "bytes",
+      },
+    ],
+    name: "proxy",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "real",
+        type: "address",
+      },
+      {
+        internalType: "enum Proxy.ProxyType",
+        name: "forceProxyType",
+        type: "uint8",
+      },
+      {
+        internalType: "address",
+        name: "callTo",
+        type: "address",
+      },
+      {
+        internalType: "bytes",
+        name: "callData",
+        type: "bytes",
+      },
+    ],
+    name: "proxyForceType",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "removeProxies",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -89,27 +122,22 @@ const abi = [
   {
     inputs: [
       {
-        internalType: "address[]",
-        name: "to",
-        type: "address[]",
+        internalType: "address",
+        name: "delegate",
+        type: "address",
       },
       {
-        internalType: "uint256[]",
-        name: "value",
-        type: "uint256[]",
+        internalType: "enum Proxy.ProxyType",
+        name: "proxyType",
+        type: "uint8",
       },
       {
-        internalType: "bytes[]",
-        name: "call_data",
-        type: "bytes[]",
-      },
-      {
-        internalType: "uint64[]",
-        name: "gas_limit",
-        type: "uint64[]",
+        internalType: "uint32",
+        name: "delay",
+        type: "uint32",
       },
     ],
-    name: "batchSomeUntilFailure",
+    name: "removeProxy",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

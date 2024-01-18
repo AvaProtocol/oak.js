@@ -7,6 +7,7 @@ import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
 import type { u32 } from "@polkadot/types";
 import type { HexString } from "@polkadot/util/types";
 import type { Weight, Chain } from "@oak-network/config";
+import { ISubmittableResult } from "@polkadot/types/types";
 import { SendExtrinsicResult } from "../types";
 
 export abstract class ChainAdapter {
@@ -37,11 +38,7 @@ export abstract class ChainAdapter {
    * @param options Optional operation options: { locationType, network }
    * @returns Derivative account
    */
-  public abstract getDerivativeAccount(
-    accountId: HexString,
-    paraId: number,
-    options?: any,
-  ): HexString;
+  public abstract getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString;
 
   /**
    * Get extrinsic weight for transact an extrinsic call through XCM message
@@ -49,10 +46,7 @@ export abstract class ChainAdapter {
    * @param account
    * @returns Extrinsic weight
    */
-  public abstract getExtrinsicWeight(
-    extrinsic: SubmittableExtrinsic<"promise">,
-    account: AddressOrPair,
-  ): Promise<Weight>;
+  public abstract getExtrinsicWeight(extrinsic: SubmittableExtrinsic<"promise">, account: AddressOrPair): Promise<Weight>;
 
   /**
    * Calculate XCM overall weight for transact an extrinsic call through XCM message
@@ -60,10 +54,7 @@ export abstract class ChainAdapter {
    * @param instructionCount The number of XCM instructions
    * @returns XCM overall weight
    */
-  public abstract calculateXcmOverallWeight(
-    transactCallWeight: Weight,
-    instructionCount: number,
-  ): Promise<Weight>;
+  public abstract calculateXcmOverallWeight(transactCallWeight: Weight, instructionCount: number): Promise<Weight>;
 
   /**
    * Calculate XCM execution fee based on weight
@@ -74,7 +65,7 @@ export abstract class ChainAdapter {
   public abstract weightToFee(weight: Weight, assetLocation: any): Promise<BN>;
 
   /**
-   * Execute a cross-chain transfer
+   * Create an extrinsic call to transfer asset to a recipient through XCM message
    * @param destination The location of the destination chain
    * @param recipient recipient account
    * @param assetLocation Asset location
@@ -87,7 +78,7 @@ export abstract class ChainAdapter {
     assetLocation: any,
     assetAmount: BN,
     keyringPair: KeyringPair,
-  ): Promise<SendExtrinsicResult>;
+  ): SubmittableExtrinsic<"promise", ISubmittableResult>;
 
   /**
    * Get polkadot API
@@ -103,9 +94,7 @@ export abstract class ChainAdapter {
    */
   public async fetchAndUpdateConfigs(): Promise<void> {
     const api = this.getApi();
-    this.chainConfig.ss58Prefix = (
-      api.consts.system.ss58Prefix as unknown as u32
-    ).toNumber();
+    this.chainConfig.ss58Prefix = (api.consts.system.ss58Prefix as unknown as u32).toNumber();
     const storageValue = await api.query.parachainInfo.parachainId();
     this.chainConfig.paraId = (storageValue as unknown as u32).toNumber();
   }

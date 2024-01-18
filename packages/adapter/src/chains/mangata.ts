@@ -4,12 +4,12 @@ import type { SubmittableExtrinsic, AddressOrPair } from "@polkadot/api/types";
 import type { u32, u128, Option } from "@polkadot/types";
 import type { WeightV2 } from "@polkadot/types/interfaces";
 import type { HexString } from "@polkadot/util/types";
-import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight } from "@oak-network/config";
+import { ISubmittableResult } from "@polkadot/types/types";
 import { ChainAdapter } from "./chainAdapter";
-import { getDerivativeAccountV2, sendExtrinsic, isValidAddress, getAccountTypeFromAddress } from "../utils";
+import { getDerivativeAccountV2, isValidAddress, getAccountTypeFromAddress } from "../utils";
 import { WEIGHT_REF_TIME_PER_NANOS, WEIGHT_REF_TIME_PER_SECOND, WEIGHT_PROOF_SIZE_PER_MB } from "../constants";
-import { AccountType, SendExtrinsicResult } from "../types";
+import { AccountType } from "../types";
 import { InvalidAddress } from "../errors";
 
 // MangataAdapter implements ChainAdapter
@@ -107,21 +107,20 @@ export class MangataAdapter extends ChainAdapter {
   }
 
   /**
-   * Execute a cross-chain transfer
+   * Create an extrinsic call to transfer asset to a recipient through XCM message
    * @param destination The location of the destination chain
    * @param recipient recipient account
    * @param assetLocation Asset location
    * @param assetAmount Asset amount
    * @param keyringPair Operator's keyring pair
-   * @returns SendExtrinsicResult
+   * @returns extrinsic
    */
-  async crossChainTransfer(
+  crossChainTransfer(
     destination: any,
     recipient: HexString,
     assetLocation: any,
     assetAmount: BN,
-    keyringPair: KeyringPair,
-  ): Promise<SendExtrinsicResult> {
+  ): SubmittableExtrinsic<"promise", ISubmittableResult> {
     const { key } = this.chainConfig;
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
 
@@ -154,7 +153,6 @@ export class MangataAdapter extends ChainAdapter {
     );
 
     console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());
-    const result = await sendExtrinsic(api, extrinsic, keyringPair);
-    return result;
+    return extrinsic;
   }
 }

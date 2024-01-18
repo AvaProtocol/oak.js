@@ -7,6 +7,7 @@ import type { HexString } from "@polkadot/util/types";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight, contracts } from "@oak-network/config";
 import { ethers } from "ethers";
+import { ISubmittableResult } from "@polkadot/types/types";
 import { ChainAdapter, TaskScheduler } from "./chainAdapter";
 import { convertAbsoluteLocationToRelative, getDerivativeAccountV3, sendExtrinsic, isValidAddress, getAccountTypeFromAddress } from "../utils";
 import { convertLocationToPrecompileMultiLocation } from "../contract-utils";
@@ -178,21 +179,20 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
   }
 
   /**
-   * Execute a cross-chain transfer
+   * Create an extrinsic call to transfer asset to a recipient through XCM message
    * @param destination The location of the destination chain
    * @param recipient recipient account
    * @param assetLocation Asset location
    * @param assetAmount Asset amount
    * @param keyringPair Operator's keyring pair
-   * @returns SendExtrinsicResult
+   * @returns extrinsic
    */
-  async crossChainTransfer(
+  crossChainTransfer(
     destination: any,
     recipient: HexString,
     assetLocation: any,
     assetAmount: BN,
-    keyringPair: KeyringPair,
-  ): Promise<SendExtrinsicResult> {
+  ): SubmittableExtrinsic<"promise", ISubmittableResult> {
     const { key } = this.chainConfig;
     if (_.isUndefined(key)) throw new Error("chainConfig.key not set");
 
@@ -227,8 +227,7 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
     );
 
     console.log(`Transfer from ${key}, extrinsic:`, extrinsic.method.toHex());
-    const result = await sendExtrinsic(api, extrinsic, keyringPair);
-    return result;
+    return extrinsic;
   }
 
   /**

@@ -1,5 +1,11 @@
 # @oak-network/adapter
 
+## 0.2.7
+
+### Patch Changes
+
+- 583b160: Remove keyringPair param from crossChainTransfer
+
 ## 0.2.6
 
 ### Patch Changes

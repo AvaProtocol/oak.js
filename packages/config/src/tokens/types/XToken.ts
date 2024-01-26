@@ -5,7 +5,7 @@ import { Token, TokenConstructorParams } from "./Token"; // Ensure this path is 
 
 interface XTokenConstructorParams {
   asset: TokenConstructorParams; // The 'asset' property is introduced here.
-  id?: number;
+  id?: string;
   isNative: boolean;
   contractAddress?: string;
   otherSymbol?: string;
@@ -14,7 +14,7 @@ interface XTokenConstructorParams {
 }
 
 class XToken extends Token {
-  public id: number | undefined;
+  public id: string | undefined;
 
   public isNative: boolean;
 

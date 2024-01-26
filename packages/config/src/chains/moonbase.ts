@@ -18,7 +18,13 @@ const turingMoonbase = createChain({
 const moonbaseAlpha = createChain({
   assets: [
     { asset: MoonbaseTokens.dev, isNative: true },
-    { asset: MoonbaseTokens.tur, isNative: false },
+    {
+      asset: MoonbaseTokens.tur,
+      contractAddress: "0xfFffffFf6448d0746f2a66342B67ef9CAf89478E",
+      id: "133300872918374599700079037156071917454",
+      isNative: false,
+      otherSymbol: "xcTUR",
+    },
   ],
   endpoint: "wss://wss.api.moonbase.moonbeam.network",
   isEthereum: true,

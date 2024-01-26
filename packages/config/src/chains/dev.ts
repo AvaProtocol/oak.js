@@ -18,10 +18,10 @@ const shibuya = createChain({
 
 const turingLocal = createChain({
   assets: [
-    { asset: DevTokens.tur, id: 0, isNative: true },
-    { asset: DevTokens.sby, id: 4, isNative: false },
-    { asset: DevTokens.moonbaseLocal, id: 5, isNative: false },
-    { asset: DevTokens.mgr, id: 1, isNative: false },
+    { asset: DevTokens.tur, id: "0", isNative: true },
+    { asset: DevTokens.sby, id: "4", isNative: false },
+    { asset: DevTokens.moonbaseLocal, id: "5", isNative: false },
+    { asset: DevTokens.mgr, id: "1", isNative: false },
   ],
   endpoint: "ws://127.0.0.1:9946",
   key: "turing-local",
@@ -49,7 +49,16 @@ const mangataLocal = createChain({
 });
 
 const moonbaseLocal = createChain({
-  assets: [{ asset: DevTokens.moonbaseLocal, isNative: true }],
+  assets: [
+    { asset: DevTokens.moonbaseLocal, isNative: true },
+    {
+      asset: DevTokens.tur,
+      contractAddress: "0xfFffffFf6448d0746f2a66342B67ef9CAf89478E",
+      id: "133300872918374599700079037156071917454",
+      isNative: false,
+      otherSymbol: "xcTUR",
+    },
+  ],
   endpoint: "ws://127.0.0.1:9949",
   isEthereum: true,
   key: "moonbase-local",

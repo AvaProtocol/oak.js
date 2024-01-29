@@ -8,6 +8,8 @@ const tur = createToken({
   parachainId: 2114,
   symbol: "TUR",
 });
+const xcTur = { ...tur, symbol: "xcTur" };
+
 const rstr = createToken({
   decimals: 18,
   key: "rocstar",
@@ -30,4 +32,4 @@ const mgr = createToken({
 });
 
 // eslint-disable-next-line import/no-default-export
-export default { mgr, rstr, tur };
+export default { mgr, rstr, tur, xcTur };

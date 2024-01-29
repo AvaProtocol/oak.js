@@ -7,6 +7,8 @@ const tur = createToken({
   parachainId: 2114,
   symbol: "TUR",
 });
+const xcTur = { ...tur, symbol: "xcTur" };
+
 const sby = createToken({
   decimals: 18,
   key: "shibuya",
@@ -37,4 +39,4 @@ const mgr = createToken({
 });
 
 // eslint-disable-next-line import/no-default-export
-export default { mgr, moonbaseLocal, sby, tur };
+export default { mgr, moonbaseLocal, sby, tur, xcTur };

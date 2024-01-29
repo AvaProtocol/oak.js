@@ -15,7 +15,6 @@ type AssetInfo = {
   isNative: boolean;
   id?: string;
   contractAddress?: string;
-  otherSymbol?: string;
 };
 
 interface ChainConstructorParams {

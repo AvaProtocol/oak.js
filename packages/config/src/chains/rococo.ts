@@ -19,13 +19,7 @@ const rocstar = createChain({
 const mangataRococo = createChain({
   assets: [
     { asset: RococoTokens.mgr, isNative: true },
-    {
-      asset: RococoTokens.tur,
-      contractAddress: "0xfFffffFf6448d0746f2a66342B67ef9CAf89478E",
-      id: "133300872918374599700079037156071917454",
-      isNative: false,
-      otherSymbol: "xcTUR",
-    },
+    { asset: RococoTokens.tur, id: "7", isNative: false },
   ],
   endpoint: "wss://collator-01-ws-rococo.mangata.online",
   key: "mangata-rococo",

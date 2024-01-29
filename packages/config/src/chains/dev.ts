@@ -52,11 +52,10 @@ const moonbaseLocal = createChain({
   assets: [
     { asset: DevTokens.moonbaseLocal, isNative: true },
     {
-      asset: DevTokens.tur,
+      asset: DevTokens.xcTur,
       contractAddress: "0xfFffffFf6448d0746f2a66342B67ef9CAf89478E",
       id: "133300872918374599700079037156071917454",
       isNative: false,
-      otherSymbol: "xcTUR",
     },
   ],
   endpoint: "ws://127.0.0.1:9949",

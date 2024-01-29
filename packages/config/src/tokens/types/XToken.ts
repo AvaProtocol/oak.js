@@ -8,7 +8,6 @@ interface XTokenConstructorParams {
   id?: string;
   isNative: boolean;
   contractAddress?: string;
-  otherSymbol?: string;
   unitPerSecond?: number;
   existentialDeposit?: number;
 }
@@ -19,8 +18,6 @@ class XToken extends Token {
   public isNative: boolean;
 
   public contractAddress?: string;
-
-  public otherSymbol?: string;
 
   public unitPerSecond?: number;
 
@@ -33,7 +30,6 @@ class XToken extends Token {
     this.id = params.id;
     this.isNative = params.isNative;
     this.contractAddress = params.contractAddress;
-    this.otherSymbol = params.otherSymbol;
     this.unitPerSecond = params.unitPerSecond;
     this.existentialDeposit = params.existentialDeposit;
   }

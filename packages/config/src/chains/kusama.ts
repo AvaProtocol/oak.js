@@ -18,9 +18,9 @@ const shiden = createChain({
 
 const turing = createChain({
   assets: [
-    { asset: KusamaTokens.tur, id: 0, isNative: true },
-    { asset: KusamaTokens.sdn, id: 8, isNative: false },
-    { asset: KusamaTokens.movr, id: 9, isNative: false },
+    { asset: KusamaTokens.tur, id: "0", isNative: true },
+    { asset: KusamaTokens.sdn, id: "8", isNative: false },
+    { asset: KusamaTokens.movr, id: "9", isNative: false },
     { asset: KusamaTokens.mgx, isNative: false }, // MGX is not registered on Turing yet
   ],
   endpoint: "wss://rpc.turing.oak.tech",
@@ -51,7 +51,12 @@ const mangata = createChain({
 const moonriver = createChain({
   assets: [
     { asset: KusamaTokens.movr, isNative: true },
-    { asset: KusamaTokens.xcTur, isNative: false },
+    {
+      asset: KusamaTokens.xcTur,
+      contractAddress: "0xfFffffFf6448d0746f2a66342B67ef9CAf89478E",
+      id: "133300872918374599700079037156071917454",
+      isNative: false,
+    },
   ],
   endpoint: "wss://wss.api.moonriver.moonbeam.network",
   isEthereum: true,

@@ -19,7 +19,7 @@ const rocstar = createChain({
 const mangataRococo = createChain({
   assets: [
     { asset: RococoTokens.mgr, isNative: true },
-    { asset: RococoTokens.tur, isNative: false },
+    { asset: RococoTokens.tur, id: "7", isNative: false },
   ],
   endpoint: "wss://collator-01-ws-rococo.mangata.online",
   key: "mangata-rococo",
@@ -33,8 +33,8 @@ const mangataRococo = createChain({
 
 const turingStaging = createChain({
   assets: [
-    { asset: RococoTokens.tur, id: 0, isNative: true },
-    { asset: RococoTokens.rstr, id: 9, isNative: false },
+    { asset: RococoTokens.tur, id: "0", isNative: true },
+    { asset: RococoTokens.rstr, id: "9", isNative: false },
   ],
   endpoint: "wss://rpc.turing-staging.oak.tech",
   key: "turing-staging",

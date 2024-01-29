@@ -2261,7 +2261,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oak-network/adapter@workspace:^0.2.2, @oak-network/adapter@workspace:packages/adapter":
+"@oak-network/adapter@workspace:^0.2.6, @oak-network/adapter@workspace:packages/adapter":
   version: 0.0.0-use.local
   resolution: "@oak-network/adapter@workspace:packages/adapter"
   dependencies:
@@ -2304,7 +2304,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@oak-network/sdk@workspace:packages/sdk"
   dependencies:
-    "@oak-network/adapter": "workspace:^0.2.2"
+    "@oak-network/adapter": "workspace:^0.2.6"
     "@oak-network/config": "workspace:^1.0.1"
     "@polkadot/util": "npm:^12.6.1"
     bn.js: "npm:^5.2.1"

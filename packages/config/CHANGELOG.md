@@ -1,5 +1,11 @@
 # @oak-network/config
 
+## 1.0.7
+
+### Patch Changes
+
+- 09bef2c: Add asset ID and contract address for xcTUR
+
 ## 1.0.6
 
 ### Patch Changes

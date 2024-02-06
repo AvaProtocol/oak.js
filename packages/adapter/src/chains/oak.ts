@@ -32,13 +32,6 @@ export enum InstructionSequenceType {
 // OakAdapter implements ChainAdapter
 export class OakAdapter extends ChainAdapter {
   /**
-   * Initialize adapter
-   */
-  async initialize() {
-    await this.fetchAndUpdateConfigs();
-  }
-
-  /**
    * Get extrinsic weight for transact an extrinsic call through XCM message
    * @param extrinsic
    * @param account

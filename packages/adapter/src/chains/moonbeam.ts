@@ -20,13 +20,6 @@ const TRANSACT_XCM_INSTRUCTION_COUNT = 4;
 // MoonbeamAdapter implements ChainAdapter, TaskScheduler interface
 export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
   /**
-   * Initialize adapter
-   */
-  async initialize() {
-    await this.fetchAndUpdateConfigs();
-  }
-
-  /**
    * Get asset data from assetManager storage
    * @returns asset data items
    */

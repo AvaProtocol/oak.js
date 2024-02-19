@@ -21,13 +21,6 @@ const TRANSACT_XCM_INSTRUCTION_COUNT = 6;
 // AstarAdapter implements ChainAdapter, TaskScheduler interface
 export class AstarAdapter extends ChainAdapter implements TaskScheduler {
   /**
-   * Initialize adapter
-   */
-  async initialize() {
-    await this.fetchAndUpdateConfigs();
-  }
-
-  /**
    * Fetch configs from chain and Update chain data
    */
   public async fetchAndUpdateConfigs(): Promise<void> {

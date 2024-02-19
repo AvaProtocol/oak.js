@@ -15,6 +15,8 @@ export abstract class ChainAdapter {
 
   protected chainConfig: Chain;
 
+  isInitialized: boolean = false;
+
   /**
    * Constructor
    * @param api Polkadot API
@@ -28,7 +30,17 @@ export abstract class ChainAdapter {
   /**
    * Initialize adapter
    */
-  public abstract initialize(): Promise<void>;
+  public async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      return;
+    }
+    await this.onInitialize();
+    this.isInitialized = true;
+  }
+
+  public async onInitialize(): Promise<void> {
+    await this.fetchAndUpdateConfigs();
+  }
 
   /**
    * Calculate the derivative account ID of a certain account ID

@@ -1,5 +1,11 @@
 # @oak-network/adapter
 
+## 0.2.8
+
+### Patch Changes
+
+- 8506c12: Set the 'isInitialized' variable after initialization is completed.
+
 ## 0.2.7
 
 ### Patch Changes

@@ -4,6 +4,13 @@ import { Weight } from "./Weight";
 import { RelayChainType } from "./RelayChainType";
 import { XcmInstructionNetworkType } from "./XcmInstructionNetworkType";
 
+enum ChainFamily {
+  oak = "oak",
+  moonbeam = "moonbeam",
+  astar = "astar",
+  mangata = "mangata",
+}
+
 interface XcmConfig {
   instructionNetworkType?: XcmInstructionNetworkType;
   instructionWeight: Weight;
@@ -22,6 +29,7 @@ interface ChainConstructorParams {
   endpoint: string;
   isEthereum?: boolean;
   key: string;
+  family: ChainFamily;
   name: string;
   relayChain: RelayChainType;
   xcm: XcmConfig;
@@ -35,6 +43,8 @@ class Chain {
   isEthereum: boolean;
 
   key: string;
+
+  family: ChainFamily;
 
   name: string | undefined;
 
@@ -51,6 +61,7 @@ class Chain {
     endpoint,
     isEthereum = false, // Set default value to false
     key,
+    family,
     name,
     relayChain,
     xcm,
@@ -59,6 +70,7 @@ class Chain {
     this.endpoint = endpoint;
     this.isEthereum = isEthereum;
     this.key = key;
+    this.family = family;
     this.name = name;
     this.relayChain = relayChain;
     this.xcm = xcm;
@@ -70,14 +82,16 @@ function createChain(config: {
   endpoint: string;
   isEthereum?: boolean;
   key: string;
+  family: ChainFamily;
   name: string;
   relayChain: RelayChainType;
   xcm: XcmConfig;
 }): Chain {
-  const { assets, endpoint, isEthereum, key, name, relayChain, xcm } = config;
+  const { assets, endpoint, isEthereum, key, family, name, relayChain, xcm } = config;
   return new Chain({
     assets: assets.map((asset) => new XToken(asset)),
     endpoint,
+    family,
     isEthereum,
     key,
     name,
@@ -86,6 +100,6 @@ function createChain(config: {
   });
 }
 
-export { createChain };
+export { ChainFamily, createChain };
 
 export type { Chain, XcmConfig, ChainConstructorParams };

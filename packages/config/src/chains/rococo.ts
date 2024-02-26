@@ -1,11 +1,12 @@
 import BN from "bn.js";
 import { Weight } from "./types/Weight";
-import { createChain } from "./types/Chain";
+import { ChainFamily, createChain } from "./types/Chain";
 import { RococoTokens } from "../tokens";
 
 const rocstar = createChain({
   assets: [{ asset: RococoTokens.rstr, isNative: true }],
   endpoint: "wss://rocstar.astar.network",
+  family: ChainFamily.astar,
   isEthereum: true,
   key: "rocstar",
   name: "Rocstar",
@@ -22,6 +23,7 @@ const mangataRococo = createChain({
     { asset: RococoTokens.tur, id: "7", isNative: false },
   ],
   endpoint: "wss://collator-01-ws-rococo.mangata.online",
+  family: ChainFamily.mangata,
   key: "mangata-rococo",
   name: "Mangata Rococo",
   relayChain: "rococo",
@@ -37,6 +39,7 @@ const turingStaging = createChain({
     { asset: RococoTokens.rstr, id: "9", isNative: false },
   ],
   endpoint: "wss://rpc.turing-staging.oak.tech",
+  family: ChainFamily.oak,
   key: "turing-staging",
   name: "Turing Staging",
   relayChain: "rococo",

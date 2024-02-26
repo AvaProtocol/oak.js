@@ -1,5 +1,11 @@
 # @oak-network/config
 
+## 1.0.8
+
+### Patch Changes
+
+- 7c28827: Add family property to chain config.
+
 ## 1.0.7
 
 ### Patch Changes

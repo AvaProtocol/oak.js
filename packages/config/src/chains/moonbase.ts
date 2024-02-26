@@ -1,11 +1,12 @@
 import BN from "bn.js";
 import { Weight } from "./types/Weight";
-import { createChain } from "./types/Chain";
+import { ChainFamily, createChain } from "./types/Chain";
 import { MoonbaseTokens } from "../tokens";
 
 const turingMoonbase = createChain({
   assets: [{ asset: MoonbaseTokens.tur, isNative: true }],
   endpoint: "ws://167.99.226.24:8846",
+  family: ChainFamily.oak,
   key: "turing-moonbase",
   name: "Moonbase Turing",
   relayChain: "moonbase-alpha-relay",
@@ -26,6 +27,7 @@ const moonbaseAlpha = createChain({
     },
   ],
   endpoint: "wss://wss.api.moonbase.moonbeam.network",
+  family: ChainFamily.moonbeam,
   isEthereum: true,
   key: "moonbase-alpha",
   name: "Moonbase Alpha",

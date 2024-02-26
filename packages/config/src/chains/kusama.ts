@@ -1,11 +1,12 @@
 import BN from "bn.js";
 import { Weight } from "./types/Weight";
-import { createChain } from "./types/Chain";
+import { ChainFamily, createChain } from "./types/Chain";
 import { KusamaTokens } from "../tokens";
 
 const shiden = createChain({
   assets: [{ asset: KusamaTokens.sdn, isNative: true }],
   endpoint: "wss://shiden-rpc.dwellir.com",
+  family: ChainFamily.astar,
   isEthereum: true,
   key: "shiden",
   name: "Shiden Network",
@@ -24,6 +25,7 @@ const turing = createChain({
     { asset: KusamaTokens.mgx, isNative: false }, // MGX is not registered on Turing yet
   ],
   endpoint: "wss://rpc.turing.oak.tech",
+  family: ChainFamily.oak,
   key: "turing",
   name: "Turing Network",
   relayChain: "kusama",
@@ -39,6 +41,7 @@ const mangata = createChain({
     { asset: KusamaTokens.xcTur, isNative: false },
   ],
   endpoint: "wss://kusama-rpc.mangata.online",
+  family: ChainFamily.mangata,
   key: "mangata",
   name: "Mangata",
   relayChain: "kusama",
@@ -59,6 +62,7 @@ const moonriver = createChain({
     },
   ],
   endpoint: "wss://wss.api.moonriver.moonbeam.network",
+  family: ChainFamily.moonbeam,
   isEthereum: true,
   key: "moonriver",
   name: "Moonriver",

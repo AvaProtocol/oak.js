@@ -1,11 +1,12 @@
 import BN from "bn.js";
 import { Weight } from "./types/Weight";
-import { createChain } from "./types/Chain";
+import { ChainFamily, createChain } from "./types/Chain";
 import { DevTokens } from "../tokens";
 
 const shibuya = createChain({
   assets: [{ asset: DevTokens.sby, isNative: true }],
   endpoint: "ws://127.0.0.1:9948",
+  family: ChainFamily.astar,
   isEthereum: true,
   key: "shibuya",
   name: "Shibuya",
@@ -24,6 +25,7 @@ const turingLocal = createChain({
     { asset: DevTokens.mgr, id: "1", isNative: false },
   ],
   endpoint: "ws://127.0.0.1:9946",
+  family: ChainFamily.oak,
   key: "turing-local",
   name: "Turing Local",
   relayChain: "local",
@@ -39,6 +41,7 @@ const mangataLocal = createChain({
     { asset: DevTokens.tur, isNative: false },
   ],
   endpoint: "ws://127.0.0.1:9947",
+  family: ChainFamily.mangata,
   key: "mangata-local",
   name: "Mangata Local",
   relayChain: "local",
@@ -59,6 +62,7 @@ const moonbaseLocal = createChain({
     },
   ],
   endpoint: "ws://127.0.0.1:9949",
+  family: ChainFamily.moonbeam,
   isEthereum: true,
   key: "moonbase-local",
   name: "Moonbase Local",

@@ -1,5 +1,11 @@
 # @oak-network/adapter
 
+## 0.2.9
+
+### Patch Changes
+
+- 7d1058e: Fix the params of xcmTransactor.transactThroughSigned call
+
 ## 0.2.8
 
 ### Patch Changes

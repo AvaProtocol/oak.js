@@ -140,7 +140,12 @@ export class MoonbeamAdapter extends ChainAdapter implements TaskScheduler {
       { V3: destination },
       { currency, feeAmount },
       encodedTaskExtrinsic,
-      { overallWeight, transactRequiredWeightAtMost: encodedCallWeight },
+      {
+        overallWeight: {
+          Limited: overallWeight,
+        },
+        transactRequiredWeightAtMost: encodedCallWeight,
+      },
       false,
     );
 

@@ -61,7 +61,7 @@ const moonriver = createChain({
       isNative: false,
     },
   ],
-  endpoint: "wss://wss.api.moonriver.moonbeam.network",
+  endpoint: "wss://moonriver.public.blastapi.io",
   family: ChainFamily.moonbeam,
   isEthereum: true,
   key: "moonriver",

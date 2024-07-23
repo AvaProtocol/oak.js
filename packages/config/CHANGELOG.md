@@ -1,5 +1,11 @@
 # @oak-network/config
 
+## 1.0.9
+
+### Patch Changes
+
+- bb7c773: Replace moonriver endpoint
+
 ## 1.0.8
 
 ### Patch Changes

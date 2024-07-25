@@ -1,7 +1,7 @@
-// Document: https://docs.moonbeam.network/builders/interoperability/xcm/remote-execution/substrate-calls/xcm-transactor-precompile/
-// https://moonriver.moonscan.io/address/0x000000000000000000000000000000000000080D#code
+// https://docs.moonbeam.network/builders/interoperability/xcm/remote-execution/substrate-calls/xcm-transactor-precompile/
+// https://moonriver.moonscan.io/address/0x0000000000000000000000000000000000000817#code
 
-const address = "0x000000000000000000000000000000000000080d";
+const address = "0x0000000000000000000000000000000000000817";
 
 const abi = [
   {
@@ -48,7 +48,7 @@ const abi = [
             type: "bytes[]",
           },
         ],
-        internalType: "struct XcmTransactorV2.Multilocation",
+        internalType: "struct XcmTransactorV3.Multilocation",
         name: "multilocation",
         type: "tuple",
       },
@@ -98,7 +98,7 @@ const abi = [
             type: "bytes[]",
           },
         ],
-        internalType: "struct XcmTransactorV2.Multilocation",
+        internalType: "struct XcmTransactorV3.Multilocation",
         name: "multilocation",
         type: "tuple",
       },
@@ -106,19 +106,55 @@ const abi = [
     name: "transactInfoWithSigned",
     outputs: [
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "transactExtraWeight",
-        type: "uint64",
+        type: "tuple",
       },
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "transactExtraWeightSigned",
-        type: "uint64",
+        type: "tuple",
       },
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "maxWeight",
-        type: "uint64",
+        type: "tuple",
       },
     ],
     stateMutability: "view",
@@ -142,9 +178,21 @@ const abi = [
         type: "address",
       },
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "transactRequiredWeightAtMost",
-        type: "uint64",
+        type: "tuple",
       },
       {
         internalType: "bytes",
@@ -157,9 +205,26 @@ const abi = [
         type: "uint256",
       },
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "overallWeight",
-        type: "uint64",
+        type: "tuple",
+      },
+      {
+        internalType: "bool",
+        name: "refund",
+        type: "bool",
       },
     ],
     name: "transactThroughDerivative",
@@ -192,14 +257,26 @@ const abi = [
             type: "bytes[]",
           },
         ],
-        internalType: "struct XcmTransactorV2.Multilocation",
+        internalType: "struct XcmTransactorV3.Multilocation",
         name: "feeAsset",
         type: "tuple",
       },
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "transactRequiredWeightAtMost",
-        type: "uint64",
+        type: "tuple",
       },
       {
         internalType: "bytes",
@@ -212,9 +289,26 @@ const abi = [
         type: "uint256",
       },
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "overallWeight",
-        type: "uint64",
+        type: "tuple",
+      },
+      {
+        internalType: "bool",
+        name: "refund",
+        type: "bool",
       },
     ],
     name: "transactThroughDerivativeMultilocation",
@@ -237,7 +331,7 @@ const abi = [
             type: "bytes[]",
           },
         ],
-        internalType: "struct XcmTransactorV2.Multilocation",
+        internalType: "struct XcmTransactorV3.Multilocation",
         name: "dest",
         type: "tuple",
       },
@@ -247,9 +341,21 @@ const abi = [
         type: "address",
       },
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "transactRequiredWeightAtMost",
-        type: "uint64",
+        type: "tuple",
       },
       {
         internalType: "bytes",
@@ -262,9 +368,26 @@ const abi = [
         type: "uint256",
       },
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "overallWeight",
-        type: "uint64",
+        type: "tuple",
+      },
+      {
+        internalType: "bool",
+        name: "refund",
+        type: "bool",
       },
     ],
     name: "transactThroughSigned",
@@ -287,7 +410,7 @@ const abi = [
             type: "bytes[]",
           },
         ],
-        internalType: "struct XcmTransactorV2.Multilocation",
+        internalType: "struct XcmTransactorV3.Multilocation",
         name: "dest",
         type: "tuple",
       },
@@ -304,14 +427,26 @@ const abi = [
             type: "bytes[]",
           },
         ],
-        internalType: "struct XcmTransactorV2.Multilocation",
+        internalType: "struct XcmTransactorV3.Multilocation",
         name: "feeLocation",
         type: "tuple",
       },
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "transactRequiredWeightAtMost",
-        type: "uint64",
+        type: "tuple",
       },
       {
         internalType: "bytes",
@@ -324,9 +459,26 @@ const abi = [
         type: "uint256",
       },
       {
-        internalType: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "refTime",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "proofSize",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct XcmTransactorV3.Weight",
         name: "overallWeight",
-        type: "uint64",
+        type: "tuple",
+      },
+      {
+        internalType: "bool",
+        name: "refund",
+        type: "bool",
       },
     ],
     name: "transactThroughSignedMultilocation",

@@ -1,5 +1,11 @@
 # @oak-network/config
 
+## 1.0.10
+
+### Patch Changes
+
+- 1ae6462: Update xcm-transactor contract to v3
+
 ## 1.0.9
 
 ### Patch Changes

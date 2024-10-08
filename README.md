@@ -81,7 +81,7 @@ const taskPayloadExtrinsic = mangataApi.tx.system.remarkWithEvent('hello!');
 
 // Schedule task with sdk
 const executionTimes = [getHourlyTimestamp(1)/1000];
-await Sdk().scheduleXcmpTaskWithPayThroughSoverignAccountFlow({
+await Sdk().scheduleXcmpTaskWithPayThroughSovereignAccountFlow({
 	oakAdapter: turingAdapter,
 	destinationChainAdapter: mangataAdapter,
 	taskPayloadExtrinsic,

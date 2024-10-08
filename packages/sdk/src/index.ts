@@ -144,7 +144,7 @@ export function Sdk() {
       return sendExtrinsicResult;
     },
 
-    scheduleXcmpPriceTaskWithPayThroughSoverignAccountFlow: async (
+    scheduleXcmpPriceTaskWithPayThroughSovereignAccountFlow: async (
       params: ScheduleXcmpTaskParams,
       automationPriceTriggerParams: AutomationPriceTriggerParams,
     ): Promise<SendExtrinsicResult> => {
@@ -159,7 +159,7 @@ export function Sdk() {
       const destination = { V3: destinationChainAdapter.getLocation() };
       const encodedCall = taskPayloadExtrinsic.method.toHex();
       const oakTransactXcmInstructionCount =
-        xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount(InstructionSequenceType.PayThroughSoverignAccount);
+        xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount(InstructionSequenceType.PayThroughSovereignAccount);
       const taskPayloadEncodedCallWeight = await destinationChainAdapter.getExtrinsicWeight(taskPayloadExtrinsic, keyringPair);
       const taskPayloadOverallWeight =
         xcmOptions?.overallWeight ||
@@ -203,11 +203,11 @@ export function Sdk() {
     },
 
     /**
-     * Schedule XCMP task with PayThroughSoverignAccount instruction sequances
+     * Schedule XCMP task with PayThroughSovereignAccount instruction sequances
      * @param params Operation params
      * @returns
      */
-    scheduleXcmpTimeTaskWithPayThroughSoverignAccountFlow: async (
+    scheduleXcmpTimeTaskWithPayThroughSovereignAccountFlow: async (
       scheduleXcmpTaskParams: ScheduleXcmpTaskParams,
       schedule: any,
     ): Promise<SendExtrinsicResult> => {
@@ -222,7 +222,7 @@ export function Sdk() {
       const destination = { V3: destinationChainAdapter.getLocation() };
       const encodedCall = taskPayloadExtrinsic.method.toHex();
       const oakTransactXcmInstructionCount =
-        xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount(InstructionSequenceType.PayThroughSoverignAccount);
+        xcmOptions?.instructionCount || oakAdapter.getTransactXcmInstructionCount(InstructionSequenceType.PayThroughSovereignAccount);
       const taskPayloadEncodedCallWeight = await destinationChainAdapter.getExtrinsicWeight(taskPayloadExtrinsic, keyringPair);
       const taskPayloadOverallWeight =
         xcmOptions?.overallWeight ||
@@ -242,7 +242,7 @@ export function Sdk() {
           encodedCall,
           encodedCallWeight: taskPayloadEncodedCallWeight,
           executionFee,
-          instructionSequenceType: InstructionSequenceType.PayThroughSoverignAccount,
+          instructionSequenceType: InstructionSequenceType.PayThroughSovereignAccount,
           overallWeight: taskPayloadOverallWeight,
           scheduleFee: { V3: scheduleFeeLocation },
         },

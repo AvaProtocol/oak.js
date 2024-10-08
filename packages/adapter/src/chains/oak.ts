@@ -26,7 +26,7 @@ export interface AutomationPriceTriggerParams {
 
 export enum InstructionSequenceType {
   PayThroughRemoteDerivativeAccount = "PayThroughRemoteDerivativeAccount",
-  PayThroughSoverignAccount = "PayThroughSoverignAccount",
+  PayThroughSovereignAccount = "PayThroughSovereignAccount",
 }
 
 // OakAdapter implements ChainAdapter

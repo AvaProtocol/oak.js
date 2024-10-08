@@ -7,7 +7,7 @@ import type { HexString } from "@polkadot/util/types";
 import { Weight } from "@oak-network/config";
 import { ISubmittableResult } from "@polkadot/types/types";
 import { ChainAdapter } from "./chainAdapter";
-import { getDerivativeAccountV2, isValidAddress, getAccountTypeFromAddress } from "../utils";
+import { isValidAddress, getAccountTypeFromAddress, getDerivativeAccountV3 } from "../utils";
 import { WEIGHT_REF_TIME_PER_NANOS, WEIGHT_REF_TIME_PER_SECOND, WEIGHT_PROOF_SIZE_PER_MB } from "../constants";
 import { AccountType } from "../types";
 import { InvalidAddress } from "../errors";
@@ -83,9 +83,9 @@ export class MangataAdapter extends ChainAdapter {
    * @param paraId The paraId of the XCM message sender
    * @returns Derivative account
    */
+  // eslint-disable-next-line class-methods-use-this
   getDerivativeAccount(accountId: HexString, paraId: number): HexString {
-    const api = this.getApi();
-    return getDerivativeAccountV2(api, accountId, paraId);
+    return getDerivativeAccountV3(accountId, paraId);
   }
 
   /**

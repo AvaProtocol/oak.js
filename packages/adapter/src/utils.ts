@@ -8,7 +8,6 @@ import { TypeRegistry } from "@polkadot/types";
 import { blake2AsU8a, encodeAddress, decodeAddress } from "@polkadot/util-crypto";
 import { isAddress as isEthereumAddress } from "web3-validator";
 import BN from "bn.js";
-import { MultiLocationV2 } from "@polkadot/types/interfaces";
 import { AccountType, SendExtrinsicResult } from "./types";
 
 /**
@@ -61,44 +60,6 @@ export const sendExtrinsic = async (
       }
     });
   });
-
-/**
- * Calculate the derivative account ID of a certain account ID
- * @param api Polkadot API
- * @param accountId
- * @param paraId The paraId of the XCM message sender
- * @param options Optional operation options: { locationType = 'XcmV2MultiLocation', network = 'Any' }
- * @returns Derivative account
- */
-export const getDerivativeAccountV2 = (
-  api: ApiPromise,
-  accountId: HexString,
-  paraId: number,
-  { locationType = "XcmV2MultiLocation", network = "Any" } = {},
-): HexString => {
-  const account = hexToU8a(accountId).length === 20 ? { AccountKey20: { key: accountId, network } } : { AccountId32: { id: accountId, network } };
-
-  const location = {
-    interior: { X2: [{ Parachain: paraId }, account] },
-    parents: 1,
-  };
-
-  const multiLocation = api.createType(locationType, location) as MultiLocationV2;
-
-  if (!multiLocation) {
-    throw new Error("multiLocation is undefined");
-  }
-
-  // Convert Uint8Array to an array before spreading
-  const prefixArray = Array.from(new Uint8Array([32]));
-  const multilocArray = Array.from(new TextEncoder().encode("multiloc"));
-  const multiLocationArray = Array.from(multiLocation.toU8a());
-
-  // Concatenate arrays without using spread syntax on Uint8Array
-  const toHash = new Uint8Array([...prefixArray, ...multilocArray, ...multiLocationArray]);
-
-  return u8aToHex(api.registry.hash(toHash).slice(0, 32));
-};
 
 /**
  * Calculate the derivative account ID of a certain account ID

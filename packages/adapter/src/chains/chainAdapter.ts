@@ -9,6 +9,7 @@ import type { HexString } from "@polkadot/util/types";
 import type { Weight, Chain } from "@oak-network/config";
 import { ISubmittableResult } from "@polkadot/types/types";
 import { SendExtrinsicResult } from "../types";
+import { getDerivativeAccountV3 } from "../utils";
 
 export abstract class ChainAdapter {
   api: ApiPromise | undefined;
@@ -47,10 +48,12 @@ export abstract class ChainAdapter {
    * @param api Polkadot API
    * @param accountId
    * @param paraId The paraId of the XCM message sender
-   * @param options Optional operation options: { locationType, network }
    * @returns Derivative account
    */
-  public abstract getDerivativeAccount(accountId: HexString, paraId: number, options?: any): HexString;
+  // eslint-disable-next-line class-methods-use-this
+  public getDerivativeAccount(accountId: HexString, paraId: number): HexString {
+    return getDerivativeAccountV3(accountId, paraId);
+  }
 
   /**
    * Get extrinsic weight for transact an extrinsic call through XCM message

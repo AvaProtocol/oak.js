@@ -9,7 +9,7 @@ import type { KeyringPair } from "@polkadot/keyring/types";
 import { Weight, Chain, XToken } from "@oak-network/config";
 import { ISubmittableResult } from "@polkadot/types/types";
 import { ChainAdapter } from "./chainAdapter";
-import { isValidAddress, sendExtrinsic, getDecimalBN, getDerivativeAccountV3, getAccountTypeFromAddress } from "../utils";
+import { isValidAddress, sendExtrinsic, getDecimalBN, getAccountTypeFromAddress } from "../utils";
 import { AccountType, SendExtrinsicResult } from "../types";
 import { WEIGHT_REF_TIME_PER_SECOND } from "../constants";
 import { InvalidAddress } from "../errors";
@@ -302,17 +302,6 @@ export class OakAdapter extends ChainAdapter {
     console.log(`Send extrinsic from ${key} to schedule price task. extrinsic:`, extrinsic.method.toHex());
     const result = await sendExtrinsic(api, extrinsic, keyringPair);
     return result;
-  }
-
-  /**
-   * Calculate the derivative account ID of a certain account ID
-   * @param accountId
-   * @param paraId The paraId of the XCM message sender
-   * @returns Derivative account
-   */
-  // eslint-disable-next-line class-methods-use-this
-  getDerivativeAccount(accountId: HexString, paraId: number): HexString {
-    return getDerivativeAccountV3(accountId, paraId);
   }
 
   /**

@@ -7,7 +7,7 @@ import type { HexString } from "@polkadot/util/types";
 import { Weight } from "@oak-network/config";
 import { ISubmittableResult } from "@polkadot/types/types";
 import { ChainAdapter } from "./chainAdapter";
-import { getDerivativeAccountV2, isValidAddress, getAccountTypeFromAddress } from "../utils";
+import { isValidAddress, getAccountTypeFromAddress } from "../utils";
 import { WEIGHT_REF_TIME_PER_NANOS, WEIGHT_REF_TIME_PER_SECOND, WEIGHT_PROOF_SIZE_PER_MB } from "../constants";
 import { AccountType } from "../types";
 import { InvalidAddress } from "../errors";
@@ -75,17 +75,6 @@ export class MangataAdapter extends ChainAdapter {
     const feePerSecond = xcm.unwrap().feePerSecond as u128;
 
     return weight.refTime.mul(feePerSecond).div(WEIGHT_REF_TIME_PER_SECOND);
-  }
-
-  /**
-   * Calculate the derivative account ID of a certain account ID
-   * @param accountId
-   * @param paraId The paraId of the XCM message sender
-   * @returns Derivative account
-   */
-  getDerivativeAccount(accountId: HexString, paraId: number): HexString {
-    const api = this.getApi();
-    return getDerivativeAccountV2(api, accountId, paraId);
   }
 
   /**

@@ -1,6 +1,6 @@
 {
 	"name": "@oak-network/adapter",
-	"version": "0.2.9",
+	"version": "0.2.10",
 	"license": "Apache-2.0",
 	"main": "./build/index.js",
 	"scripts": {

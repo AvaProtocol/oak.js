@@ -1,5 +1,13 @@
 # @oak-network/sdk
 
+## 0.2.4
+
+### Patch Changes
+
+- 7c00296: Change Mangata derivation account
+- Updated dependencies [7c00296]
+  - @oak-network/adapter@0.2.10
+
 ## 0.2.3
 
 ### Patch Changes

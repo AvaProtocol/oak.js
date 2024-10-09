@@ -1,5 +1,11 @@
 # @oak-network/adapter
 
+## 0.2.10
+
+### Patch Changes
+
+- 7c00296: Change Mangata derivation account
+
 ## 0.2.9
 
 ### Patch Changes
